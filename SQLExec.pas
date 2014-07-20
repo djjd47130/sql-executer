@@ -1,3 +1,16 @@
+(*
+  SQL Executer
+  by Jerry Dodge
+
+  This code uses the Mozilla Public License 1.1
+
+  Refer to readme.txt for more information
+
+  Project managed on Google Code:
+  https://code.google.com/p/sql-executer/source/browse/
+
+*)
+
 unit SQLExec;
 
 interface
@@ -48,6 +61,7 @@ type
     FStatus: TSQLExecStatus;
     FLine: Integer;
     FMessage: String;
+    FAffected: Integer;
     function GetSQL: TStrings;
     procedure SetSQL(const Value: TStrings);
     function GetIndex: Integer;
@@ -58,6 +72,7 @@ type
     property Status: TSQLExecStatus read FStatus;
     property SQL: TStrings read GetSQL write SetSQL;
     property Line: Integer read FLine;
+    property Affected: Integer read FAffected;
     property Message: String read FMessage;
   end;
 
@@ -132,6 +147,7 @@ begin
   FSQL:= TStringList.Create;
   FStatus:= sePending;
   FMessage:= '';
+  FAffected:= 0;
 end;
 
 destructor TSQLExecBlock.Destroy;
@@ -230,13 +246,13 @@ var
   B: TSQLExecBlock;
 begin
   FBlocks.Clear;
-  B:= FBlocks.Add;        //Add first block
-  B.FLine:= 0;            //Assign the starting line # of block
+  B:= FBlocks.Add;          //Add first block
+  B.FLine:= 0;              //Assign the starting line # of block
   try
     for X := 0 to FSQL.Count - 1 do begin
       S:= FSQL[X];          //Get copy of line to string
       if Pos('use ', LowerCase(Trim(S))) = 1 then begin
-        //FSQL[X]:= '';       //Temporarily disabled
+        //FSQL[X]:= '';     //Temporarily disabled
       end else
       if SameText(FSplitWord, Trim(S)) then begin
         B:= FBlocks.Add;    //Add a new block
@@ -245,10 +261,10 @@ begin
         B.SQL.Append(S);    //Add SQL script to current block
       end;
     end;
-    FParsed:= True;
+    FParsed:= True;         //Flag parse completion
   except
     on e: Exception do begin
-      raise ESQLExecScriptException.Create(e.Message, SE_ERR_EXECUTE, B);
+      raise ESQLExecScriptException.Create(e.Message, SE_ERR_PARSE, B);
     end;
   end;
 end;
@@ -261,6 +277,7 @@ var
   EM: String;
 begin
   Result:= srSuccess;
+  //Parse only if changes were made or if force parse configured
   if (soForceParse in FOptions) or (not FParsed) then
     ParseSQL;
   //Begin transaction if configured
@@ -268,47 +285,50 @@ begin
     FConnection.BeginTrans;
   try
     if not FConnection.Connected then begin
+      //Attempt to connect if not already
       try
         FConnection.Connected:= True;
       except
         on e: Exception do begin
-          Result:= srConnFail;
+          Result:= srConnFail;          //Set function connect fail result
           EM:= 'Error connecting to database: '+e.Message;
           raise ESQLExecScriptException.Create(EM, SE_ERR_CONNECTION_FAIL, nil);
         end;
       end;
     end;
     for X := 0 to FBlocks.Count-1 do begin
-      B:= FBlocks[X];
-      B.FStatus:= seExecuting;
-      if Assigned(FOnBlockStart) then
+      B:= FBlocks[X];                   //Get next block in list
+      B.FStatus:= seExecuting;          //Set block executing status
+      if Assigned(FOnBlockStart) then   //Trigger block start event
         FOnBlockStart(Self, B);
       try
+        //Only execute if there is text
         if Trim(B.SQL.Text) <> '' then begin
-          FConnection.Execute(B.SQL.Text);
+          FConnection.Execute(B.SQL.Text, R);     //ACTUAL SQL EXECUTION
         end;
-        B.FStatus:= seSuccess;
+        B.FAffected:= R;                //Set block rows affected
+        B.FStatus:= seSuccess;          //Set block success status
       except
         on e: Exception do begin
-          B.FStatus:= seFail;
-          Result:= srSQLFail;
+          B.FStatus:= seFail;           //Set block fail status
+          Result:= srSQLFail;           //Set function failure result
+          //Abort execution if configured
           if soAbortOnFail in FOptions then begin
             EM:= 'Error on Line '+IntToStr(B.Line)+': '+e.Message;
             raise ESQLExecScriptException.Create(EM, SE_ERR_EXECUTE, B);
           end;
         end;
       end;
-      if Assigned(FOnBlockFinish) then
+      if Assigned(FOnBlockFinish) then  //Trigger block finish event
         FOnBlockFinish(Self, B);
     end; //of for loop
     //Commit transaction if configured
     if soUseTransactions in FOptions then
       FConnection.CommitTrans;
-    //Everything succeeded
-    Result:= srSuccess;
+    Result:= srSuccess;                 //Everything succeeded
   except
     on e: Exception do begin
-      Result:= srSQLFail;
+      Result:= srSQLFail;               //Set function failure result
       //Rollback transaction if configured
       if soUseTransactions in FOptions then
         if soAbortOnFail in FOptions then
