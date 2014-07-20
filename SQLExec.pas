@@ -16,8 +16,7 @@ unit SQLExec;
 interface
 
 uses
-  Windows, Classes, SysUtils, DB, ADODB,
-  Dialogs;
+  Windows, Classes, SysUtils, DB, ADODB;
 
 const
   SE_ERR_NONE = 0;
@@ -33,7 +32,9 @@ type
   TSQLExecBlocks = class;
   TSQLExec = class;
 
-
+  ///	<summary>
+  ///	  Global exception object for component
+  ///	</summary>
   ESQLExecScriptException = class(Exception)
   private
     FErrorCode: Integer;
@@ -45,15 +46,81 @@ type
     property Block: TSQLExecBlock read FBlock;
   end;
 
+  ///	<summary>
+  ///	  Current status of block execution
+  ///	</summary>
+  TSQLExecStatus = (
+    ///	<summary>
+    ///	  Block not yet executed
+    ///	</summary>
+    sePending,
 
-  TSQLExecStatus = (sePending, seExecuting, seSuccess, seFail);
-  TSQLExecResult = (srSuccess, srConnFail, srSQLFail);
+    ///	<summary>
+    ///	  Block currently executing
+    ///	</summary>
+    seExecuting,
 
-  TSQLExecOption = (soUseTransactions, soAbortOnFail, soForceParse);
+    ///	<summary>
+    ///	  Block successfully executed
+    ///	</summary>
+    seSuccess,
+
+    ///	<summary>
+    ///	  Block failed to execute
+    ///	</summary>
+    seFail
+  );
+
+  ///	<summary>
+  ///	  Result of TSQLExec.Execute function
+  ///	</summary>
+  TSQLExecResult = (
+    ///	<summary>
+    ///	  Successful script execution
+    ///	</summary>
+    srSuccess,
+
+    ///	<summary>
+    ///	  Database connection failure
+    ///	</summary>
+    srConnFail,
+
+    ///	<summary>
+    ///	  Script execution failure
+    ///	</summary>
+    srSQLFail
+  );
+
+  ///	<summary>
+  ///	  Different options to enable/disable for handling script execution
+  ///	</summary>
+  TSQLExecOption = (
+    ///	<summary>
+    ///	  Use Begin/Commit/Rollback
+    ///	</summary>
+    soUseTransactions,
+
+    ///	<summary>
+    ///	  Abort execution on script failure
+    ///	</summary>
+    soAbortOnFail,
+
+    ///	<summary>
+    ///	  Forcefully parse script on execution (ignore cache)
+    ///	</summary>
+    soForceParse
+  );
+
+  ///	<summary>
+  ///	  Set of options for script execution
+  ///	</summary>
   TSQLExecOptions = set of TSQLExecOption;
 
   TSQLBlockEvent = procedure(Sender: TSQLExec; Block: TSQLExecBlock) of object;
 
+  ///	<summary>
+  ///	  Encapsulates a single SQL script block to be executed
+  ///	</summary>
   TSQLExecBlock = class(TObject)
   private
     FOwner: TSQLExecBlocks;
@@ -68,14 +135,41 @@ type
   public
     constructor Create(AOwner: TSQLExecBlocks);
     destructor Destroy; override;
+
+    ///	<summary>
+    ///	  Index of block within list of blocks to be executed
+    ///	</summary>
     property Index: Integer read GetIndex;
+
+    ///	<summary>
+    ///	  Current status of block execution
+    ///	</summary>
     property Status: TSQLExecStatus read FStatus;
+
+    ///	<summary>
+    ///	  SQL script of individual block to be executed
+    ///	</summary>
     property SQL: TStrings read GetSQL write SetSQL;
+
+    ///	<summary>
+    ///	  Starting line number of block within original script
+    ///	</summary>
     property Line: Integer read FLine;
+
+    ///	<summary>
+    ///	  Total number of rows affected after execution
+    ///	</summary>
     property Affected: Integer read FAffected;
+
+    ///	<summary>
+    ///	  [NOT IMPLEMENTED] Message reported back from execution
+    ///	</summary>
     property Message: String read FMessage;
   end;
 
+  ///	<summary>
+  ///	  Encapsulates a list of SQL script blocks to be executed
+  ///	</summary>
   TSQLExecBlocks = class(TObject)
   private
     FOwner: TSQLExec;
@@ -92,6 +186,9 @@ type
     property Items[Index: Integer]: TSQLExecBlock read GetItem; default;
   end;
 
+  ///	<summary>
+  ///	  Encapsulates a SQL Script to be executed
+  ///	</summary>
   TSQLExec = class(TComponent)
   private
     FSQL: TStringList;
@@ -111,18 +208,68 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
+    ///	<summary>
+    ///	  Forcefully parses the current SQL script into blocks
+    ///	</summary>
     procedure ParseSQL;
+
+    ///	<summary>
+    ///	  Performs actual execution of SQL script
+    ///	</summary>
+    ///	<returns>
+    ///	  Result of script execution
+    ///	</returns>
     function Execute: TSQLExecResult;
+
+    ///	<summary>
+    ///	  Total number of lines of script to be executed
+    ///	</summary>
     function LineCount: Integer;
+
+    ///	<summary>
+    ///	  Total number of blocks to be executed
+    ///	</summary>
     function BlockCount: Integer;
+
+    ///	<summary>
+    ///	  Whether or not script has been parsed
+    ///	</summary>
     property Parsed: Boolean read FParsed;
+
+    ///	<summary>
+    ///	  Wraps list of blocks to be executed
+    ///	</summary>
     property Blocks: TSQLExecBlocks read FBlocks;
   published
+    ///	<summary>
+    ///	  SQL Script to be executed
+    ///	</summary>
     property SQL: TStrings read GetSQL write SetSQL;
+
+    ///	<summary>
+    ///	  ADO Connection component to use for execution
+    ///	</summary>
     property Connection: TADOConnection read FConnection write SetConnection;
+
+    ///	<summary>
+    ///	  Specific options to enable/disable for execution handling
+    ///	</summary>
     property Options: TSQLExecOptions read FOptions write FOptions;
+
+    ///	<summary>
+    ///	  Keyword to split into different blocks (Default "GO")
+    ///	</summary>
     property SplitWord: String read FSplitWord write SetSplitWord;
+
+    ///	<summary>
+    ///	  Event triggered at the beginning of a single block execution
+    ///	</summary>
     property OnBlockStart: TSQLBlockEvent read FOnBlockStart write FOnBlockStart;
+
+    ///	<summary>
+    ///	  Event triggered at the finish of a single block execution
+    ///	</summary>
     property OnBlockFinish: TSQLBlockEvent read FOnBlockFinish write FOnBlockFinish;
   end;
 
@@ -244,6 +391,7 @@ var
   X: Integer;
   S: String;
   B: TSQLExecBlock;
+  EM: String;
 begin
   FBlocks.Clear;
   B:= FBlocks.Add;          //Add first block
@@ -264,7 +412,8 @@ begin
     FParsed:= True;         //Flag parse completion
   except
     on e: Exception do begin
-      raise ESQLExecScriptException.Create(e.Message, SE_ERR_PARSE, B);
+      EM:= 'Failed to parse: '+e.Message;
+      raise ESQLExecScriptException.Create(EM, SE_ERR_PARSE, B);
     end;
   end;
 end;
@@ -351,8 +500,7 @@ end;
 
 function TSQLExec.BlockCount: Integer;
 begin
-  if not FParsed then
-    ParseSQL;
+  if not FParsed then ParseSQL;     //Parse if not already
   Result:= FBlocks.Count;
 end;
 
