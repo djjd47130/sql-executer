@@ -16,7 +16,7 @@ unit SQLExec;
 interface
 
 uses
-  Windows, Classes, SysUtils, DB, ADODB;
+  Classes, SysUtils, ADODB;
 
 const
   SE_ERR_NONE = 0;
