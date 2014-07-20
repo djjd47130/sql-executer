@@ -27,24 +27,10 @@ const
   SE_ERR_EXECUTE = 5;
 
 type
-  ESQLExecScriptException = class;
+  ESQLExecException = class;
   TSQLExecBlock = class;
   TSQLExecBlocks = class;
   TSQLExec = class;
-
-  ///	<summary>
-  ///	  Global exception object for component
-  ///	</summary>
-  ESQLExecScriptException = class(Exception)
-  private
-    FErrorCode: Integer;
-    FBlock: TSQLExecBlock;
-  public
-    constructor Create(const Msg: string; const ErrCode: Integer;
-      ABlock: TSQLExecBlock);
-    property ErrorCode: Integer read FErrorCode write FErrorCode;
-    property Block: TSQLExecBlock read FBlock;
-  end;
 
   ///	<summary>
   ///	  Current status of block execution
@@ -117,6 +103,23 @@ type
   TSQLExecOptions = set of TSQLExecOption;
 
   TSQLBlockEvent = procedure(Sender: TSQLExec; Block: TSQLExecBlock) of object;
+
+  TSQLPrintEvent = procedure(Sender: TSQLExec; Block: TSQLExecBlock; Msg: String) of object;
+
+  ///	<summary>
+  ///	  Global exception object for component
+  ///	</summary>
+  ESQLExecException = class(Exception)
+  private
+    FErrorCode: Integer;
+    FBlock: TSQLExecBlock;
+  public
+    constructor Create(const Msg: string; const ErrCode: Integer;
+      ABlock: TSQLExecBlock); overload;
+    constructor Create(const Msg: string; const ErrCode: Integer); overload;
+    property ErrorCode: Integer read FErrorCode write FErrorCode;
+    property Block: TSQLExecBlock read FBlock;
+  end;
 
   ///	<summary>
   ///	  Encapsulates a single SQL script block to be executed
@@ -199,6 +202,7 @@ type
     FOnBlockStart: TSQLBlockEvent;
     FOnBlockFinish: TSQLBlockEvent;
     FSplitWord: String;
+    FOnPrint: TSQLPrintEvent;
     function GetSQL: TStrings;
     procedure SetSQL(const Value: TStrings);
     procedure SetConnection(const Value: TADOConnection);
@@ -271,19 +275,30 @@ type
     ///	  Event triggered at the finish of a single block execution
     ///	</summary>
     property OnBlockFinish: TSQLBlockEvent read FOnBlockFinish write FOnBlockFinish;
+
+    ///	<summary>
+    ///	  Event triggered when a `PRINT` statement is detected
+    ///	</summary>
+    property OnPrint: TSQLPrintEvent read FOnPrint write FOnPrint;
   end;
 
 
 implementation
 
-{ ESQLExecScriptError }
+{ ESQLExecException }
 
-constructor ESQLExecScriptException.Create(const Msg: string;
+constructor ESQLExecException.Create(const Msg: string;
   const ErrCode: Integer; ABlock: TSQLExecBlock);
+begin
+  Create(Msg, ErrCode);
+  FBlock:= ABlock;
+end;
+
+constructor ESQLExecException.Create(const Msg: string;
+  const ErrCode: Integer);
 begin
   inherited Create(Msg);
   ErrorCode := ErrCode;
-  FBlock:= ABlock;
 end;
 
 { TSQLExecBlock }
@@ -413,7 +428,7 @@ begin
   except
     on e: Exception do begin
       EM:= 'Failed to parse: '+e.Message;
-      raise ESQLExecScriptException.Create(EM, SE_ERR_PARSE, B);
+      raise ESQLExecException.Create(EM, SE_ERR_PARSE, B);
     end;
   end;
 end;
@@ -424,6 +439,12 @@ var
   X: Integer;
   R: Integer;
   EM: String;
+  procedure DoRollback;
+  begin
+    if soUseTransactions in FOptions then
+      if soAbortOnFail in FOptions then
+        FConnection.RollbackTrans;
+  end;
 begin
   Result:= srSuccess;
   //Parse only if changes were made or if force parse configured
@@ -441,7 +462,7 @@ begin
         on e: Exception do begin
           Result:= srConnFail;          //Set function connect fail result
           EM:= 'Error connecting to database: '+e.Message;
-          raise ESQLExecScriptException.Create(EM, SE_ERR_CONNECTION_FAIL, nil);
+          raise ESQLExecException.Create(EM, SE_ERR_CONNECTION_FAIL);
         end;
       end;
     end;
@@ -464,7 +485,7 @@ begin
           //Abort execution if configured
           if soAbortOnFail in FOptions then begin
             EM:= 'Error on Line '+IntToStr(B.Line)+': '+e.Message;
-            raise ESQLExecScriptException.Create(EM, SE_ERR_EXECUTE, B);
+            raise ESQLExecException.Create(EM, SE_ERR_EXECUTE, B);
           end;
         end;
       end;
@@ -476,13 +497,17 @@ begin
       FConnection.CommitTrans;
     Result:= srSuccess;                 //Everything succeeded
   except
+    on e: ESQLExecException do begin
+      Result:= srSQLFail;               //Set function failure result
+      //Rollback transaction if configured
+      DoRollback;
+      raise e; //Re-raise exception
+    end;
     on e: Exception do begin
       Result:= srSQLFail;               //Set function failure result
       //Rollback transaction if configured
-      if soUseTransactions in FOptions then
-        if soAbortOnFail in FOptions then
-          FConnection.RollbackTrans;
-      raise e; //Re-raise exception
+      DoRollback;
+      raise ESQLExecException.Create(EM, SE_ERR_UNKNOWN);
     end;
   end;
 end;
