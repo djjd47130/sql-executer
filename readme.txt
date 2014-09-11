@@ -16,6 +16,7 @@ Instructions:
 
 Known Issues:
 1 - Cannot handle "GO" statement inside of a comment block
+    - This has been fixed, introducing support of comment blocks
 2 - "GO" statements must be alone on their own line with nothing else
 3 - Cannot handle "PRINT" statement because it clashes with that inside of stored procedures
 4 - Unclear how to handle "USE" statements
