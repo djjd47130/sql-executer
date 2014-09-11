@@ -19,7 +19,6 @@ uses
   Classes, SysUtils, ADODB;
 
 const
-  SE_ERR_NONE = 0;
   SE_ERR_UNKNOWN = 1;
   SE_ERR_CONNECTION_FAIL = 2;
   SE_ERR_INVALID_CONNECTION = 3;
@@ -112,12 +111,20 @@ type
   ESQLExecException = class(Exception)
   private
     FErrorCode: Integer;
+  public
+    constructor Create(const Msg: string; const ErrCode: Integer);
+    property ErrorCode: Integer read FErrorCode write FErrorCode;
+  end;
+
+  ///	<summary>
+  ///	  Global exception object for component's individual blocks
+  ///	</summary>
+  ESQLExecBlockException = class(ESQLExecException)
+  private
     FBlock: TSQLExecBlock;
   public
     constructor Create(const Msg: string; const ErrCode: Integer;
-      ABlock: TSQLExecBlock); overload;
-    constructor Create(const Msg: string; const ErrCode: Integer); overload;
-    property ErrorCode: Integer read FErrorCode write FErrorCode;
+      ABlock: TSQLExecBlock);
     property Block: TSQLExecBlock read FBlock;
   end;
 
@@ -282,23 +289,24 @@ type
     property OnPrint: TSQLPrintEvent read FOnPrint write FOnPrint;
   end;
 
-
 implementation
 
 { ESQLExecException }
-
-constructor ESQLExecException.Create(const Msg: string;
-  const ErrCode: Integer; ABlock: TSQLExecBlock);
-begin
-  Create(Msg, ErrCode);
-  FBlock:= ABlock;
-end;
 
 constructor ESQLExecException.Create(const Msg: string;
   const ErrCode: Integer);
 begin
   inherited Create(Msg);
   ErrorCode := ErrCode;
+end;
+
+{ ESQLExecBlockException }
+
+constructor ESQLExecBlockException.Create(const Msg: string;
+  const ErrCode: Integer; ABlock: TSQLExecBlock);
+begin
+  inherited Create(Msg, ErrCode);
+  FBlock:= ABlock;
 end;
 
 { TSQLExecBlock }
@@ -407,28 +415,38 @@ var
   S: String;
   B: TSQLExecBlock;
   EM: String;
+  Comment: Boolean;
 begin
   FBlocks.Clear;
   B:= FBlocks.Add;          //Add first block
   B.FLine:= 0;              //Assign the starting line # of block
+  Comment:= False;          //Not in comment block (yet)
   try
     for X := 0 to FSQL.Count - 1 do begin
       S:= FSQL[X];          //Get copy of line to string
-      if Pos('use ', LowerCase(Trim(S))) = 1 then begin
+      if (Pos('use ', LowerCase(Trim(S))) = 1) and (not Comment) then begin   //USE Statement
         //FSQL[X]:= '';     //Temporarily disabled
       end else
-      if SameText(FSplitWord, Trim(S)) then begin
+      if (SameText(FSplitWord, Trim(S))) and (not Comment) then begin         //GO Statement
         B:= FBlocks.Add;    //Add a new block
         B.FLine:= X;        //Assign the starting line # of block
-      end else begin
-        B.SQL.Append(S);    //Add SQL script to current block
+      end else
+      if (Pos('/*', Trim(S)) = 1) then begin      //Begin comment block
+        if (Pos('*/', Trim(S)) = 0) then          //Check if same line ends comment block
+          Comment:= True;    //Entering comment block
+      end else
+      if (Pos('*/', Trim(S)) > 0) then begin      //End comment block
+        Comment:= False;    //Leaving comment block
+      end else begin                              //Normal Script
+        if not Comment then
+          B.SQL.Append(S);    //Add SQL script to current block
       end;
     end;
     FParsed:= True;         //Flag parse completion
   except
     on e: Exception do begin
       EM:= 'Failed to parse: '+e.Message;
-      raise ESQLExecException.Create(EM, SE_ERR_PARSE, B);
+      raise ESQLExecBlockException.Create(EM, SE_ERR_PARSE, B);
     end;
   end;
 end;
@@ -481,11 +499,12 @@ begin
       except
         on e: Exception do begin
           B.FStatus:= seFail;           //Set block fail status
+          EM:= 'Error on Line '+IntToStr(B.Line)+': '+e.Message;
+          B.FMessage:= EM;
           Result:= srSQLFail;           //Set function failure result
           //Abort execution if configured
           if soAbortOnFail in FOptions then begin
-            EM:= 'Error on Line '+IntToStr(B.Line)+': '+e.Message;
-            raise ESQLExecException.Create(EM, SE_ERR_EXECUTE, B);
+            raise ESQLExecBlockException.Create(EM, SE_ERR_EXECUTE, B);
           end;
         end;
       end;
@@ -497,17 +516,25 @@ begin
       FConnection.CommitTrans;
     Result:= srSuccess;                 //Everything succeeded
   except
+    on e: ESQLExecBlockException do begin
+      Result:= srSQLFail;               //Set function failure result
+      if Assigned(FOnBlockFinish) then  //Trigger block finish event
+        FOnBlockFinish(Self, e.Block);
+      //Rollback transaction if configured
+      DoRollback;
+      //raise e; //Re-raise exception
+    end;
     on e: ESQLExecException do begin
       Result:= srSQLFail;               //Set function failure result
       //Rollback transaction if configured
       DoRollback;
-      raise e; //Re-raise exception
+      //raise e; //Re-raise exception
     end;
     on e: Exception do begin
       Result:= srSQLFail;               //Set function failure result
       //Rollback transaction if configured
       DoRollback;
-      raise ESQLExecException.Create(EM, SE_ERR_UNKNOWN);
+      //raise ESQLExecException.Create(EM, SE_ERR_UNKNOWN);
     end;
   end;
 end;
