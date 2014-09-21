@@ -19,11 +19,11 @@ uses
   Classes, SysUtils, ADODB;
 
 const
-  SE_ERR_UNKNOWN = 1;
-  SE_ERR_CONNECTION_FAIL = 2;
+  SE_ERR_UNKNOWN            = 1;
+  SE_ERR_CONNECTION_FAIL    = 2;
   SE_ERR_INVALID_CONNECTION = 3;
-  SE_ERR_PARSE = 4;
-  SE_ERR_EXECUTE = 5;
+  SE_ERR_PARSE              = 4;
+  SE_ERR_EXECUTE            = 5;
 
 type
   ESQLExecException = class;
@@ -31,83 +31,93 @@ type
   TSQLExecBlocks = class;
   TSQLExec = class;
 
-  ///	<summary>
-  ///	  Current status of block execution
-  ///	</summary>
+  ///<summary>
+  ///Current status of block execution
+  ///</summary>
   TSQLExecStatus = (
-    ///	<summary>
-    ///	  Block not yet executed
-    ///	</summary>
+    ///<summary>
+    ///Block not yet executed
+    ///</summary>
     sePending,
 
-    ///	<summary>
-    ///	  Block currently executing
-    ///	</summary>
+    ///<summary>
+    ///Block currently executing
+    ///</summary>
     seExecuting,
 
-    ///	<summary>
-    ///	  Block successfully executed
-    ///	</summary>
+    ///<summary>
+    ///Block successfully executed
+    ///</summary>
     seSuccess,
 
-    ///	<summary>
-    ///	  Block failed to execute
-    ///	</summary>
-    seFail
-  );
+    ///<summary>
+    ///Block failed to execute
+    ///</summary>
+    seFail);
 
-  ///	<summary>
-  ///	  Result of TSQLExec.Execute function
-  ///	</summary>
+  ///<summary>
+  ///Result of TSQLExec.Execute function
+  ///</summary>
   TSQLExecResult = (
-    ///	<summary>
-    ///	  Successful script execution
-    ///	</summary>
+    ///<summary>
+    ///Successful script execution
+    ///</summary>
     srSuccess,
 
-    ///	<summary>
-    ///	  Database connection failure
-    ///	</summary>
+    ///<summary>
+    ///Database connection failure
+    ///</summary>
     srConnFail,
 
-    ///	<summary>
-    ///	  Script execution failure
-    ///	</summary>
-    srSQLFail
-  );
+    ///<summary>
+    ///Script execution failure
+    ///</summary>
+    srSQLFail);
 
-  ///	<summary>
-  ///	  Different options to enable/disable for handling script execution
-  ///	</summary>
+  ///<summary>
+  ///Different options to enable/disable for handling script execution
+  ///NOTE: Not completely implemented yet
+  ///</summary>
   TSQLExecOption = (
-    ///	<summary>
-    ///	  Use Begin/Commit/Rollback
-    ///	</summary>
+    ///<summary>
+    ///Use Begin/Commit/Rollback
+    ///</summary>
     soUseTransactions,
 
-    ///	<summary>
-    ///	  Abort execution on script failure
-    ///	</summary>
+    ///<summary>
+    ///Abort execution on script failure
+    ///</summary>
     soAbortOnFail,
 
-    ///	<summary>
-    ///	  Forcefully parse script on execution (ignore cache)
-    ///	</summary>
-    soForceParse
-  );
+    ///<summary>
+    ///Forcefully parse script on execution (ignore cache)
+    ///</summary>
+    soForceParse,
 
-  ///	<summary>
-  ///	  Set of options for script execution
-  ///	</summary>
+    ///<summary>
+    ///Handle PRINT statements to output text
+    ///</summary>
+    soPrintOutput);
+
+  ///<summary>
+  ///Set of options for script execution
+  ///</summary>
   TSQLExecOptions = set of TSQLExecOption;
 
+  ///<summary>
+  ///Executed on events such as before/after execution
+  ///</summary>
   TSQLBlockEvent = procedure(Sender: TSQLExec; Block: TSQLExecBlock) of object;
 
+  ///<summary>
+  ///Executed on a PRINT statement (outputs text)
+  ///NOTE: Not yet implemented
+  ///</summary>
   TSQLPrintEvent = procedure(Sender: TSQLExec; Block: TSQLExecBlock; Msg: String) of object;
 
-  ///	<summary>
-  ///	  Global exception object for component
-  ///	</summary>
+  ///<summary>
+  ///Global exception object for component
+  ///</summary>
   ESQLExecException = class(Exception)
   private
     FErrorCode: Integer;
@@ -116,21 +126,21 @@ type
     property ErrorCode: Integer read FErrorCode write FErrorCode;
   end;
 
-  ///	<summary>
-  ///	  Global exception object for component's individual blocks
-  ///	</summary>
+  ///<summary>
+  ///Global exception object for component's individual blocks
+  ///</summary>
   ESQLExecBlockException = class(ESQLExecException)
   private
     FBlock: TSQLExecBlock;
   public
-    constructor Create(const Msg: string; const ErrCode: Integer;
-      ABlock: TSQLExecBlock);
+    constructor Create(const Msg: string; const ErrCode: Integer; ABlock: TSQLExecBlock);
     property Block: TSQLExecBlock read FBlock;
   end;
 
-  ///	<summary>
-  ///	  Encapsulates a single SQL script block to be executed
-  ///	</summary>
+  ///<summary>
+  ///Encapsulates a single SQL script block to be executed
+  ///This object is automatically managed by the main component.
+  ///</summary>
   TSQLExecBlock = class(TObject)
   private
     FOwner: TSQLExecBlocks;
@@ -146,40 +156,41 @@ type
     constructor Create(AOwner: TSQLExecBlocks);
     destructor Destroy; override;
 
-    ///	<summary>
-    ///	  Index of block within list of blocks to be executed
-    ///	</summary>
+    ///<summary>
+    ///Index of block within list of blocks to be executed
+    ///</summary>
     property Index: Integer read GetIndex;
 
-    ///	<summary>
-    ///	  Current status of block execution
-    ///	</summary>
+    ///<summary>
+    ///Current status of block execution
+    ///</summary>
     property Status: TSQLExecStatus read FStatus;
 
-    ///	<summary>
-    ///	  SQL script of individual block to be executed
-    ///	</summary>
+    ///<summary>
+    ///SQL script of individual block to be executed
+    ///</summary>
     property SQL: TStrings read GetSQL write SetSQL;
 
-    ///	<summary>
-    ///	  Starting line number of block within original script
-    ///	</summary>
+    ///<summary>
+    ///Starting line number of block within original script
+    ///</summary>
     property Line: Integer read FLine;
 
-    ///	<summary>
-    ///	  Total number of rows affected after execution
-    ///	</summary>
+    ///<summary>
+    ///Total number of rows affected after execution
+    ///</summary>
     property Affected: Integer read FAffected;
 
-    ///	<summary>
-    ///	  [NOT IMPLEMENTED] Message reported back from execution
-    ///	</summary>
+    ///<summary>
+    ///[NOT IMPLEMENTED] Message reported back from execution
+    ///</summary>
     property Message: String read FMessage;
   end;
 
-  ///	<summary>
-  ///	  Encapsulates a list of SQL script blocks to be executed
-  ///	</summary>
+  ///<summary>
+  ///Encapsulates a list of SQL script blocks to be executed
+  ///This object is automatically managed by the main component.
+  ///</summary>
   TSQLExecBlocks = class(TObject)
   private
     FOwner: TSQLExec;
@@ -196,9 +207,10 @@ type
     property Items[Index: Integer]: TSQLExecBlock read GetItem; default;
   end;
 
-  ///	<summary>
-  ///	  Encapsulates a SQL Script to be executed
-  ///	</summary>
+  ///<summary>
+  ///Encapsulates a SQL Script to be executed
+  ///This is the core component to instantiate.
+  ///</summary>
   TSQLExec = class(TComponent)
   private
     FSQL: TStringList;
@@ -220,72 +232,73 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    ///	<summary>
-    ///	  Forcefully parses the current SQL script into blocks
-    ///	</summary>
+    ///<summary>
+    ///Forcefully parses the current SQL script into blocks
+    ///</summary>
     procedure ParseSQL;
 
-    ///	<summary>
-    ///	  Performs actual execution of SQL script
-    ///	</summary>
-    ///	<returns>
-    ///	  Result of script execution
-    ///	</returns>
+    ///<summary>
+    ///Performs actual execution of SQL script
+    ///</summary>
+    ///<returns>
+    ///Result of script execution
+    ///</returns>
     function Execute: TSQLExecResult;
 
-    ///	<summary>
-    ///	  Total number of lines of script to be executed
-    ///	</summary>
+    ///<summary>
+    ///Total number of lines of script to be executed
+    ///</summary>
     function LineCount: Integer;
 
-    ///	<summary>
-    ///	  Total number of blocks to be executed
-    ///	</summary>
+    ///<summary>
+    ///Total number of blocks to be executed
+    ///Also refers to total number of GO statements
+    ///</summary>
     function BlockCount: Integer;
 
-    ///	<summary>
-    ///	  Whether or not script has been parsed
-    ///	</summary>
+    ///<summary>
+    ///Whether or not script has been parsed
+    ///</summary>
     property Parsed: Boolean read FParsed;
 
-    ///	<summary>
-    ///	  Wraps list of blocks to be executed
-    ///	</summary>
+    ///<summary>
+    ///Wraps list of blocks to be executed
+    ///</summary>
     property Blocks: TSQLExecBlocks read FBlocks;
   published
-    ///	<summary>
-    ///	  SQL Script to be executed
-    ///	</summary>
+    ///<summary>
+    ///SQL Script to be executed
+    ///</summary>
     property SQL: TStrings read GetSQL write SetSQL;
 
-    ///	<summary>
-    ///	  ADO Connection component to use for execution
-    ///	</summary>
+    ///<summary>
+    ///ADO Connection component to use for execution
+    ///</summary>
     property Connection: TADOConnection read FConnection write SetConnection;
 
-    ///	<summary>
-    ///	  Specific options to enable/disable for execution handling
-    ///	</summary>
+    ///<summary>
+    ///Specific options to enable/disable for execution handling
+    ///</summary>
     property Options: TSQLExecOptions read FOptions write FOptions;
 
-    ///	<summary>
-    ///	  Keyword to split into different blocks (Default "GO")
-    ///	</summary>
+    ///<summary>
+    ///Keyword to split into different blocks (Default "GO")
+    ///</summary>
     property SplitWord: String read FSplitWord write SetSplitWord;
 
-    ///	<summary>
-    ///	  Event triggered at the beginning of a single block execution
-    ///	</summary>
+    ///<summary>
+    ///Event triggered at the beginning of a single block execution
+    ///</summary>
     property OnBlockStart: TSQLBlockEvent read FOnBlockStart write FOnBlockStart;
 
-    ///	<summary>
-    ///	  Event triggered at the finish of a single block execution
-    ///	</summary>
+    ///<summary>
+    ///Event triggered at the finish of a single block execution
+    ///</summary>
     property OnBlockFinish: TSQLBlockEvent read FOnBlockFinish write FOnBlockFinish;
 
-    ///	<summary>
-    ///	  Event triggered when a `PRINT` statement is detected
-    ///	</summary>
+    ///<summary>
+    ///[NOT IMPLEMENTED] Event triggered when a `PRINT` statement is detected
+    ///</summary>
     property OnPrint: TSQLPrintEvent read FOnPrint write FOnPrint;
   end;
 
@@ -293,17 +306,16 @@ implementation
 
 { ESQLExecException }
 
-constructor ESQLExecException.Create(const Msg: string;
-  const ErrCode: Integer);
+constructor ESQLExecException.Create(const Msg: string; const ErrCode: Integer);
 begin
   inherited Create(Msg);
-  ErrorCode := ErrCode;
+  ErrorCode:= ErrCode;
 end;
 
 { ESQLExecBlockException }
 
-constructor ESQLExecBlockException.Create(const Msg: string;
-  const ErrCode: Integer; ABlock: TSQLExecBlock);
+constructor ESQLExecBlockException.Create(const Msg: string; const ErrCode: Integer;
+  ABlock: TSQLExecBlock);
 begin
   inherited Create(Msg, ErrCode);
   FBlock:= ABlock;
@@ -398,7 +410,7 @@ begin
   FSQL.OnChange:= SQLChanged;
   FBlocks:= TSQLExecBlocks.Create(Self);
   FConnection:= nil;
-  FOptions:= [soUseTransactions,soAbortOnFail];
+  FOptions:= [soUseTransactions, soAbortOnFail];
   FSplitWord:= 'go';
 end;
 
@@ -411,41 +423,45 @@ end;
 
 procedure TSQLExec.ParseSQL;
 var
-  X: Integer;
-  S: String;
+  I: Integer;
+  Line: String;
   B: TSQLExecBlock;
   EM: String;
   Comment: Boolean;
 begin
   FBlocks.Clear;
-  B:= FBlocks.Add;          //Add first block
-  B.FLine:= 0;              //Assign the starting line # of block
-  Comment:= False;          //Not in comment block (yet)
+  B:= FBlocks.Add; //Add first block
+  B.FLine:= 0;     //Assign the starting line # of block
+  Comment:= False; //Not in comment block (yet)
   try
-    for X := 0 to FSQL.Count - 1 do begin
-      S:= FSQL[X];          //Get copy of line to string
-      if (Pos('use ', LowerCase(Trim(S))) = 1) and (not Comment) then begin   //USE Statement
-        //FSQL[X]:= '';     //Temporarily disabled
-      end else
-      if (SameText(FSplitWord, Trim(S))) and (not Comment) then begin         //GO Statement
-        B:= FBlocks.Add;    //Add a new block
-        B.FLine:= X;        //Assign the starting line # of block
-      end else
-      if (Pos('/*', Trim(S)) = 1) then begin      //Begin comment block
-        if (Pos('*/', Trim(S)) = 0) then          //Check if same line ends comment block
-          Comment:= True;    //Entering comment block
-      end else
-      if (Pos('*/', Trim(S)) > 0) then begin      //End comment block
-        Comment:= False;    //Leaving comment block
-      end else begin                              //Normal Script
+    for I:= 0 to FSQL.Count - 1 do begin
+      Line:= FSQL[I]; //Get copy of line to string
+      if (Pos('use ', LowerCase(Trim(Line))) = 1) and (not Comment) then begin //USE Statement
+        //FSQL[I]:= '';     //Implement later
+      end
+      else if (SameText(FSplitWord, Trim(Line))) and (not Comment) then begin //GO Statement
+        B:= FBlocks.Add;
+        B.FLine:= I; //Assign the original starting line index of block
+      end
+      else if (Pos('/*', Trim(Line)) = 1) then begin //Begin comment block
+        //Could be more intelligent here to find it in the middle of a line
+        //However, that would also require parsing strings within script
+        if (Pos('*/', Trim(Line)) = 0) then          //Check if same line ends comment block
+          Comment:= True;                            //Entering comment block
+      end
+      else if (Pos('*/', Trim(Line)) > 0) then begin //End comment block
+        //Same applies here as with begin comment blocks
+        Comment:= False;                             //Leaving comment block
+      end
+      else begin //Normal Script
         if not Comment then
-          B.SQL.Append(S);    //Add SQL script to current block
+          B.SQL.Append(Line); //Add SQL script to current block
       end;
     end;
-    FParsed:= True;         //Flag parse completion
+    FParsed:= True; //Flag parse completion
   except
     on e: Exception do begin
-      EM:= 'Failed to parse: '+e.Message;
+      EM:= 'Failed to parse: ' + e.Message;
       raise ESQLExecBlockException.Create(EM, SE_ERR_PARSE, B);
     end;
   end;
@@ -463,6 +479,7 @@ var
       if soAbortOnFail in FOptions then
         FConnection.RollbackTrans;
   end;
+
 begin
   Result:= srSuccess;
   //Parse only if changes were made or if force parse configured
@@ -478,60 +495,60 @@ begin
         FConnection.Connected:= True;
       except
         on e: Exception do begin
-          Result:= srConnFail;          //Set function connect fail result
-          EM:= 'Error connecting to database: '+e.Message;
+          Result:= srConnFail; //Set function connect fail result
+          EM:= 'Error connecting to database: ' + e.Message;
           raise ESQLExecException.Create(EM, SE_ERR_CONNECTION_FAIL);
         end;
       end;
     end;
-    for X := 0 to FBlocks.Count-1 do begin
-      B:= FBlocks[X];                   //Get next block in list
-      B.FStatus:= seExecuting;          //Set block executing status
-      if Assigned(FOnBlockStart) then   //Trigger block start event
+    for X:= 0 to FBlocks.Count - 1 do begin
+      B:= FBlocks[X];                 //Get next block in list
+      B.FStatus:= seExecuting;        //Set block executing status
+      if Assigned(FOnBlockStart) then //Trigger block start event
         FOnBlockStart(Self, B);
       try
         //Only execute if there is text
         if Trim(B.SQL.Text) <> '' then begin
-          FConnection.Execute(B.SQL.Text, R);     //ACTUAL SQL EXECUTION
+          FConnection.Execute(B.SQL.Text, R); //ACTUAL SQL EXECUTION
         end;
-        B.FAffected:= R;                //Set block rows affected
-        B.FStatus:= seSuccess;          //Set block success status
+        B.FAffected:= R;       //Set block rows affected
+        B.FStatus:= seSuccess; //Set block success status
       except
         on e: Exception do begin
-          B.FStatus:= seFail;           //Set block fail status
-          EM:= 'Error on Line '+IntToStr(B.Line)+': '+e.Message;
+          B.FStatus:= seFail; //Set block fail status
+          EM:= 'Error on Line ' + IntToStr(B.Line) + ': ' + e.Message;
           B.FMessage:= EM;
-          Result:= srSQLFail;           //Set function failure result
+          Result:= srSQLFail; //Set function failure result
           //Abort execution if configured
           if soAbortOnFail in FOptions then begin
             raise ESQLExecBlockException.Create(EM, SE_ERR_EXECUTE, B);
           end;
         end;
       end;
-      if Assigned(FOnBlockFinish) then  //Trigger block finish event
+      if Assigned(FOnBlockFinish) then //Trigger block finish event
         FOnBlockFinish(Self, B);
     end; //of for loop
     //Commit transaction if configured
     if soUseTransactions in FOptions then
       FConnection.CommitTrans;
-    Result:= srSuccess;                 //Everything succeeded
+    Result:= srSuccess; //Everything succeeded
   except
     on e: ESQLExecBlockException do begin
-      Result:= srSQLFail;               //Set function failure result
-      if Assigned(FOnBlockFinish) then  //Trigger block finish event
+      Result:= srSQLFail;              //Set function failure result
+      if Assigned(FOnBlockFinish) then //Trigger block finish event
         FOnBlockFinish(Self, e.Block);
       //Rollback transaction if configured
       DoRollback;
       //raise e; //Re-raise exception
     end;
     on e: ESQLExecException do begin
-      Result:= srSQLFail;               //Set function failure result
+      Result:= srSQLFail; //Set function failure result
       //Rollback transaction if configured
       DoRollback;
       //raise e; //Re-raise exception
     end;
     on e: Exception do begin
-      Result:= srSQLFail;               //Set function failure result
+      Result:= srSQLFail; //Set function failure result
       //Rollback transaction if configured
       DoRollback;
       //raise ESQLExecException.Create(EM, SE_ERR_UNKNOWN);
@@ -552,7 +569,8 @@ end;
 
 function TSQLExec.BlockCount: Integer;
 begin
-  if not FParsed then ParseSQL;     //Parse if not already
+  if not FParsed then
+    ParseSQL; //Parse if not already
   Result:= FBlocks.Count;
 end;
 
@@ -563,12 +581,12 @@ end;
 
 procedure TSQLExec.SetConnection(const Value: TADOConnection);
 begin
-  FConnection := Value;
+  FConnection:= Value;
 end;
 
 procedure TSQLExec.SetSplitWord(const Value: String);
 begin
-  FSplitWord := Value;
+  FSplitWord:= Value;
   Invalidate;
 end;
 
