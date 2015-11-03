@@ -16,7 +16,9 @@ unit SQLExec;
 interface
 
 uses
-  Classes, SysUtils, ADODB;
+  System.Generics.Collections,
+  MidasLib, DBClient, AdoInt, DB, ADODB,
+  Classes, SysUtils, Winapi.Windows;
 
 const
   SE_ERR_UNKNOWN            = 1;
@@ -73,6 +75,20 @@ type
     ///Script execution failure
     ///</summary>
     srSQLFail);
+
+  ///<summary>
+  ///Different options to handle how execution is performed
+  ///</summary>
+  TSQLExecMode = (
+    ///<summary>
+    ///Execute as command text only
+    ///</summary>
+    smExecute,
+
+    ///<summary>
+    ///Return recordsets
+    ///</summary>
+    smRecordsets);
 
   ///<summary>
   ///Different options to enable/disable for handling script execution
@@ -144,14 +160,21 @@ type
   TSQLExecBlock = class(TObject)
   private
     FOwner: TSQLExecBlocks;
+    FDatasets: TObjectList<TClientDataSet>;
     FSQL: TStringList;
     FStatus: TSQLExecStatus;
     FLine: Integer;
     FMessage: String;
     FAffected: Integer;
+    FMsecs: Int64;
+    FErrors: TStringList;
     function GetSQL: TStrings;
     procedure SetSQL(const Value: TStrings);
     function GetIndex: Integer;
+    procedure SetMsecs(const Value: Int64);
+    function GetErrors: TStrings;
+    procedure SetErrors(const Value: TStrings);
+    function GetDataset(const Index: Integer): TClientDataSet;
   public
     constructor Create(AOwner: TSQLExecBlocks);
     destructor Destroy; override;
@@ -182,9 +205,18 @@ type
     property Affected: Integer read FAffected;
 
     ///<summary>
-    ///[NOT IMPLEMENTED] Message reported back from execution
+    ///Message reported back from execution
     ///</summary>
     property Message: String read FMessage;
+
+    ///<summary>
+    ///Errors reported back from execution
+    ///</summary>
+    property Errors: TStrings read GetErrors write SetErrors;
+
+    function DatasetCount: Integer;
+
+    property Datasets[const Index: Integer]: TClientDataSet read GetDataset;
   end;
 
   ///<summary>
@@ -222,12 +254,15 @@ type
     FOnBlockFinish: TSQLBlockEvent;
     FSplitWord: String;
     FOnPrint: TSQLPrintEvent;
+    FExecMode: TSQLExecMode;
     function GetSQL: TStrings;
     procedure SetSQL(const Value: TStrings);
     procedure SetConnection(const Value: TADOConnection);
     procedure SQLChanged(Sender: TObject);
     procedure Invalidate;
     procedure SetSplitWord(const Value: String);
+    function ErrorOk(const Msg: String): Boolean;
+    procedure SetExecMode(const Value: TSQLExecMode);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -282,6 +317,11 @@ type
     property Options: TSQLExecOptions read FOptions write FOptions;
 
     ///<summary>
+    ///Determines which method of execution to use
+    ///</summary>
+    property ExecMode: TSQLExecMode read FExecMode write SetExecMode;
+
+    ///<summary>
     ///Keyword to split into different blocks (Default "GO")
     ///</summary>
     property SplitWord: String read FSplitWord write SetSplitWord;
@@ -302,7 +342,50 @@ type
     property OnPrint: TSQLPrintEvent read FOnPrint write FOnPrint;
   end;
 
+procedure CloneDataset(FromDataset: TDataset; ToDataset: TClientDataset);
+
 implementation
+
+uses
+  StrUtils;
+
+procedure CloneDataset(FromDataset: TDataset; ToDataset: TClientDataset);
+var
+  I: integer;
+  F: TField;
+begin
+  FromDataset.DisableControls;
+  ToDataset.DisableControls;
+  try
+    ToDataset.Close;
+    ToDataset.Fields.Clear;
+    ToDataset.FieldDefs.Clear;
+    for I:= 0 to FromDataset.FieldDefs.Count - 1 do begin
+      if FromDataset.FieldDefs[I].DataType <> ftDataSet then begin
+        with ToDataset.FieldDefs.AddFieldDef do
+          Assign(FromDataset.FieldDefs[I]);
+      end;
+    end;
+    ToDataset.CreateDataSet;
+    FromDataset.First;
+    while not FromDataset.Eof do begin
+      ToDataset.Append;
+      try
+        for I := 0 to FromDataset.Fields.Count-1 do begin
+          F:= ToDataset.FindField(FromDataset.Fields[I].FieldName);
+          F.Value:= FromDataset.Fields[I].Value;
+        end;
+      finally
+        ToDataset.Post;
+      end;
+      FromDataset.Next;
+    end;
+    ToDataset.First;
+  finally
+    ToDataset.EnableControls;
+    FromDataset.EnableControls;
+  end;
+end;
 
 { ESQLExecException }
 
@@ -326,16 +409,39 @@ end;
 constructor TSQLExecBlock.Create(AOwner: TSQLExecBlocks);
 begin
   FOwner:= AOwner;
+  FDatasets:= nil;
   FSQL:= TStringList.Create;
+  FErrors:= TStringList.Create;
   FStatus:= sePending;
   FMessage:= '';
   FAffected:= 0;
 end;
 
+function TSQLExecBlock.DatasetCount: Integer;
+begin
+  Result:= 0;
+  if Assigned(FDatasets) then
+    Result:= FDatasets.Count;
+end;
+
 destructor TSQLExecBlock.Destroy;
 begin
+  FErrors.Free;
   FSQL.Free;
+  FDatasets.Free;
   inherited;
+end;
+
+function TSQLExecBlock.GetDataset(const Index: Integer): TClientDataSet;
+begin
+  Result:= nil;
+  if Assigned(FDatasets) then
+    Result:= FDatasets[Index];
+end;
+
+function TSQLExecBlock.GetErrors: TStrings;
+begin
+  Result:= TStrings(FErrors);
 end;
 
 function TSQLExecBlock.GetIndex: Integer;
@@ -346,6 +452,16 @@ end;
 function TSQLExecBlock.GetSQL: TStrings;
 begin
   Result:= TStrings(FSQL);
+end;
+
+procedure TSQLExecBlock.SetErrors(const Value: TStrings);
+begin
+  FErrors.Assign(Value);
+end;
+
+procedure TSQLExecBlock.SetMsecs(const Value: Int64);
+begin
+  FMsecs:= Value;
 end;
 
 procedure TSQLExecBlock.SetSQL(const Value: TStrings);
@@ -412,6 +528,8 @@ begin
   FConnection:= nil;
   FOptions:= [soUseTransactions, soAbortOnFail];
   FSplitWord:= 'go';
+  //FExecMode:= TSQLExecMode.smExecute;
+  FExecMode:= TSQLExecMode.smRecordsets;
 end;
 
 destructor TSQLExec.Destroy;
@@ -419,6 +537,56 @@ begin
   FBlocks.Free;
   FSQL.Free;
   inherited;
+end;
+
+procedure TSQLExec.Invalidate;
+begin
+  FParsed:= False;
+  FBlocks.Clear;
+end;
+
+function TSQLExec.LineCount: Integer;
+begin
+  Result:= FSQL.Count;
+end;
+
+function TSQLExec.BlockCount: Integer;
+begin
+  if not FParsed then
+    ParseSQL; //Parse if not already
+  Result:= FBlocks.Count;
+end;
+
+function TSQLExec.GetSQL: TStrings;
+begin
+  Result:= TStrings(FSQL);
+end;
+
+procedure TSQLExec.SetConnection(const Value: TADOConnection);
+begin
+  FConnection:= Value;
+end;
+
+procedure TSQLExec.SetExecMode(const Value: TSQLExecMode);
+begin
+  FExecMode := Value;
+end;
+
+procedure TSQLExec.SetSplitWord(const Value: String);
+begin
+  FSplitWord:= Value;
+  Invalidate;
+end;
+
+procedure TSQLExec.SetSQL(const Value: TStrings);
+begin
+  FSQL.Assign(Value);
+  Invalidate;
+end;
+
+procedure TSQLExec.SQLChanged(Sender: TObject);
+begin
+  Invalidate;
 end;
 
 procedure TSQLExec.ParseSQL;
@@ -467,28 +635,48 @@ begin
   end;
 end;
 
+function TSQLExec.ErrorOk(const Msg: String): Boolean;
+begin
+  Result:= ContainsText(Msg, ' does not return a result set');
+  if not Result then
+    Result:= ContainsText(Msg, 'No more results');
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+// CORE PROCEDURE FOR EXECUTING SQL SCRIPT BLOCKS
+//////////////////////////////////////////////////////////////////////////////
 function TSQLExec.Execute: TSQLExecResult;
 var
+  RS: _Recordset;
+  RecAffected: OleVariant;
+  Cmd: TADOCommand;
   B: TSQLExecBlock;
   X: Integer;
   R: Integer;
+  MS, ME: DWORD;
   EM: String;
-  procedure DoRollback;
+  DS: TClientDataSet;
+  ADS: TADODataSet;
+  procedure DoPrep;
   begin
+    Cmd.Connection:= FConnection;
+    if (soForceParse in FOptions) or (not FParsed) then
+      ParseSQL;
     if soUseTransactions in FOptions then
-      if soAbortOnFail in FOptions then
-        FConnection.RollbackTrans;
+      FConnection.BeginTrans;
   end;
-
-begin
-  Result:= srSuccess;
-  //Parse only if changes were made or if force parse configured
-  if (soForceParse in FOptions) or (not FParsed) then
-    ParseSQL;
-  //Begin transaction if configured
-  if soUseTransactions in FOptions then
-    FConnection.BeginTrans;
-  try
+  procedure ResetBlock;
+  begin
+    B.FMessage:= '';
+    B.FErrors.Clear;
+    B.FDatasets.Free;
+    B.FStatus:= seExecuting;
+    B.FAffected:= 0;
+    if Assigned(FOnBlockStart) then
+      FOnBlockStart(Self, B);
+  end;
+  procedure DoConnect;
+  begin
     if not FConnection.Connected then begin
       //Attempt to connect if not already
       try
@@ -501,104 +689,133 @@ begin
         end;
       end;
     end;
-    for X:= 0 to FBlocks.Count - 1 do begin
-      B:= FBlocks[X];                 //Get next block in list
-      B.FStatus:= seExecuting;        //Set block executing status
-      if Assigned(FOnBlockStart) then //Trigger block start event
-        FOnBlockStart(Self, B);
-      try
-        //Only execute if there is text
-        if Trim(B.SQL.Text) <> '' then begin
-          FConnection.Execute(B.SQL.Text, R); //ACTUAL SQL EXECUTION
+    Result:= srSuccess;
+  end;
+  function DoExec: Boolean;
+  begin
+    //ACTUAL SQL EXECUTION
+    try
+      MS:= GetTickCount;
+      case FExecMode of
+        smExecute: begin
+          FConnection.Execute(B.SQL.Text, R);
         end;
-        B.FAffected:= R;       //Set block rows affected
-        B.FStatus:= seSuccess; //Set block success status
-      except
-        on e: Exception do begin
-          B.FStatus:= seFail; //Set block fail status
-          EM:= 'Error on Line ' + IntToStr(B.Line) + ': ' + e.Message;
-          B.FMessage:= EM;
-          Result:= srSQLFail; //Set function failure result
-          //Abort execution if configured
-          if soAbortOnFail in FOptions then begin
-            raise ESQLExecBlockException.Create(EM, SE_ERR_EXECUTE, B);
-          end;
+        smRecordsets: begin
+          RS:= FConnection.Execute(B.SQL.Text, cmdUnknown, []);
+          R:= 0; //TODO: Get rows affected
         end;
       end;
-      if Assigned(FOnBlockFinish) then //Trigger block finish event
-        FOnBlockFinish(Self, B);
-    end; //of for loop
-    //Commit transaction if configured
-    if soUseTransactions in FOptions then
-      FConnection.CommitTrans;
-    Result:= srSuccess; //Everything succeeded
-  except
-    on e: ESQLExecBlockException do begin
-      Result:= srSQLFail;              //Set function failure result
-      if Assigned(FOnBlockFinish) then //Trigger block finish event
-        FOnBlockFinish(Self, e.Block);
-      //Rollback transaction if configured
-      DoRollback;
-      //raise e; //Re-raise exception
+    except
+      on E: Exception do begin
+        if not ErrorOk(E.Message) then begin
+          raise ESQLExecBlockException.Create(E.Message, SE_ERR_EXECUTE, B);
+        end;
+      end;
     end;
-    on e: ESQLExecException do begin
-      Result:= srSQLFail; //Set function failure result
-      //Rollback transaction if configured
-      DoRollback;
-      //raise e; //Re-raise exception
-    end;
-    on e: Exception do begin
-      Result:= srSQLFail; //Set function failure result
-      //Rollback transaction if configured
-      DoRollback;
-      //raise ESQLExecException.Create(EM, SE_ERR_UNKNOWN);
+    B.FAffected:= R;
+    ME:= GetTickCount - MS;
+    B.SetMsecs(ME);
+    Result:= True;
+  end;
+  procedure AddDataset(ADataset: TDataset);
+  begin
+    DS:= TClientDataSet.Create(nil);
+    CloneDataset(ADataset, DS);
+    B.FDatasets.Add(DS);
+  end;
+  procedure CheckForDatasets;
+  begin
+    RecAffected:= 0;
+    //Check for resulting datasets
+    if Assigned(RS) then begin
+      B.FDatasets:= TObjectList<TClientDataSet>.Create;
+      while RS.State <> adStateClosed do begin
+        ADS.Recordset:= RS;
+        AddDataset(ADS);
+        RS:= RS.NextRecordset(RecAffected);
+        if not Assigned(RS) then Break;
+      end;
+      B.FAffected:= RecAffected;
     end;
   end;
-end;
-
-procedure TSQLExec.Invalidate;
+  procedure CheckForErrors;
+  var
+    Y: Integer;
+  begin
+    //Check for response messages
+    for Y:= 0 to FConnection.Errors.Count-1 do begin
+      if not ErrorOk(FConnection.Errors[Y].Description) then
+        B.FErrors.Add(FConnection.Errors[Y].Description);
+    end;
+  end;
+  procedure DoRollback;
+  begin
+    if soUseTransactions in FOptions then
+      if FConnection.InTransaction then
+        if soAbortOnFail in FOptions then
+          FConnection.RollbackTrans;
+  end;
+  procedure DoCommit;
+  begin
+    if soUseTransactions in FOptions then
+      if FConnection.InTransaction then
+        FConnection.CommitTrans;
+  end;
 begin
-  FParsed:= False;
-  FBlocks.Clear;
-end;
-
-function TSQLExec.LineCount: Integer;
-begin
-  Result:= FSQL.Count;
-end;
-
-function TSQLExec.BlockCount: Integer;
-begin
-  if not FParsed then
-    ParseSQL; //Parse if not already
-  Result:= FBlocks.Count;
-end;
-
-function TSQLExec.GetSQL: TStrings;
-begin
-  Result:= TStrings(FSQL);
-end;
-
-procedure TSQLExec.SetConnection(const Value: TADOConnection);
-begin
-  FConnection:= Value;
-end;
-
-procedure TSQLExec.SetSplitWord(const Value: String);
-begin
-  FSplitWord:= Value;
-  Invalidate;
-end;
-
-procedure TSQLExec.SetSQL(const Value: TStrings);
-begin
-  FSQL.Assign(Value);
-  Invalidate;
-end;
-
-procedure TSQLExec.SQLChanged(Sender: TObject);
-begin
-  Invalidate;
+  Result:= srSuccess;
+  ADS:= TADODataSet.Create(nil);
+  Cmd:= TADOCommand.Create(nil);
+  try
+    DoPrep;
+    try
+      DoConnect;
+      for X:= 0 to FBlocks.Count - 1 do begin
+        B:= FBlocks[X];
+        ResetBlock;
+        try
+          if Trim(B.SQL.Text) <> '' then begin
+            // ------- ACTUAL EXECUTION --------
+            DoExec;
+            // ---------------------------------
+            CheckForErrors;
+            CheckForDatasets;
+          end;
+          B.FStatus:= seSuccess;
+        except
+          on e: Exception do begin
+            B.FStatus:= seFail;
+            EM:= 'Error on Line ' + IntToStr(B.Line) + ': ' + e.Message;
+            B.FMessage:= EM;
+            Result:= srSQLFail;
+            if soAbortOnFail in FOptions then begin
+              raise ESQLExecBlockException.Create(EM, SE_ERR_EXECUTE, B);
+            end;
+          end;
+        end;
+        if Assigned(FOnBlockFinish) then
+          FOnBlockFinish(Self, B);
+      end; //of for loop
+      DoCommit;
+    except
+      on e: ESQLExecBlockException do begin
+        Result:= srSQLFail;
+        if Assigned(FOnBlockFinish) then
+          FOnBlockFinish(Self, e.Block);
+        DoRollback;
+      end;
+      on e: ESQLExecException do begin
+        //Result:= srSQLFail;
+        DoRollback;
+      end;
+      on e: Exception do begin
+        Result:= srSQLFail;
+        DoRollback;
+      end;
+    end;
+  finally
+    Cmd.Free;
+    ADS.Free;
+  end;
 end;
 
 end.
