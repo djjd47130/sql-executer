@@ -12,7 +12,9 @@ This component can be installed into the Delphi IDE by adding it to a package an
 Package also includes fully featured application to demonstrate the usage of this component.
 
 1. Requires ChromeTabs library (Not Included)
+  - https://github.com/norgepaul/TChromeTabs
 2. Requires SynEdit library (Not Included)
+  - https://github.com/SynEdit/SynEdit
 
 Instructions:
 
