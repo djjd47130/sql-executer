@@ -1,5 +1,14 @@
 unit SqlExecThread;
 
+(*
+  SQL Execution Thread
+  (NOT YET IMPLEMENTED)
+
+  The thread class contained in this unit will be responsible for performing
+  actual script execution. It will support running a single script on multiple
+  database connections at one time, and report back status via events.
+*)
+
 interface
 
 uses
