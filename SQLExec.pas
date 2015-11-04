@@ -4,7 +4,7 @@
 
   This code uses the Mozilla Public License 1.1
 
-  Refer to readme.txt for more information
+  Refer to readme.md for more information
 
   Project managed on GitHub:
   https://github.com/djjd47130/sql-executer
@@ -21,6 +21,7 @@ uses
   Classes, SysUtils, Winapi.Windows;
 
 const
+  SE_ERR_NONE               = 0;
   SE_ERR_UNKNOWN            = 1;
   SE_ERR_CONNECTION_FAIL    = 2;
   SE_ERR_INVALID_CONNECTION = 3;
@@ -33,8 +34,14 @@ type
   TSQLExecBlocks = class;
   TSQLExec = class;
 
+  ///<summary>
+  ///Array of String type values
+  ///</summary>
   TStringArray = array of String;
 
+  ///<summary>
+  ///Encapsulates a Connection String, interchangeable with "String" type
+  ///</summary>
   TConnectionString = record
   private
     FItems: TStringArray;
@@ -43,15 +50,43 @@ type
     function GetName(Index: Integer): String;
     function GetValue(Name: String): String;
     procedure SetValue(Name: String; const Value: String);
-  public
     function GetCount: Integer;
     procedure SetCount(I: Integer);
+  public
+
+    ///<summary>
+    ///Converts a TConnectionString to a String
+    ///</summary>
     class operator implicit(aValue: TConnectionString): String;
+
+    ///<summary>
+    ///Converts a String to a TConnectionString
+    ///</summary>
     class operator implicit(aValue: String): TConnectionString;
+
+    ///<summary>
+    ///Clears all parameters from Connection String
+    ///</summary>
     procedure Clear;
+
+    ///<summary>
+    ///Access to parameter names and values by their index
+    ///</summary>
     property Items[Index: Integer]: String read GetItem write SetItem;
+
+    ///<summary>
+    ///Access to parameter names by their index
+    ///</summary>
     property Names[Index: Integer]: String read GetName;
+
+    ///<summary>
+    ///Access to parameter values by their names
+    ///</summary>
     property Values[Name: String]: String read GetValue write SetValue; default;
+
+    ///<summary>
+    ///Total number of parameters
+    ///</summary>
     property Count: Integer read GetCount write SetCount;
   end;
 
