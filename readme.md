@@ -3,8 +3,6 @@
 
 _This code uses the Mozilla Public License 1.1_
 
-Main Unit: SQLExec.pas
-
 Use the SQL Executer component to run a large SQL script file which contains "GO" statements using ADO.
 
 This component can be installed into the Delphi IDE by adding it to a package and registering it.
@@ -16,15 +14,59 @@ Package also includes fully featured application to demonstrate the usage of thi
 2. Requires SynEdit library (Not Included)
   - https://github.com/SynEdit/SynEdit
 
-Instructions:
+##
 
-1. Assign TADOConnection to the Connection property
-2. Load SQL script to the SQL property
-3. Execute SQL script by calling Execute function
+This component can be installed into the Delphi IDE.
 
-Features:
+**Main Unit**: `SQLExec.pas`
 
-1. Change the "GO" keyword to any other keyword of your choice instead of just "GO"
-2. Iterate through all SQL blocks before executing them
-3. Report and handle script errors more effectively (Each block is executed on its own)
-4. Code is self-documented to help you understand how it works
+
+**Main Component**:
+ `TSQLExec`
+
+
+
+**How To Use**:
+
+  
+
+1. Assign `TADOConnection` to the `Connection` property
+  
+2. Load SQL script to the `SQL` property (for example `SQL.LoadFromFile(Filename)`)
+  
+3. Execute SQL script by calling `Execute` function
+
+
+
+**Features**:
+
+  
+
+* Split a large SQL script file into individual blocks to be executed
+  
+* Change keyword `GO` to a different custom keyword (as supported by MS tools)
+  
+* Use transaction mode to be able to rollback changes on script errors
+  
+* Iterate through each parsed SQL script block
+  
+* Monitor current position to be able to implement a progress bar
+  
+* Caching mechanism to only parse when it needs to (via Invalidation)
+  
+* Custom exception handlers to catch specific exceptions and related data
+
+
+
+**Sample Usage**:
+
+
+
+```
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  SQLExec1.SQL.LoadFromFile('C:\MyScriptFile.sql');
+  SQLExec1.Connection:= ADOConnection1;
+  SQLExec1.Execute;
+end;
+```
