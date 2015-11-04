@@ -9,7 +9,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.Buttons,
   DB, ADODB, ActiveX, ComObj, AdoInt, OleDB,
-  RMP.API.Common,
+  SQLExec,
   Registry;
 
 type

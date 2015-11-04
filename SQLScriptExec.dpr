@@ -4,7 +4,6 @@ uses
   Vcl.Forms,
   uMain in 'uMain.pas' {frmSqlExec},
   SQLExec in 'SQLExec.pas',
-  RMP.API.Common in '..\..\DXE8\Source\RMProAPI\RMP.API.Common.pas',
   uConnection in 'uConnection.pas' {frmConnection},
   AppInit in 'AppInit.pas',
   Vcl.Themes,

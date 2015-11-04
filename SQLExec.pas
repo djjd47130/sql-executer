@@ -33,6 +33,28 @@ type
   TSQLExecBlocks = class;
   TSQLExec = class;
 
+  TStringArray = array of String;
+
+  TConnectionString = record
+  private
+    FItems: TStringArray;
+    function GetItem(Index: Integer): String;
+    procedure SetItem(Index: Integer; const Value: String);
+    function GetName(Index: Integer): String;
+    function GetValue(Name: String): String;
+    procedure SetValue(Name: String; const Value: String);
+  public
+    function GetCount: Integer;
+    procedure SetCount(I: Integer);
+    class operator implicit(aValue: TConnectionString): String;
+    class operator implicit(aValue: String): TConnectionString;
+    procedure Clear;
+    property Items[Index: Integer]: String read GetItem write SetItem;
+    property Names[Index: Integer]: String read GetName;
+    property Values[Name: String]: String read GetValue write SetValue; default;
+    property Count: Integer read GetCount write SetCount;
+  end;
+
   ///<summary>
   ///Current status of block execution
   ///</summary>
@@ -384,6 +406,120 @@ begin
   finally
     ToDataset.EnableControls;
     FromDataset.EnableControls;
+  end;
+end;
+
+{ TConnectionString }
+
+class operator TConnectionString.implicit(aValue: String): TConnectionString;
+var
+  S, T: String;
+  N, V: String;
+  P: Integer;
+begin
+  SetLength(Result.FItems, 0);
+  S:= aValue + ';';
+  while Length(S) > 0 do begin
+    P:= Pos('=', S);
+    N:= Copy(S, 1, P-1);
+    Delete(S, 1, P);
+    T:= Copy(S, 1, 1);
+    if T = '"' then begin
+      Delete(S, 1, 1);
+      P:= Pos('"', S);
+      V:= Copy(S, 1, P-1);
+      Delete(S, 1, P);
+      P:= Pos(';', S);
+      T:= Copy(S, 1, P-1);
+      Delete(S, 1, P);
+      V:= V + T;
+    end else begin
+      P:= Pos(';', S);
+      T:= Copy(S, 1, P-1);
+      Delete(S, 1, P);
+    end;
+    SetLength(Result.FItems, Length(Result.FItems)+1);
+    Result.FItems[Length(Result.FItems)-1]:= N+'='+V;
+  end;
+end;
+
+class operator TConnectionString.implicit(aValue: TConnectionString): String;
+var
+  X: Integer;
+begin
+  Result:= '';
+  for X := 0 to Length(aValue.FItems)-1 do begin
+    if X > 0 then Result:= Result + ';';
+    Result:= Result + aValue.FItems[X];
+  end;
+end;
+
+procedure TConnectionString.Clear;
+begin
+  SetLength(FItems, 0);
+end;
+
+function TConnectionString.GetCount: Integer;
+begin
+  Result:= Length(FItems);
+end;
+
+procedure TConnectionString.SetCount(I: Integer);
+begin
+  SetLength(FItems, I);
+end;
+
+function TConnectionString.GetItem(Index: Integer): String;
+begin
+  Result:= FItems[Index];
+end;
+
+function TConnectionString.GetName(Index: Integer): String;
+begin
+  Result:= FItems[Index];
+  Delete(Result, Pos('=', Result)+1, Length(Result));
+end;
+
+function TConnectionString.GetValue(Name: String): String;
+var
+  X: Integer;
+begin
+  Result:= '';
+  for X := 0 to Length(FItems)-1 do begin
+    if Pos(UpperCase(Name)+'=', UpperCase(FItems[X])) = 1 then begin
+      Result:= FItems[X];
+      Delete(Result, 1, Pos('=', Result));
+      Break;
+    end;
+  end;
+end;
+
+procedure TConnectionString.SetItem(Index: Integer; const Value: String);
+begin
+  FItems[Index]:= Value;
+end;
+
+procedure TConnectionString.SetValue(Name: String; const Value: String);
+var
+  X: Integer;
+  D: Boolean;
+  V: String;
+begin
+  D:= False;
+  V:= Value;
+  if (Pos('=', V)>0) or (Pos(';', V)>0) then
+    V:= '"'+V+'"';
+
+  for X := 0 to Length(FItems)-1 do begin
+    if Pos(UpperCase(Name)+'=', UpperCase(FItems[X])) = 1 then begin
+      FItems[X]:= Name + '=' + V;
+      D:= True;
+      Break;
+    end;
+  end;
+  if not D then begin
+    SetLength(FItems, Length(FItems)+1);
+    FItems[Length(FItems)-1]:= Name + '=' + V;
   end;
 end;
 
