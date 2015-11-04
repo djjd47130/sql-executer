@@ -6,8 +6,8 @@
 
   Refer to readme.txt for more information
 
-  Project managed on Google Code:
-  https://code.google.com/p/sql-executer/source/browse/
+  Project managed on GitHub:
+  https://github.com/djjd47130/sql-executer
 
 *)
 
