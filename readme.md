@@ -28,14 +28,3 @@ Features:
 2. Iterate through all SQL blocks before executing them
 3. Report and handle script errors more effectively (Each block is executed on its own)
 4. Code is self-documented to help you understand how it works
-
-Known Issues:
-
-1. Cannot handle "GO" statement inside of a comment block
-    - This has been fixed, introducing support of comment blocks
-    - Comment blocks are expected to be initiated on a line of its own
-2. "GO" statements must be alone on their own line with nothing else
-3. Cannot handle "PRINT" statement because it clashes with that inside of stored procedures
-4. Unclear how to handle "USE" statements
-5. Occasional access violation if one block has a script error
-
