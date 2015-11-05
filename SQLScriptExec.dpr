@@ -26,9 +26,5 @@ begin
   RunApp;
   Application.CreateForm(TfrmSqlExec, frmSqlExec);
   Application.CreateForm(TfrmDatabases, frmDatabases);
-  Application.CreateForm(TfrmDatasetView, frmDatasetView);
-  Application.CreateForm(TfrmContentBase, frmContentBase);
-  Application.CreateForm(TfrmContentScriptExec, frmContentScriptExec);
-  Application.CreateForm(TfrmContentBase2, frmContentBase2);
   Application.Run;
 end.
