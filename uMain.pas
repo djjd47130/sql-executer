@@ -70,7 +70,7 @@ unit uMain;
   - Database server service application
     - Performs scheduled maintenance on databases
   - Implement Toolboxes for smaller portions of content
-
+  - Monitor file date/time for changes
 
 *)
 
@@ -168,9 +168,11 @@ type
   private
     FOwner: TServerConnection;
     FName: String;
-    //FTableNode: TTreeNode;
-    //FStoredProcNode: TTreeNode;
-    //FOptionsNode: TTreeNode;
+    {$IFDEF V2}
+    FTableNode: TTreeNode;
+    FStoredProcNode: TTreeNode;
+    FOptionsNode: TTreeNode;
+    {$ENDIF}
     FTables: TObjectList<TServerDatabaseTable>;
     FStoredProcs: TObjectList<TServerDatabaseStoredProc>;
     function GetStoredProc(const Index: Integer): TServerDatabaseStoredProc;
@@ -339,6 +341,7 @@ type
     ScriptWindow1: TMenuItem;
     mRecent: TMenuItem;
     N2: TMenuItem;
+    tmrFileChange: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -361,8 +364,6 @@ type
     procedure TVClick(Sender: TObject);
     procedure TVExpanding(Sender: TObject; Node: TTreeNode;
       var AllowExpansion: Boolean);
-    procedure OutputBoxGutterGetText(Sender: TObject; aLine: Integer;
-      var aText: string);
     procedure EDGutterGetText(Sender: TObject; aLine: Integer;
       var aText: string);
     procedure EDKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -387,43 +388,50 @@ type
     procedure Help1Click(Sender: TObject);
     procedure ScriptWindow1Click(Sender: TObject);
     procedure mRecentClick(Sender: TObject);
+    procedure tmrFileChangeTimer(Sender: TObject);
   private
-    FConnections: TServerConnections;
+    {$IFNDEF V2}
     FSqlExec: TSqlExec;
     FIsNew: Boolean;
     FIsEdited: Boolean;
     FFilename: String;
+    FFileDateTime: TDateTime;
+    FDTChanged: Boolean;
     FConnectionString: TConnectionString;
     FCurBlock: Integer;
+    FDataGrids: TObjectList<TfrmDatasetView>;
+    {$ENDIF}
+    FConnections: TServerConnections;
     FBusy: Boolean;
     FShowLinesAffected: Bool;
     FLargeMode: Boolean;
-    FDataGrids: TObjectList<TfrmDatasetView>;
+    {$IFNDEF V2}
     procedure CreateNewDoc;
     function DoSaveAs: Boolean;
     function DoSave: Boolean;
     procedure DoEdited;
     procedure DoSaved;
-    procedure LoadTables(Conn: TServerConnection; Node: TTreeNode);
-    function TestConnection(AConnStr: String): Boolean;
-    procedure LoadStoredProcs(Conn: TServerConnection; Node: TTreeNode);
-    function SelectedServer: TServerConnection;
-    function CurrentServer: TServerConnection;
-    procedure RefreshServerActions;
     procedure RefreshCursorPos;
     procedure BlockFinished(Sender: TSQLExec; Block: TSQLExecBlock);
     procedure BlockStarted(Sender: TSQLExec; Block: TSQLExecBlock);
     procedure SqlPrint(Sender: TSQLExec; Block: TSQLExecBlock; Msg: String);
     procedure PostMsg(const Text: String; const Style: TFontStyles = [];
       const Color: TColor = clBlack; const Detail: String = '');
+    function CurrentBlock: Integer;
+    function TotalBlocks: Integer;
+    function SelectedDatabases: Integer;
+    {$ENDIF}
+    function TestConnection(AConnStr: String): Boolean;
+    procedure LoadTables(Conn: TServerConnection; Node: TTreeNode);
+    procedure LoadStoredProcs(Conn: TServerConnection; Node: TTreeNode);
+    function SelectedServer: TServerConnection;
+    function CurrentServer: TServerConnection;
+    procedure RefreshServerActions;
     procedure EnableForm(const Enabled: Boolean);
     procedure LoadState;
     procedure SaveState;
     procedure AddToRecents(AConnStr: TConnectionString);
     procedure ResetSizes;
-    function CurrentBlock: Integer;
-    function TotalBlocks: Integer;
-    function SelectedDatabases: Integer;
     procedure DoOpenFile(const AFilename: String);
   public
 
@@ -431,21 +439,6 @@ type
 
 var
   frmSqlExec: TfrmSqlExec;
-
-const
-  SHARD_PIDL  = 1;
-  SHARD_PATHA  = 1;
-  SHARD_PATHW  = 1;
-  SHARD_APPIDINFO  = 1;
-  SHARD_APPIDINFOIDLIST  = 1;
-  SHARD_LINK  = 1;
-  SHARD_APPIDINFOLINK  = 1;
-  SHARD_SHELLITEM  = 1;
-
-
-procedure SHAddToRecentDocs(uFlags: UINT; const pv: LPCVOID); stdcall;
-  external 'Shell32.dll';
-
 
 implementation
 
@@ -477,6 +470,14 @@ begin
   finally
     F.Free;
   end;
+end;
+
+function FileDateTime(const FN: String): TDateTime;
+var
+  DT: TDateTime;
+begin
+  FileAge(FN, DT);
+  Result:= DT;
 end;
 
 { TTreeData }
@@ -1122,6 +1123,32 @@ begin
   Stat.Panels[3].Text:= IntToStr(FSqlExec.BlockCount)+' Blocks';
 end;
 
+procedure TfrmSqlExec.tmrFileChangeTimer(Sender: TObject);
+var
+  FDT: TDateTime;
+begin
+  {$IFDEF USE_V2}
+  if FFilename <> '' then begin
+    if FileExists(FFilename) then begin
+      FDT:= FileDateTime(FFilename);
+      if (FFileDateTime <> FDT) and (not FDTChanged) then begin
+        FDTChanged:= True;
+        case MessageDlg('File date/time changed for "'+FFilename+'". Reload?',
+          mtWarning, [mbYes,mbNo], 0)
+        of
+          mrYes: begin
+            DoOpenFile(FFilename);
+          end;
+          else begin
+            FFileDateTime:= FileDateTime(FFilename);
+          end;
+        end;
+      end;
+    end;
+  end;
+  {$ENDIF}
+end;
+
 procedure TfrmSqlExec.actServerConnectExecute(Sender: TObject);
 var
   Str: TConnectionString;
@@ -1312,6 +1339,7 @@ begin
   FFilename:= AFilename;
   JumpList1.AddToRecent(FFilename);
   Caption:= 'SQL Script Executer - ' + FFilename;
+  FFileDateTime:= FileDateTime(FFilename);
 end;
 
 procedure TfrmSqlExec.actFileOpenExecute(Sender: TObject);
@@ -1453,181 +1481,6 @@ begin
   if (cboCurConn.ItemIndex >= 0) then begin
     Result:= TServerConnection(cboCurConn.Items.Objects[cboCurConn.ItemIndex]);
   end;
-end;
-
-procedure TfrmSqlExec.actScriptExecuteExecute(Sender: TObject);
-var
-  S: TServerConnection;
-  R: TSqlExecResult;
-  TS: DWORD;
-  TTS: DWORD;
-  EC: Integer;    //Error Count - Current Database
-  TEC: Integer;   //Total Error Count
-  TBC: Integer;   //Total Block Count
-  TDC: Integer;   //Total Selected Database Count
-  RAF: Integer;   //Rows Affected - Current Database
-  TRAF: Integer;  //Total Rows Affected
-  X: Integer;
-  function FormatPlural(const Num: Integer; const Text: String): String;
-  begin
-    Result:= IntToStr(Num) + ' ' + Text;
-    if Num <> 1 then
-      Result:= Result + 's';
-  end;
-  procedure ClearGrids;
-  begin
-    FDataGrids.Clear;
-    while sbData.ControlCount > 0 do
-      sbData.Controls[0].Free;
-  end;
-  procedure AddGrid(ADataset: TClientDataSet; ABlock: TSqlExecBlock);
-  var
-    F: TfrmDatasetView;
-    //S: TSplitter;
-    function Split(Top: Integer): TSplitter;
-    begin
-      Result:= TSplitter.Create(nil);
-      Result.Parent:= sbData;
-      Result.Align:= alTop;
-      Result.Height:= 7;
-      Result.Beveled:= True;
-      Result.Top:= Top;
-      Result.ResizeStyle:= rsUpdate;
-      Result.AutoSnap:= False;
-    end;
-  begin
-    F:= TfrmDatasetView.Create(nil);
-    FDataGrids.Add(F);
-    F.Parent:= sbData;
-    F.Show;
-    if FDataGrids.Count = 1 then begin
-      F.Align:= alClient;
-    end else begin
-      if FDataGrids.Count = 2 then begin
-        //More than one now, the first can't hog it all up.
-        FDataGrids[0].Align:= alTop;
-        FDataGrids[0].Height:= 250;
-        //S:= Split(FDataGrids[0].Top + FDataGrids[0].Height - 2);
-      end;
-      F.Height:= 250;
-      F.Align:= alTop;
-    end;
-    //S:= Split(F.Top + F.Height - 2);
-
-    CloneDataset(ADataset, F.CDS);
-    PostMsg('Added dataset on block '+IntToStr(ABlock.Index), [], clGreen);
-    MsgPages.ActivePage:= tabData;
-  end;
-  procedure CheckForData(ABlock: TSqlExecBlock);
-  var
-    Y: Integer;
-    Z: Integer;
-  begin
-    //Display Dataset Grids
-    for Y := 0 to FSqlExec.BlockCount-1 do begin
-      ABlock:= FSqlExec.Blocks[Y];
-      if ABlock.DatasetCount > 0 then begin
-        for Z := 0 to ABlock.DatasetCount-1 do begin
-          AddGrid(ABlock.Datasets[Z], ABlock);
-        end;
-      end;
-    end;
-  end;
-  procedure Perform(DatabaseName: String);
-  var
-    Y: Integer;
-    B: TSqlExecBlock;
-  begin         
-    Inc(TDC);
-
-    //Show Status in Output Message Log
-    PostMsg('');
-    PostMsg('Starting Execution on Database '+DatabaseName);
-    S.ChangeDatabase(DatabaseName);
-    TS:= GetTickCount;
-
-    //PERFORM EXECUTION
-    R:= FSqlExec.Execute;
-
-    //Prepare Result Totals
-    TS:= GetTickCount - TS;
-    EC:= 0;
-    RAF:= 0;
-    for Y := 0 to FSqlExec.BlockCount-1 do begin
-      if FSqlExec.Blocks[Y].Status <> TSQLExecStatus.seSuccess then
-        Inc(EC);
-      RAF:= RAF + FSqlExec.Blocks[Y].Affected;
-    end;
-
-    //Show Results in Output Message Log
-    PostMsg('Execution on Database '+DatabaseName+' of '+IntToStr(FSqlExec.BlockCount)+
-      ' Block(s) Completed in '+IntToStr(TS)+' Msec');
-    if FShowLinesAffected then
-      PostMsg('Rows Affected: '+IntToStr(-RAF));
-    if EC > 0 then
-      PostMsg(FormatPlural(EC, 'Error') + ' Reported', [fsBold], clRed);
-    PostMsg('----------------------------------------------------------------');
-
-    //Update Totals
-    TEC:= TEC + EC;
-    TBC:= TBC + FSqlExec.BlockCount;
-    TRAF:= TRAF + RAF;
-
-    CheckForData(B);
-
-  end;
-begin
-  pMessages.Visible:= True;
-  Splitter3.Top:= ED.Top + ED.Height - 2;
-  EnableForm(False);
-  MsgPages.ActivePage:= tabOutput;
-  try
-    OutputBox.Clear;
-    ClearGrids;
-    S:= CurrentServer;
-    if Assigned(S) then begin
-      if ED.SelLength > 0 then
-        FSqlExec.SQL.Text:= ED.SelText
-      else
-        FSqlExec.SQL.Assign(ED.Lines); 
-      FSqlExec.Connection:= S.Connection;
-      TEC:= 0;
-      TBC:= 0;
-      TDC:= 0;
-      FCurBlock:= 0;
-      TRAF:= 0;
-      case cboCurExecMethod.ItemIndex of
-        1: begin
-          FSqlExec.ExecMode:= TSQLExecMode.smRecordsets;
-        end;
-        else begin
-          FSqlExec.ExecMode:= TSQLExecMode.smExecute;
-        end;
-      end;
-      TTS:= GetTickCount;
-      if cboCurDatabase.Text = '[Multiple Selected]' then begin
-        for X := 0 to S.SelDatabases.Count-1 do begin
-          Perform(S.SelDatabases[X]);
-        end;
-      end else begin
-        Perform(cboCurDatabase.Text);
-      end;  
-      TTS:= GetTickCount - TTS;
-      //Show Results in Output Message Log
-      PostMsg('');
-      PostMsg('Execution on Selected '+FormatPlural(TDC, 'Database') +
-        ' Completed in ' + IntToStr(TTS) + ' Msec', [fsBold]);
-      if FShowLinesAffected then
-        PostMsg('Total Rows Affected: '+IntToStr(-TRAF));
-      if TEC > 0 then
-        PostMsg(FormatPlural(TEC, 'Total Error') + ' Reported', [fsBold], clRed);
-      PostMsg('');
-    end;       
-  finally
-    EnableForm(True);
-  end;
-  Stat.Panels[2].Text:= 'Finished';
-  RefreshServerActions;
 end;
 
 procedure TfrmSqlExec.EnableForm(const Enabled: Boolean);
@@ -1831,21 +1684,6 @@ begin
   end;
 end;
 
-procedure TfrmSqlExec.OutputBoxGutterGetText(Sender: TObject; aLine: Integer;
-  var aText: string);
-begin
-  {
-  if ((aLine mod 10) = 0) or (aLine = 1) or (aLine = OutputBox.CaretY) then begin
-    aText:= FormatFloat('#,###,##0', aLine);
-  end else begin
-    if (aLine mod 5) = 0 then
-      aText:= '--'
-    else
-      aText:= '-';
-  end;
-  }
-end;
-
 procedure TfrmSqlExec.LoadStoredProcs(Conn: TServerConnection; Node: TTreeNode);
 var
   N: TTreeNode;
@@ -1928,6 +1766,8 @@ begin
   tmrEdit.Enabled:= False;
   tmrEdit.Enabled:= True;
   Caption:= 'SQL Script Executer - New File';
+  FFileDateTime:= Now;
+  FDTChanged:= False;
 end;
 
 procedure TfrmSqlExec.DoEdited;
@@ -1949,6 +1789,8 @@ begin
   actFileSaveAs.Enabled:= True;
   actEditUndo.Enabled:= False;
   Stat.Panels[0].Text:= '';
+  FFileDateTime:= FileDateTime(FFilename);
+  FDTChanged:= False;
 end;
 
 function TfrmSqlExec.DoSave: Boolean;
@@ -1992,6 +1834,181 @@ begin
   end;
   tmrEdit.Enabled:= False;
   tmrEdit.Enabled:= True;
+end;
+
+procedure TfrmSqlExec.actScriptExecuteExecute(Sender: TObject);
+var
+  S: TServerConnection;
+  R: TSqlExecResult;
+  TS: DWORD;
+  TTS: DWORD;
+  EC: Integer;    //Error Count - Current Database
+  TEC: Integer;   //Total Error Count
+  TBC: Integer;   //Total Block Count
+  TDC: Integer;   //Total Selected Database Count
+  RAF: Integer;   //Rows Affected - Current Database
+  TRAF: Integer;  //Total Rows Affected
+  X: Integer;
+  function FormatPlural(const Num: Integer; const Text: String): String;
+  begin
+    Result:= IntToStr(Num) + ' ' + Text;
+    if Num <> 1 then
+      Result:= Result + 's';
+  end;
+  procedure ClearGrids;
+  begin
+    FDataGrids.Clear;
+    while sbData.ControlCount > 0 do
+      sbData.Controls[0].Free;
+  end;
+  procedure AddGrid(ADataset: TClientDataSet; ABlock: TSqlExecBlock);
+  var
+    F: TfrmDatasetView;
+    //S: TSplitter;
+    function Split(Top: Integer): TSplitter;
+    begin
+      Result:= TSplitter.Create(nil);
+      Result.Parent:= sbData;
+      Result.Align:= alTop;
+      Result.Height:= 7;
+      Result.Beveled:= True;
+      Result.Top:= Top;
+      Result.ResizeStyle:= rsUpdate;
+      Result.AutoSnap:= False;
+    end;
+  begin
+    F:= TfrmDatasetView.Create(nil);
+    FDataGrids.Add(F);
+    F.Parent:= sbData;
+    F.Show;
+    if FDataGrids.Count = 1 then begin
+      F.Align:= alClient;
+    end else begin
+      if FDataGrids.Count = 2 then begin
+        //More than one now, the first can't hog it all up.
+        FDataGrids[0].Align:= alTop;
+        FDataGrids[0].Height:= 250;
+        //S:= Split(FDataGrids[0].Top + FDataGrids[0].Height - 2);
+      end;
+      F.Height:= 250;
+      F.Align:= alTop;
+    end;
+    //S:= Split(F.Top + F.Height - 2);
+
+    CloneDataset(ADataset, F.CDS);
+    PostMsg('Added dataset on block '+IntToStr(ABlock.Index), [], clGreen);
+    MsgPages.ActivePage:= tabData;
+  end;
+  procedure CheckForData(ABlock: TSqlExecBlock);
+  var
+    Y: Integer;
+    Z: Integer;
+  begin
+    //Display Dataset Grids
+    for Y := 0 to FSqlExec.BlockCount-1 do begin
+      ABlock:= FSqlExec.Blocks[Y];
+      if ABlock.DatasetCount > 0 then begin
+        for Z := 0 to ABlock.DatasetCount-1 do begin
+          AddGrid(ABlock.Datasets[Z], ABlock);
+        end;
+      end;
+    end;
+  end;
+  procedure Perform(DatabaseName: String);
+  var
+    Y: Integer;
+    B: TSqlExecBlock;
+  begin
+    Inc(TDC);
+
+    //Show Status in Output Message Log
+    PostMsg('');
+    PostMsg('Starting Execution on Database '+DatabaseName);
+    S.ChangeDatabase(DatabaseName);
+    TS:= GetTickCount;
+
+    //PERFORM EXECUTION
+    R:= FSqlExec.Execute;
+
+    //Prepare Result Totals
+    TS:= GetTickCount - TS;
+    EC:= 0;
+    RAF:= 0;
+    for Y := 0 to FSqlExec.BlockCount-1 do begin
+      if FSqlExec.Blocks[Y].Status <> TSQLExecStatus.seSuccess then
+        Inc(EC);
+      RAF:= RAF + FSqlExec.Blocks[Y].Affected;
+    end;
+
+    //Show Results in Output Message Log
+    PostMsg('Execution on Database '+DatabaseName+' of '+IntToStr(FSqlExec.BlockCount)+
+      ' Block(s) Completed in '+IntToStr(TS)+' Msec');
+    if FShowLinesAffected then
+      PostMsg('Rows Affected: '+IntToStr(-RAF));
+    if EC > 0 then
+      PostMsg(FormatPlural(EC, 'Error') + ' Reported', [fsBold], clRed);
+    PostMsg('----------------------------------------------------------------');
+
+    //Update Totals
+    TEC:= TEC + EC;
+    TBC:= TBC + FSqlExec.BlockCount;
+    TRAF:= TRAF + RAF;
+
+    CheckForData(B);
+
+  end;
+begin
+  pMessages.Visible:= True;
+  Splitter3.Top:= ED.Top + ED.Height - 2;
+  EnableForm(False);
+  MsgPages.ActivePage:= tabOutput;
+  try
+    OutputBox.Clear;
+    ClearGrids;
+    S:= CurrentServer;
+    if Assigned(S) then begin
+      if ED.SelLength > 0 then
+        FSqlExec.SQL.Text:= ED.SelText
+      else
+        FSqlExec.SQL.Assign(ED.Lines);
+      FSqlExec.Connection:= S.Connection;
+      TEC:= 0;
+      TBC:= 0;
+      TDC:= 0;
+      FCurBlock:= 0;
+      TRAF:= 0;
+      case cboCurExecMethod.ItemIndex of
+        1: begin
+          FSqlExec.ExecMode:= TSQLExecMode.smRecordsets;
+        end;
+        else begin
+          FSqlExec.ExecMode:= TSQLExecMode.smExecute;
+        end;
+      end;
+      TTS:= GetTickCount;
+      if cboCurDatabase.Text = '[Multiple Selected]' then begin
+        for X := 0 to S.SelDatabases.Count-1 do begin
+          Perform(S.SelDatabases[X]);
+        end;
+      end else begin
+        Perform(cboCurDatabase.Text);
+      end;
+      TTS:= GetTickCount - TTS;
+      //Show Results in Output Message Log
+      PostMsg('');
+      PostMsg('Execution on Selected '+FormatPlural(TDC, 'Database') +
+        ' Completed in ' + IntToStr(TTS) + ' Msec', [fsBold]);
+      if FShowLinesAffected then
+        PostMsg('Total Rows Affected: '+IntToStr(-TRAF));
+      if TEC > 0 then
+        PostMsg(FormatPlural(TEC, 'Total Error') + ' Reported', [fsBold], clRed);
+      PostMsg('');
+    end;
+  finally
+    EnableForm(True);
+  end;
+  Stat.Panels[2].Text:= 'Finished';
+  RefreshServerActions;
 end;
 
 end.

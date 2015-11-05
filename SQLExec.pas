@@ -470,7 +470,7 @@ begin
       V:= V + T;
     end else begin
       P:= Pos(';', S);
-      T:= Copy(S, 1, P-1);
+      V:= Copy(S, 1, P-1);
       Delete(S, 1, P);
     end;
     SetLength(Result.FItems, Length(Result.FItems)+1);
