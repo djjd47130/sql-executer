@@ -21,15 +21,24 @@ unit uMain;
   TODO:
   - Implement tabular document interface (MAJOR)
     - Use ChromeTabs control
+    - Currently in progress
+      - uContentBase.pas has ancester form inherited by any content form
+      - Chrome Tabs to control content form display
+      - Chrome Tabs to also be used for any tabs
     - Different types of tab content
+      - Home View (New File, Recent, etc.)
+        - uContentHome.pas
       - Script File View (Plus result messages / data)
+        - uContentScriptExec.pas
       - Server Detail View (Databases, etc.)
       - Database Detail View (Tables, etc.)
       - Table Detail View (Columns, etc.)
       - Stored Procedure View
+      - Database Backup Scheduling
   - Implement tree view browsing databases, tables, stored procs, etc. (MAJOR)
     - Tree view along left side
-    - Requires tabular document interface
+    - Expand nodes to view more details of Tables, Stored Procs, etc.
+    - Requires tabular document interface before opening detailed info
   - Implement selected tree view object details
     - Server Connection
     - Database
@@ -45,16 +54,23 @@ unit uMain;
     - Replace All
   - Implement opening script file from outside IDE
   - Implement showing datasets
-  - Implement recent documents (Windows)
+    - Partially implemented, needs revision
   - Implement recent documents selection (Menu)
-  - Implement recent documents in jumplist (Windows)
+    - Partially implemented, not yet working
   - Implmenet script block view
+    - List individual blocks, the first line of script, errors, etc.
   - Implement help menu
   - Change progress bar to be for all databases, not just current
   - Change Save As to automatically include filename extension
   - Fix total lines affected count
   - Implement "USES" statement
   - Implement "PRINT" statement
+  - Implement backup schedules
+    - Requires service to be built first
+  - Database server service application
+    - Performs scheduled maintenance on databases
+  - Implement Toolboxes for smaller portions of content
+
 
 *)
 
@@ -73,8 +89,12 @@ uses
   Vcl.ToolWin, Vcl.StdCtrls,  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls,
   Vcl.ActnMan, Vcl.ImgList, Vcl.ExtCtrls, Vcl.ExtDlgs, Vcl.Buttons, Vcl.Grids,
 
-  SynEdit, SynEditHighlighter, SynHighlighterSQL, Vcl.JumpList, SynMemo,
-  SynHighlighterPas, SynEditMiscClasses, SynEditSearch, Vcl.DBGrids, ChromeTabs;
+  SynEdit, SynEditHighlighter, SynHighlighterSQL,
+  Vcl.JumpList,
+  SynMemo,
+  SynHighlighterPas, SynEditMiscClasses, SynEditSearch,
+  Vcl.DBGrids,
+  ChromeTabs;
 
 const
   REG_KEY = 'Software\JD Software\SqlScriptExec\';
@@ -433,7 +453,11 @@ implementation
 
 uses
   StrUtils,
-  uConnection, uDatabases, uSplash, uOutputWindow,
+  uConnection, uDatabases,
+  {$IFDEF USE_SPLASH}
+  uSplash,
+  {$ENDIF}
+  uOutputWindow,
   uContentBase, uContentScriptExec, uContentHome;
 
 function PromptConnection(const InitialString: TConnectionString; var NewString: TConnectionString;
@@ -818,8 +842,10 @@ end;
 
 procedure TfrmSqlExec.FormShow(Sender: TObject);
 begin
+  {$IFDEF USE_SPLASH}
   frmSplash.Hide;
   frmSplash.Free;
+  {$ENDIF}
 end;
 
 procedure TfrmSqlExec.Help1Click(Sender: TObject);

@@ -14,6 +14,13 @@ unit AppInit;
 
 interface
 
+uses
+  System.SysUtils
+  {$IFDEF USE_SPLASH}
+  , uSplash
+  {$ENDIF}
+  ;
+
 procedure RunApp;
 
 implementation
@@ -26,6 +33,10 @@ begin
     //Use param names similar to those used in OSQL
 
   //TODO: Implement running in console mode
+
+  {$IFDEF USE_SPLASH}
+  frmSplash:= TfrmSplash.Create(nil);
+  {$ENDIF}
 
 end;
 

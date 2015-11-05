@@ -9,7 +9,6 @@ uses
   Vcl.Themes,
   Vcl.Styles,
   uDatabases in 'uDatabases.pas' {frmDatabases},
-  uSplash in 'uSplash.pas' {frmSplash},
   uOutputWindow in 'uOutputWindow.pas' {frmOutputWindow},
   uDatasetView in 'uDatasetView.pas' {frmDatasetView},
   uContentBase in 'uContentBase.pas' {frmContentBase},
@@ -24,7 +23,7 @@ begin
   Application.MainFormOnTaskbar := True;
   TStyleManager.TrySetStyle('Iceberg Classico');
   Application.Title := 'SQL Script Executer';
-  frmSplash:= TfrmSplash.Create(nil);
+  RunApp;
   Application.CreateForm(TfrmSqlExec, frmSqlExec);
   Application.CreateForm(TfrmDatabases, frmDatabases);
   Application.CreateForm(TfrmDatasetView, frmDatasetView);

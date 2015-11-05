@@ -32,6 +32,7 @@ type
     actRefreshDatabases: TAction;
     actBatch: TAction;
     actExecSql: TAction;
+    Stat: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure actExecSqlExecute(Sender: TObject);

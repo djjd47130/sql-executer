@@ -1,29 +1,28 @@
 inherited frmContentScriptExec: TfrmContentScriptExec
   Caption = 'SQL Script'
-  ClientHeight = 510
-  ClientWidth = 698
+  ClientHeight = 593
+  ClientWidth = 768
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  ExplicitWidth = 704
-  ExplicitHeight = 539
+  ExplicitWidth = 774
+  ExplicitHeight = 622
   PixelsPerInch = 96
   TextHeight = 13
   object pMain: TPanel [0]
     Left = 0
     Top = 0
-    Width = 698
-    Height = 461
+    Width = 768
+    Height = 505
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 685
-    ExplicitHeight = 433
+    ExplicitWidth = 698
     object Splitter3: TSplitter
       Left = 0
-      Top = 300
-      Width = 698
+      Top = 344
+      Width = 768
       Height = 7
       Cursor = crVSplit
       Align = alBottom
@@ -37,13 +36,13 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     object Panel2: TPanel
       Left = 0
       Top = 0
-      Width = 698
+      Width = 768
       Height = 44
       Align = alTop
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 0
-      ExplicitWidth = 718
+      ExplicitWidth = 698
       object Label1: TLabel
         Left = 8
         Top = 3
@@ -118,8 +117,8 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     object ED: TSynEdit
       Left = 0
       Top = 44
-      Width = 698
-      Height = 208
+      Width = 768
+      Height = 205
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       Font.Charset = DEFAULT_CHARSET
@@ -143,24 +142,23 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       TabWidth = 4
       WantTabs = True
       FontSmoothing = fsmNone
-      ExplicitWidth = 704
-      ExplicitHeight = 237
+      ExplicitWidth = 698
     end
     object pMessages: TPanel
       Left = 0
-      Top = 307
-      Width = 698
+      Top = 351
+      Width = 768
       Height = 154
       Align = alBottom
       ParentBackground = False
       TabOrder = 2
       StyleElements = [seFont, seBorder]
-      ExplicitTop = 336
-      ExplicitWidth = 704
+      ExplicitTop = 307
+      ExplicitWidth = 698
       object Panel3: TPanel
         Left = 1
         Top = 1
-        Width = 696
+        Width = 766
         Height = 21
         Align = alTop
         Alignment = taLeftJustify
@@ -172,9 +170,9 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         ParentColor = True
         ParentFont = False
         TabOrder = 0
-        ExplicitWidth = 626
+        ExplicitWidth = 696
         DesignSize = (
-          696
+          766
           21)
         object Label3: TLabel
           Left = 1
@@ -194,7 +192,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
           ExplicitHeight = 23
         end
         object cmdCloseMessages: TSpeedButton
-          Left = 672
+          Left = 742
           Top = 0
           Width = 21
           Height = 20
@@ -231,6 +229,34 @@ inherited frmContentScriptExec: TfrmContentScriptExec
           ExplicitLeft = 457
         end
       end
+    end
+    object Stat: TStatusBar
+      Left = 0
+      Top = 325
+      Width = 768
+      Height = 19
+      Panels = <
+        item
+          Text = 'Disconnected'
+          Width = 120
+        end
+        item
+          Text = 'Ln 1  Col 1'
+          Width = 120
+        end
+        item
+          Text = 'Saved'
+          Width = 120
+        end
+        item
+          Width = 120
+        end
+        item
+          Width = 120
+        end>
+      ExplicitLeft = 192
+      ExplicitTop = 288
+      ExplicitWidth = 0
     end
   end
   object SynSQLSyn1: TSynSQLSyn [1]
