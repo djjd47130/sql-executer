@@ -52,7 +52,7 @@ unit uMain;
     - Find All
     - Replace
     - Replace All
-  - Implement opening script file from outside IDE
+  - Implement Drag/Drop Open File(s)
   - Implement showing datasets
     - Partially implemented, needs revision
   - Implement recent documents selection (Menu)
@@ -78,22 +78,25 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, Winapi.ShellApi, Winapi.ShlObj,
+  Winapi.ActiveX, Winapi.OleDB,
+
   System.SysUtils, System.Variants, System.Types, System.UITypes,
   System.Classes, System.Generics.Collections, System.Actions,
-  System.Win.Registry,
-  SQLExec, SQLExecThread,
-  uDatasetView,
-  DB, ADODB, DBClient, MidasLib,
-  OleDB, ComObj, ActiveX,
+  System.Win.Registry, System.Win.ComObj,
+
+  Data.DB, Data.Win.ADODB, Datasnap.DBClient, MidasLib,
+
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ComCtrls,
   Vcl.ToolWin, Vcl.StdCtrls,  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls,
   Vcl.ActnMan, Vcl.ImgList, Vcl.ExtCtrls, Vcl.ExtDlgs, Vcl.Buttons, Vcl.Grids,
+  Vcl.JumpList, Vcl.DBGrids,
+
+  SQLExec, SQLExecThread,
+  uDatasetView,
 
   SynEdit, SynEditHighlighter, SynHighlighterSQL,
-  Vcl.JumpList,
-  SynMemo,
-  SynHighlighterPas, SynEditMiscClasses, SynEditSearch,
-  Vcl.DBGrids,
+  SynMemo, SynHighlighterPas, SynEditMiscClasses, SynEditSearch,
+
   ChromeTabs;
 
 const
