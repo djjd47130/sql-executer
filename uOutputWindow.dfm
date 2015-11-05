@@ -14,6 +14,7 @@ object frmOutputWindow: TfrmOutputWindow
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object MsgPages: TPageControl
@@ -29,8 +30,6 @@ object frmOutputWindow: TfrmOutputWindow
     TabPosition = tpBottom
     object tabMessages: TTabSheet
       Caption = 'Messages'
-      ExplicitWidth = 665
-      ExplicitHeight = 269
       object OutputBox: TRichEdit
         Left = 0
         Top = 0
@@ -49,15 +48,11 @@ object frmOutputWindow: TfrmOutputWindow
         TabOrder = 0
         WordWrap = False
         Zoom = 100
-        ExplicitWidth = 665
-        ExplicitHeight = 233
       end
     end
     object tabData: TTabSheet
       Caption = 'Data View'
       ImageIndex = 3
-      ExplicitWidth = 665
-      ExplicitHeight = 237
       object sbData: TScrollBox
         Left = 0
         Top = 0
@@ -66,8 +61,6 @@ object frmOutputWindow: TfrmOutputWindow
         Align = alTop
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 0
-        ExplicitWidth = 665
-        ExplicitHeight = 233
       end
     end
     object tabSearch: TTabSheet
@@ -448,7 +441,5 @@ object frmOutputWindow: TfrmOutputWindow
     LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineAlpha = 200
     Align = alBottom
     TabOrder = 1
-    ExplicitTop = 217
-    ExplicitWidth = 455
   end
 end

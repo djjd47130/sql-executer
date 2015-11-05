@@ -42,6 +42,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure ChromeTabs1Change(Sender: TObject; ATab: TChromeTab;
       TabChangeType: TTabChangeType);
+    procedure FormDestroy(Sender: TObject);
   private
     FDatasets: TObjectList<TfrmDatasetView>;
   public
@@ -80,22 +81,23 @@ end;
 
 { TfrmOutputWindow }
 
-procedure TfrmOutputWindow.ChromeTabs1Change(Sender: TObject; ATab: TChromeTab;
-  TabChangeType: TTabChangeType);
-begin
-  //
-end;
-
 procedure TfrmOutputWindow.FormCreate(Sender: TObject);
 var
   X: Integer;
 begin
+  FDatasets:= TObjectList<TfrmDatasetView>.Create(True);
   OutputBox.Align:= alClient;
   MsgPages.Align:= alClient;
   for X := 0 to MsgPages.PageCount-1 do begin
     MsgPages.Pages[X].TabVisible:= False;
   end;
 
+end;
+
+procedure TfrmOutputWindow.FormDestroy(Sender: TObject);
+begin
+  FDatasets.Clear; //TODO
+  FDatasets.Free;
 end;
 
 procedure TfrmOutputWindow.PostMsg(const Text: String; const Style: TFontStyles = [];
@@ -135,6 +137,12 @@ begin
   finally
     OutputBox.Lines.EndUpdate;
   end;
+end;
+
+procedure TfrmOutputWindow.ChromeTabs1Change(Sender: TObject; ATab: TChromeTab;
+  TabChangeType: TTabChangeType);
+begin
+  //
 end;
 
 end.

@@ -29,7 +29,7 @@ type
   private
     FOwner: TContents;
   public
-    constructor Create(AOwner: TContents); virtual;
+    constructor Create(AOwner: TContents); reintroduce; virtual;
     destructor Destroy; override;
   end;
 
@@ -44,12 +44,13 @@ implementation
 
 constructor TContents.Create;
 begin
-
+  FItems:= TObjectList<TfrmContentBase>.Create(True);
 end;
 
 destructor TContents.Destroy;
 begin
-
+  FItems.Clear; //TODO
+  FItems.Free;
   inherited;
 end;
 
@@ -58,6 +59,7 @@ end;
 constructor TfrmContentBase.Create(AOwner: TContents);
 begin
   inherited Create(nil);
+  FOwner:= AOwner;
 end;
 
 destructor TfrmContentBase.Destroy;
