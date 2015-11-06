@@ -410,6 +410,7 @@ procedure CloneDataset(FromDataset: TDataset; ToDataset: TClientDataset);
 var
   I: integer;
   F: TField;
+  FD: TFieldDef;
 begin
   FromDataset.DisableControls;
   ToDataset.DisableControls;
@@ -419,8 +420,9 @@ begin
     ToDataset.FieldDefs.Clear;
     for I:= 0 to FromDataset.FieldDefs.Count - 1 do begin
       if FromDataset.FieldDefs[I].DataType <> ftDataSet then begin
-        with ToDataset.FieldDefs.AddFieldDef do
-          Assign(FromDataset.FieldDefs[I]);
+        FD:= ToDataset.FieldDefs.AddFieldDef;
+        FD.Assign(FromDataset.FieldDefs[I]);
+        //TODO: How to ignore read-only fields and make them writable?
       end;
     end;
     ToDataset.CreateDataSet;
