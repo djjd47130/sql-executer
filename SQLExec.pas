@@ -30,6 +30,7 @@ const
 
 type
   ESQLExecException = class;
+  ESQLExecBlockException = class;
   TSQLExecBlock = class;
   TSQLExecBlocks = class;
   TSQLExec = class;
@@ -905,6 +906,7 @@ var
       while RS.State <> adStateClosed do begin
         ADS.Recordset:= RS;
         AddDataset(ADS);
+        //Check if there's another recordset
         RS:= RS.NextRecordset(RecAffected);
         if not Assigned(RS) then Break;
       end;
@@ -977,7 +979,6 @@ begin
         DoRollback;
       end;
       on e: ESQLExecException do begin
-        //Result:= srSQLFail;
         DoRollback;
       end;
       on e: Exception do begin

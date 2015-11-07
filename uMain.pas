@@ -52,6 +52,8 @@ unit uMain;
     - Find All
     - Replace
     - Replace All
+  - Implement Edit menu - Cut / Copy / Paste / Delete
+  - Implement Edit menu - GoTo
   - Implement Drag/Drop Open File(s)
   - Implement showing datasets
     - Partially implemented, needs revision

@@ -311,7 +311,7 @@ begin
   except
     on E: Exception do begin
       SetStatus(esError);
-      SetErrorMessage('Critical SQL thread failure: '+E.Message);
+      SetErrorMessage('Critical SQL Thread Failure: '+E.Message);
       Terminate;
     end;
   end;
