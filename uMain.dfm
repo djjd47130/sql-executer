@@ -955,7 +955,10 @@ object frmSqlExec: TfrmSqlExec
         LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineSize = 1.000000000000000000
         LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineAlpha = 200
         Align = alTop
+        Visible = False
         TabOrder = 3
+        ExplicitLeft = 1
+        ExplicitTop = -3
       end
     end
   end
@@ -1066,12 +1069,14 @@ object frmSqlExec: TfrmSqlExec
       end
       object mRecent: TMenuItem
         Caption = 'Recent'
+        Visible = False
         OnClick = mRecentClick
         object TMenuItem
         end
       end
       object N1: TMenuItem
         Caption = '-'
+        Visible = False
       end
       object Exit1: TMenuItem
         Action = actFileExit
@@ -1168,6 +1173,7 @@ object frmSqlExec: TfrmSqlExec
     end
     object Help1: TMenuItem
       Caption = 'Help'
+      Visible = False
       object OutputWindow1: TMenuItem
         Caption = 'Output Window'
         OnClick = Help1Click
@@ -1246,24 +1252,28 @@ object frmSqlExec: TfrmSqlExec
     object actEditCut: TAction
       Category = 'Edit'
       Caption = 'Cut'
+      Enabled = False
       Hint = 'Cut Text'
       ImageIndex = 20
     end
     object actEditCopy: TAction
       Category = 'Edit'
       Caption = 'Copy'
+      Enabled = False
       Hint = 'Copy Text'
       ImageIndex = 19
     end
     object actEditPaste: TAction
       Category = 'Edit'
       Caption = 'Paste'
+      Enabled = False
       Hint = 'Paste Text'
       ImageIndex = 16
     end
     object actEditDelete: TAction
       Category = 'Edit'
       Caption = 'Delete'
+      Enabled = False
       Hint = 'Delete Text'
       ImageIndex = 21
     end
@@ -1305,6 +1315,7 @@ object frmSqlExec: TfrmSqlExec
     object actEditGoTo: TAction
       Category = 'Edit'
       Caption = 'Go To...'
+      Enabled = False
       Hint = 'Goto in Text'
       ImageIndex = 7
       ShortCut = 16455
@@ -1356,7 +1367,7 @@ object frmSqlExec: TfrmSqlExec
     Left = 96
     Top = 448
     Bitmap = {
-      494C0101630090005C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010163009000600010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000009001000001002000000000000090
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4669,7 +4680,7 @@ object frmSqlExec: TfrmSqlExec
     Left = 144
     Top = 448
     Bitmap = {
-      494C0101630070006C0018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010163007000700018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000005802000001002000000000000084
       0300000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -12107,7 +12118,7 @@ object frmSqlExec: TfrmSqlExec
     Left = 192
     Top = 448
     Bitmap = {
-      494C01015E00B000640020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01015E00B000680020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000800000000003000001002000000000000000
       0600000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -24792,7 +24803,7 @@ object frmSqlExec: TfrmSqlExec
     Left = 240
     Top = 448
     Bitmap = {
-      494C01015E00B000640030003000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01015E00B000680030003000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000008004000001002000000000000080
       0D00000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

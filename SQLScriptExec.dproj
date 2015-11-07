@@ -139,7 +139,8 @@
             <Form>frmContentBase2</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="SqlExecThread.pas"/>
+        <DCCReference Include="SQLExecThread.pas"/>
+        <DCCReference Include="SQLObjects.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

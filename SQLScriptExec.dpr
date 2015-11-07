@@ -14,7 +14,8 @@ uses
   uContentBase in 'uContentBase.pas' {frmContentBase},
   uContentScriptExec in 'uContentScriptExec.pas' {frmContentScriptExec},
   uContentHome in 'uContentHome.pas' {frmContentBase2},
-  SqlExecThread in 'SqlExecThread.pas';
+  SQLExecThread in 'SQLExecThread.pas',
+  SQLObjects in 'SQLObjects.pas';
 
 {$R *.res}
 
