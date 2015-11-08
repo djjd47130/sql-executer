@@ -51,6 +51,8 @@ end;
 
 Package also includes fully featured application to demonstrate the usage of this component.
 
+![Alt text](/SQLExecSS.png?raw=true "Screenshot")
+
 1. Requires ChromeTabs library (Not Included)
   - https://github.com/norgepaul/TChromeTabs
 2. Requires SynEdit library (Not Included)
