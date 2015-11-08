@@ -53,11 +53,6 @@ Package also includes fully featured application to demonstrate the usage of thi
 
 ![Alt text](/SQLExecSS.png?raw=true "Screenshot")
 
-1. Requires ChromeTabs library (Not Included)
-  - https://github.com/norgepaul/TChromeTabs
-2. Requires SynEdit library (Not Included)
-  - https://github.com/SynEdit/SynEdit
-
 **Application Features**:
 
 1. Execute single script on multiple databases at once
@@ -65,6 +60,16 @@ Package also includes fully featured application to demonstrate the usage of thi
 3. Connect to multiple servers at once
 4. Full syntax highlighting with editing capabilities
 5. Supports Open With and Recent SQL files (Jump List)
+6. Return multiple recordsets and translate to datasets
+7. Return error messages (or otherwise output messages)
+8. Edit SQL files with syntax highlighting
+
+**Requirements**
+
+1. Requires ChromeTabs library (Not Included)
+  - https://github.com/norgepaul/TChromeTabs
+2. Requires SynEdit library (Not Included)
+  - https://github.com/SynEdit/SynEdit
 
 **Background**
 
