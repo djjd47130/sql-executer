@@ -23,11 +23,11 @@ type
     BitBtn2: TBitBtn;
     cboCurExecMethod: TComboBox;
     ED: TSynEdit;
-    pMessages: TPanel;
-    Panel3: TPanel;
-    Label3: TLabel;
-    cmdCloseMessages: TSpeedButton;
-    SynSQLSyn1: TSynSQLSyn;
+    pOutput: TPanel;
+    pOutputTitle: TPanel;
+    lblOutputTitle: TLabel;
+    cmdOutputClose: TSpeedButton;
+    SynSQL: TSynSQLSyn;
     actRefreshConnections: TAction;
     actRefreshDatabases: TAction;
     actBatch: TAction;
@@ -90,7 +90,7 @@ begin
   ED.Align:= alClient;
   FOutput:= TfrmOutputWindow.Create(nil);
   FOutput.BorderStyle:= TFormBorderStyle.bsNone;
-  FOutput.Parent:= pMessages;
+  FOutput.Parent:= pOutput;
   FOutput.Align:= alClient;
   FOutput.Show;
 end;

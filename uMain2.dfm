@@ -42,8 +42,6 @@ object frmSqlExec2: TfrmSqlExec2
         Width = 50
       end>
     OnDrawPanel = StatDrawPanel
-    ExplicitTop = 573
-    ExplicitWidth = 1172
   end
   object pMain: TPanel
     Left = 0
@@ -53,7 +51,6 @@ object frmSqlExec2: TfrmSqlExec2
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 1172
     object Splitter1: TSplitter
       Left = 240
       Top = 0
@@ -177,10 +174,8 @@ object frmSqlExec2: TfrmSqlExec2
           TabHeight = 16
           TabOrder = 1
           TabPosition = tpBottom
-          ExplicitHeight = 193
           object TabSheet1: TTabSheet
             Caption = 'Object'
-            ExplicitHeight = 169
             object SelView: TStringGrid
               Left = 0
               Top = 0
@@ -196,7 +191,6 @@ object frmSqlExec2: TfrmSqlExec2
               Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goThumbTracking]
               ScrollBars = ssVertical
               TabOrder = 0
-              ExplicitHeight = 169
             end
           end
         end
@@ -323,7 +317,7 @@ object frmSqlExec2: TfrmSqlExec2
         end
       end
     end
-    object pScript: TPanel
+    object pContent: TPanel
       Left = 400
       Top = 0
       Width = 689
@@ -333,14 +327,16 @@ object frmSqlExec2: TfrmSqlExec2
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 1
-      ExplicitWidth = 772
+      ExplicitTop = 6
       object Tabs: TChromeTabs
         Left = 0
         Top = 0
         Width = 689
         Height = 30
+        Cursor = crHandPoint
         OnActiveTabChanged = TabsActiveTabChanged
-        ActiveTabIndex = 0
+        OnButtonCloseTabClick = TabsButtonCloseTabClick
+        ActiveTabIndex = -1
         Images = Imgs16
         Options.Display.CloseButton.Offsets.Vertical = 6
         Options.Display.CloseButton.Offsets.Horizontal = 2
@@ -355,7 +351,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Display.AddButton.Height = 14
         Options.Display.AddButton.Width = 31
         Options.Display.AddButton.ShowPlusSign = False
-        Options.Display.AddButton.Visibility = avRightFloating
+        Options.Display.AddButton.Visibility = avNone
         Options.Display.AddButton.HorizontalOffsetFloating = -3
         Options.Display.ScrollButtonLeft.Offsets.Vertical = 10
         Options.Display.ScrollButtonLeft.Offsets.Horizontal = 1
@@ -392,7 +388,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Display.Tabs.TextAlignmentHorizontal = taLeftJustify
         Options.Display.Tabs.TextAlignmentVertical = taVerticalCenter
         Options.Display.Tabs.ShowImages = True
-        Options.Display.Tabs.ShowPinnedTabText = False
+        Options.Display.Tabs.ShowPinnedTabText = True
         Options.Display.TabContainer.TransparentBackground = True
         Options.Display.TabContainer.OverlayButtons = True
         Options.Display.TabContainer.PaddingLeft = 0
@@ -418,7 +414,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Display.TabSpinners.Download.SweepAngle = 135
         Options.Display.TabSpinners.AnimationUpdateMS = 50
         Options.Display.TabSpinners.HideImagesWhenSpinnerVisible = True
-        Options.DragDrop.DragType = dtBetweenContainers
+        Options.DragDrop.DragType = dtWithinContainer
         Options.DragDrop.DragOutsideImageAlpha = 220
         Options.DragDrop.DragOutsideDistancePixels = 30
         Options.DragDrop.DragStartPixels = 2
@@ -448,7 +444,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Animation.MovementAnimations.TabMove.AnimationTimeMS = 500
         Options.Behaviour.BackgroundDblClickMaximiseRestoreForm = True
         Options.Behaviour.BackgroundDragMovesForm = True
-        Options.Behaviour.TabSmartDeleteResizing = True
+        Options.Behaviour.TabSmartDeleteResizing = False
         Options.Behaviour.TabSmartDeleteResizeCancelDelay = 700
         Options.Behaviour.UseBuiltInPopupMenu = True
         Options.Behaviour.TabRightClickSelect = True
@@ -463,43 +459,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Scrolling.DragScroll = True
         Options.Scrolling.DragScrollOffset = 50
         Options.Scrolling.MouseWheelScroll = True
-        Tabs = <
-          item
-            Caption = 'Home'
-            Active = True
-            Tag = 0
-            ImageIndex = 43
-            ImageIndexOverlay = -1
-            Pinned = False
-            Visible = True
-            Modified = False
-            SpinnerState = tssNone
-            HideCloseButton = False
-          end
-          item
-            Caption = 'Execute SQL'
-            Active = False
-            Tag = 0
-            ImageIndex = 44
-            ImageIndexOverlay = -1
-            Pinned = False
-            Visible = True
-            Modified = False
-            SpinnerState = tssNone
-            HideCloseButton = False
-          end
-          item
-            Caption = 'Object Information'
-            Active = False
-            Tag = 0
-            ImageIndex = 40
-            ImageIndexOverlay = -1
-            Pinned = False
-            Visible = True
-            Modified = False
-            SpinnerState = tssNone
-            HideCloseButton = False
-          end>
+        Tabs = <>
         LookAndFeel.TabsContainer.StartColor = 14586466
         LookAndFeel.TabsContainer.StopColor = 13201730
         LookAndFeel.TabsContainer.StartAlpha = 255
@@ -696,8 +656,8 @@ object frmSqlExec2: TfrmSqlExec2
         LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineSize = 1.000000000000000000
         LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineAlpha = 200
         Align = alTop
+        ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 772
       end
     end
   end
@@ -716,25 +676,32 @@ object frmSqlExec2: TfrmSqlExec2
     ShowHint = True
     TabOrder = 2
     Transparent = False
-    ExplicitTop = -5
-    ExplicitWidth = 1172
-    object cmdNewFile: TToolButton
+    object ToolButton6: TToolButton
       Left = 0
+      Top = 0
+      Action = actHome
+    end
+    object cmdNewFile: TToolButton
+      Left = 32
       Top = 0
       Action = actFileNew
     end
     object cmdOpenFile: TToolButton
-      Left = 32
-      Top = 0
-      Action = actFileOpen
-    end
-    object cmdSaveFile: TToolButton
       Left = 64
       Top = 0
-      Action = actFileSave
+      Hint = 'Open Script File'
+      Caption = 'Open...'
+      ImageIndex = 33
+    end
+    object cmdSaveFile: TToolButton
+      Left = 96
+      Top = 0
+      Hint = 'Save Script File'
+      Caption = 'Save'
+      ImageIndex = 65
     end
     object ToolButton4: TToolButton
-      Left = 96
+      Left = 128
       Top = 0
       Width = 8
       Caption = 'ToolButton4'
@@ -742,17 +709,22 @@ object frmSqlExec2: TfrmSqlExec2
       Style = tbsSeparator
     end
     object cmdUndo: TToolButton
-      Left = 104
-      Top = 0
-      Action = actEditUndo
-    end
-    object cmdFont: TToolButton
       Left = 136
       Top = 0
-      Action = actScriptFont
+      Hint = 'Undo Last Edit'
+      Caption = 'Undo'
+      Enabled = False
+      ImageIndex = 82
+    end
+    object cmdFont: TToolButton
+      Left = 168
+      Top = 0
+      Hint = 'Change Text Font'
+      Caption = 'Font...'
+      ImageIndex = 35
     end
     object ToolButton7: TToolButton
-      Left = 168
+      Left = 200
       Top = 0
       Width = 8
       Caption = 'ToolButton7'
@@ -760,27 +732,38 @@ object frmSqlExec2: TfrmSqlExec2
       Style = tbsSeparator
     end
     object cmdFind: TToolButton
-      Left = 176
-      Top = 0
-      Action = actEditFind
-    end
-    object cmdFindPrev: TToolButton
       Left = 208
       Top = 0
-      Action = actEditFindPrev
+      Hint = 'Find Text'
+      Caption = 'Find...'
+      ImageIndex = 67
+      Visible = False
     end
-    object cmdFindNext: TToolButton
+    object cmdFindPrev: TToolButton
       Left = 240
       Top = 0
-      Action = actEditFindNext
+      Caption = 'Find Previous'
+      ImageIndex = 93
+      Visible = False
     end
-    object cmdFindReplace: TToolButton
+    object cmdFindNext: TToolButton
       Left = 272
       Top = 0
-      Action = actEditReplace
+      Hint = 'Find Next in Text'
+      Caption = 'Find Next'
+      ImageIndex = 92
+      Visible = False
+    end
+    object cmdFindReplace: TToolButton
+      Left = 304
+      Top = 0
+      Hint = 'Replace Text'
+      Caption = 'Replace...'
+      ImageIndex = 97
+      Visible = False
     end
     object ToolButton12: TToolButton
-      Left = 304
+      Left = 336
       Top = 0
       Width = 8
       Caption = 'ToolButton12'
@@ -789,28 +772,28 @@ object frmSqlExec2: TfrmSqlExec2
       Visible = False
     end
     object ToolButton14: TToolButton
-      Left = 312
+      Left = 344
       Top = 0
       Caption = 'ToolButton14'
       ImageIndex = 90
       Visible = False
     end
     object ToolButton1: TToolButton
-      Left = 344
+      Left = 376
       Top = 0
       Caption = 'ToolButton1'
       ImageIndex = 90
       Visible = False
     end
     object ToolButton2: TToolButton
-      Left = 376
+      Left = 408
       Top = 0
       Caption = 'ToolButton2'
       ImageIndex = 90
       Visible = False
     end
     object ToolButton3: TToolButton
-      Left = 408
+      Left = 440
       Top = 0
       Caption = 'ToolButton3'
       ImageIndex = 90
@@ -834,13 +817,22 @@ object frmSqlExec2: TfrmSqlExec2
         Action = actFileNew
       end
       object Open1: TMenuItem
-        Action = actFileOpen
+        Caption = 'Open...'
+        Hint = 'Open Script File'
+        ImageIndex = 33
+        ShortCut = 16463
       end
       object Save1: TMenuItem
-        Action = actFileSave
+        Caption = 'Save'
+        Hint = 'Save Script File'
+        ImageIndex = 65
+        ShortCut = 16467
       end
       object Saveas1: TMenuItem
-        Action = actFileSaveAs
+        Caption = 'Save As...'
+        Hint = 'Save Script File As'
+        ImageIndex = 65
+        ShortCut = 49235
       end
       object N2: TMenuItem
         Caption = '-'
@@ -863,58 +855,103 @@ object frmSqlExec2: TfrmSqlExec2
     object Edit1: TMenuItem
       Caption = 'Edit'
       object Undo1: TMenuItem
-        Action = actEditUndo
+        Caption = 'Undo'
+        Enabled = False
+        Hint = 'Undo Last Edit'
+        ImageIndex = 82
+        ShortCut = 16474
       end
       object N3: TMenuItem
         Caption = '-'
       end
       object Cut1: TMenuItem
-        Action = actEditCut
+        Caption = 'Cut'
+        Enabled = False
+        Hint = 'Cut Text'
+        ImageIndex = 20
       end
       object Copy1: TMenuItem
-        Action = actEditCopy
+        Caption = 'Copy'
+        Enabled = False
+        Hint = 'Copy Text'
+        ImageIndex = 19
       end
       object Paste1: TMenuItem
-        Action = actEditPaste
+        Caption = 'Paste'
+        Enabled = False
+        Hint = 'Paste Text'
+        ImageIndex = 16
       end
       object Delete1: TMenuItem
-        Action = actEditDelete
+        Caption = 'Delete'
+        Enabled = False
+        Hint = 'Delete Text'
+        ImageIndex = 21
       end
       object N4: TMenuItem
         Caption = '-'
       end
       object Find1: TMenuItem
-        Action = actEditFind
+        Caption = 'Find...'
+        Hint = 'Find Text'
+        ImageIndex = 67
+        ShortCut = 16454
+        Visible = False
       end
       object FindPrevious1: TMenuItem
-        Action = actEditFindPrev
+        Caption = 'Find Previous'
+        ImageIndex = 93
+        ShortCut = 115
+        Visible = False
       end
       object FindNext1: TMenuItem
-        Action = actEditFindNext
+        Caption = 'Find Next'
+        Hint = 'Find Next in Text'
+        ImageIndex = 92
+        ShortCut = 114
+        Visible = False
       end
       object Rreplace1: TMenuItem
-        Action = actEditReplace
+        Caption = 'Replace...'
+        Hint = 'Replace Text'
+        ImageIndex = 97
+        ShortCut = 16456
+        Visible = False
       end
       object GoTo1: TMenuItem
-        Action = actEditGoTo
+        Caption = 'Go To...'
+        Enabled = False
+        Hint = 'Goto in Text'
+        ImageIndex = 7
+        ShortCut = 16455
       end
       object N5: TMenuItem
         Caption = '-'
       end
       object SelectAll1: TMenuItem
-        Action = actEditSelectAll
+        Caption = 'Select All'
+        Hint = 'Select All Text'
+        ShortCut = 16449
       end
     end
     object Script1: TMenuItem
       Caption = 'Script'
       object ExecuteScript1: TMenuItem
-        Action = actScriptExecute
+        Caption = 'Execute SQL'
+        Enabled = False
+        Hint = 'Execute SQL Script'
+        ImageIndex = 7
+        ShortCut = 116
+        OnClick = actScriptExecuteExecute
       end
       object N6: TMenuItem
         Caption = '-'
       end
       object Font1: TMenuItem
-        Action = actScriptFont
+        Caption = 'Font...'
+        Hint = 'Change Text Font'
+        ImageIndex = 35
+        ShortCut = 16454
       end
     end
     object Server1: TMenuItem
@@ -953,7 +990,6 @@ object frmSqlExec2: TfrmSqlExec2
       Visible = False
       object OutputWindow1: TMenuItem
         Caption = 'Output Window'
-        OnClick = Help1Click
       end
       object ScriptWindow1: TMenuItem
         Caption = 'Script Window'
@@ -976,35 +1012,7 @@ object frmSqlExec2: TfrmSqlExec2
       Hint = 'Create New Script File'
       ImageIndex = 24
       ShortCut = 16462
-    end
-    object actFileOpen: TAction
-      Category = 'File'
-      Caption = 'Open...'
-      Hint = 'Open Script File'
-      ImageIndex = 33
-      ShortCut = 16463
-    end
-    object actFileSave: TAction
-      Category = 'File'
-      Caption = 'Save'
-      Hint = 'Save Script File'
-      ImageIndex = 65
-      ShortCut = 16467
-    end
-    object actFileSaveAs: TAction
-      Category = 'File'
-      Caption = 'Save As...'
-      Hint = 'Save Script File As'
-      ImageIndex = 65
-      ShortCut = 49235
-    end
-    object actServerConnect: TAction
-      Category = 'Server'
-      Caption = 'Connect...'
-      Hint = 'Connect to Server'
-      ImageIndex = 0
-      ShortCut = 16462
-      OnExecute = actServerConnectExecute
+      OnExecute = actFileNewExecute
     end
     object actFileExit: TAction
       Category = 'File'
@@ -1013,93 +1021,13 @@ object frmSqlExec2: TfrmSqlExec2
       ImageIndex = 48
       OnExecute = actFileExitExecute
     end
-    object actEditUndo: TAction
-      Category = 'Edit'
-      Caption = 'Undo'
-      Enabled = False
-      Hint = 'Undo Last Edit'
-      ImageIndex = 82
-      ShortCut = 16474
-    end
-    object actEditCut: TAction
-      Category = 'Edit'
-      Caption = 'Cut'
-      Enabled = False
-      Hint = 'Cut Text'
-      ImageIndex = 20
-    end
-    object actEditCopy: TAction
-      Category = 'Edit'
-      Caption = 'Copy'
-      Enabled = False
-      Hint = 'Copy Text'
-      ImageIndex = 19
-    end
-    object actEditPaste: TAction
-      Category = 'Edit'
-      Caption = 'Paste'
-      Enabled = False
-      Hint = 'Paste Text'
-      ImageIndex = 16
-    end
-    object actEditDelete: TAction
-      Category = 'Edit'
-      Caption = 'Delete'
-      Enabled = False
-      Hint = 'Delete Text'
-      ImageIndex = 21
-    end
-    object actEditFind: TAction
-      Category = 'Edit'
-      Caption = 'Find...'
-      Hint = 'Find Text'
-      ImageIndex = 67
-      ShortCut = 16454
-      Visible = False
-    end
-    object actEditFindNext: TAction
-      Category = 'Edit'
-      Caption = 'Find Next'
-      Hint = 'Find Next in Text'
-      ImageIndex = 92
-      ShortCut = 114
-      Visible = False
-    end
-    object actEditFindPrev: TAction
-      Category = 'Edit'
-      Caption = 'Find Previous'
-      ImageIndex = 93
-      ShortCut = 115
-      Visible = False
-    end
-    object actEditReplace: TAction
-      Category = 'Edit'
-      Caption = 'Replace...'
-      Hint = 'Replace Text'
-      ImageIndex = 97
-      ShortCut = 16456
-      Visible = False
-    end
-    object actEditGoTo: TAction
-      Category = 'Edit'
-      Caption = 'Go To...'
-      Enabled = False
-      Hint = 'Goto in Text'
-      ImageIndex = 7
-      ShortCut = 16455
-    end
-    object actEditSelectAll: TAction
-      Category = 'Edit'
-      Caption = 'Select All'
-      Hint = 'Select All Text'
-      ShortCut = 16449
-    end
-    object actScriptFont: TAction
-      Category = 'Script'
-      Caption = 'Font...'
-      Hint = 'Change Text Font'
-      ImageIndex = 35
-      ShortCut = 16454
+    object actServerConnect: TAction
+      Category = 'Server'
+      Caption = 'Connect...'
+      Hint = 'Connect to Server'
+      ImageIndex = 0
+      ShortCut = 16462
+      OnExecute = actServerConnectExecute
     end
     object actServerDisconnect: TAction
       Category = 'Server'
@@ -1110,29 +1038,17 @@ object frmSqlExec2: TfrmSqlExec2
       ShortCut = 16452
       OnExecute = actServerDisconnectExecute
     end
-    object actScriptExecute: TAction
-      Category = 'Script'
-      Caption = 'Execute SQL'
-      Enabled = False
-      Hint = 'Execute SQL Script'
-      ImageIndex = 7
-      ShortCut = 116
-      OnExecute = actScriptExecuteExecute
-    end
-    object actScriptBatch: TAction
-      Category = 'Script'
-      Caption = 'Batch'
-      Enabled = False
-      Hint = 'Execute script on multiple databases at once'
-      ImageIndex = 40
-      ShortCut = 117
+    object actHome: TAction
+      Caption = 'Home'
+      ImageIndex = 43
+      OnExecute = actHomeExecute
     end
   end
   object Imgs16: TImageList
     Left = 96
     Top = 448
     Bitmap = {
-      494C010163009000640010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010163009000680010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000009001000001002000000000000090
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4445,7 +4361,7 @@ object frmSqlExec2: TfrmSqlExec2
     Left = 144
     Top = 448
     Bitmap = {
-      494C010163007000740018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010163007000780018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000005802000001002000000000000084
       0300000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11883,7 +11799,7 @@ object frmSqlExec2: TfrmSqlExec2
     Left = 192
     Top = 448
     Bitmap = {
-      494C01015E00B0006C0020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01015E00B000700020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000800000000003000001002000000000000000
       0600000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -24568,7 +24484,7 @@ object frmSqlExec2: TfrmSqlExec2
     Left = 240
     Top = 448
     Bitmap = {
-      494C01015E00B0006C0030003000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01015E00B000700030003000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000008004000001002000000000000080
       0D00000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -53113,17 +53029,6 @@ object frmSqlExec2: TfrmSqlExec2
     Left = 128
     Top = 504
   end
-  object SynSQLSyn1: TSynSQLSyn
-    Options.AutoDetectEnabled = True
-    Options.AutoDetectLineLimit = 0
-    Options.Visible = True
-    CommentAttri.Foreground = clGreen
-    KeyAttri.Foreground = clBlue
-    StringAttri.Foreground = 198
-    SQLDialect = sqlMSSQL2K
-    Left = 320
-    Top = 512
-  end
   object JumpList1: TJumpList
     AutoRefresh = True
     Enabled = True
@@ -53133,10 +53038,6 @@ object frmSqlExec2: TfrmSqlExec2
     TaskList = <>
     Left = 216
     Top = 512
-  end
-  object Search: TSynEditSearch
-    Left = 320
-    Top = 456
   end
   object tmrFileChange: TTimer
     Left = 424

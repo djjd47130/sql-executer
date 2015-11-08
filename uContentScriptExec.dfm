@@ -1,27 +1,27 @@
 inherited frmContentScriptExec: TfrmContentScriptExec
   Caption = 'SQL Script'
-  ClientHeight = 593
+  ClientHeight = 404
   ClientWidth = 768
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   ExplicitWidth = 774
-  ExplicitHeight = 622
+  ExplicitHeight = 433
   PixelsPerInch = 96
   TextHeight = 13
   object pMain: TPanel [0]
     Left = 0
     Top = 0
     Width = 768
-    Height = 505
+    Height = 332
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 698
+    ExplicitHeight = 417
     object Splitter3: TSplitter
       Left = 0
-      Top = 344
+      Top = 225
       Width = 768
       Height = 7
       Cursor = crVSplit
@@ -42,7 +42,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 0
-      ExplicitWidth = 698
       object Label1: TLabel
         Left = 8
         Top = 3
@@ -58,7 +57,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         Caption = 'Current Database:'
       end
       object Label5: TLabel
-        Left = 310
+        Left = 388
         Top = 3
         Width = 82
         Height = 13
@@ -91,9 +90,9 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         TabOrder = 2
       end
       object BitBtn2: TBitBtn
-        Left = 405
+        Left = 307
         Top = 20
-        Width = 69
+        Width = 78
         Height = 21
         Cursor = crHandPoint
         Action = actBatch
@@ -101,7 +100,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         TabOrder = 3
       end
       object cboCurExecMethod: TComboBox
-        Left = 310
+        Left = 388
         Top = 20
         Width = 89
         Height = 21
@@ -118,7 +117,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Left = 0
       Top = 44
       Width = 768
-      Height = 205
+      Height = 88
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       Font.Charset = DEFAULT_CHARSET
@@ -136,26 +135,24 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Gutter.Font.Style = []
       Gutter.RightOffset = 6
       Gutter.ShowLineNumbers = True
-      Highlighter = SynSQLSyn1
+      Highlighter = SynSQL
       Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoShowScrollHint, eoTabsToSpaces, eoTrimTrailingSpaces]
       RightEdge = 120
       TabWidth = 4
       WantTabs = True
       FontSmoothing = fsmNone
-      ExplicitWidth = 698
+      ExplicitHeight = 173
     end
-    object pMessages: TPanel
+    object pOutput: TPanel
       Left = 0
-      Top = 351
+      Top = 232
       Width = 768
-      Height = 154
+      Height = 100
       Align = alBottom
       ParentBackground = False
       TabOrder = 2
       StyleElements = [seFont, seBorder]
-      ExplicitTop = 307
-      ExplicitWidth = 698
-      object Panel3: TPanel
+      object pOutputTitle: TPanel
         Left = 1
         Top = 1
         Width = 766
@@ -170,11 +167,10 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         ParentColor = True
         ParentFont = False
         TabOrder = 0
-        ExplicitWidth = 696
         DesignSize = (
           766
           21)
-        object Label3: TLabel
+        object lblOutputTitle: TLabel
           Left = 1
           Top = 1
           Width = 176
@@ -191,7 +187,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
           Layout = tlCenter
           ExplicitHeight = 23
         end
-        object cmdCloseMessages: TSpeedButton
+        object cmdOutputClose: TSpeedButton
           Left = 742
           Top = 0
           Width = 21
@@ -232,7 +228,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     end
     object Stat: TStatusBar
       Left = 0
-      Top = 325
+      Top = 206
       Width = 768
       Height = 19
       Panels = <
@@ -249,17 +245,16 @@ inherited frmContentScriptExec: TfrmContentScriptExec
           Width = 120
         end
         item
+          Text = '1 Block'
           Width = 120
         end
         item
           Width = 120
         end>
-      ExplicitLeft = 192
-      ExplicitTop = 288
-      ExplicitWidth = 0
+      ExplicitTop = 325
     end
   end
-  object SynSQLSyn1: TSynSQLSyn [1]
+  object SynSQL: TSynSQLSyn [1]
     Options.AutoDetectEnabled = True
     Options.AutoDetectLineLimit = 0
     Options.Visible = True
@@ -267,11 +262,13 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     KeyAttri.Foreground = clBlue
     StringAttri.Foreground = 198
     SQLDialect = sqlMSSQL2K
-    Left = 280
-    Top = 130
+    Left = 152
+    Top = 346
   end
   inherited Acts: TActionList
     Images = frmSqlExec.Imgs16
+    Left = 64
+    Top = 344
     object actRefreshConnections: TAction
       Caption = 'Refresh Connections'
       ImageIndex = 63

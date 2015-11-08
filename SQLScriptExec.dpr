@@ -12,11 +12,12 @@ uses
   uDatasetView in 'uDatasetView.pas' {frmDatasetView},
   uContentBase in 'uContentBase.pas' {frmContentBase},
   uContentScriptExec in 'uContentScriptExec.pas' {frmContentScriptExec},
-  uContentHome in 'uContentHome.pas' {frmContentBase2},
+  uContentHome in 'uContentHome.pas' {frmContentHome},
   SQLExecThread in 'SQLExecThread.pas',
   SQLObjects in 'SQLObjects.pas',
   SQLConnections in 'SQLConnections.pas',
-  uMain in 'uMain.pas' {frmSqlExec};
+  uMain in 'uMain.pas' {frmSqlExec},
+  uContentObject in 'uContentObject.pas' {frmContentObject};
 
 {$R *.res}
 
@@ -28,5 +29,6 @@ begin
   RunApp;
   Application.CreateForm(TfrmSqlExec, frmSqlExec);
   Application.CreateForm(TfrmDatabases, frmDatabases);
+  Application.CreateForm(TfrmContentObject, frmContentObject);
   Application.Run;
 end.

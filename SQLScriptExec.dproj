@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>SQLScriptExec.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">V2 Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -111,8 +111,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_3_Win32)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Build>18</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=JD Software Inc;FileDescription=SQL Script Executer;FileVersion=1.0.0.18;InternalName=SqlScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SqlScriptExec.exe;ProductName=SqlExec;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>20</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=JD Software Inc;FileDescription=SQL Script Executer;FileVersion=1.0.0.20;InternalName=SqlScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SqlScriptExec.exe;ProductName=SqlExec;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -164,7 +164,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="uContentHome.pas">
-            <Form>frmContentBase2</Form>
+            <Form>frmContentHome</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="SQLExecThread.pas"/>
@@ -172,6 +172,10 @@
         <DCCReference Include="SQLConnections.pas"/>
         <DCCReference Include="uMain.pas">
             <Form>frmSqlExec</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="uContentObject.pas">
+            <Form>frmContentObject</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">
@@ -210,6 +214,12 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment>
+                <DeployFile LocalName="Win32\V2 Debug\SQLScriptExec.exe" Configuration="V2 Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>SQLScriptExec.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Win32\Debug\SQLScriptExec.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>SQLScriptExec.exe</RemoteName>

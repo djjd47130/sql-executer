@@ -94,14 +94,10 @@ uses
   Vcl.JumpList, Vcl.DBGrids,
 
   SQLExec, SQLExecThread,
-  uDatasetView,
   SQLConnections,
-
-  SynEdit, SynEditHighlighter, SynHighlighterSQL,
-  SynMemo, SynHighlighterPas, SynEditMiscClasses, SynEditSearch,
+  uContentBase, uContentScriptExec, uContentHome,
 
   ChromeTabs,
-
   ChromeTabsTypes,
   ChromeTabsUtils,
   ChromeTabsControls,
@@ -129,19 +125,9 @@ type
     Connection1: TMenuItem;
     Acts: TActionManager;
     actFileNew: TAction;
-    actFileOpen: TAction;
-    actFileSave: TAction;
-    actFileSaveAs: TAction;
     actServerConnect: TAction;
     actFileExit: TAction;
     Exit1: TMenuItem;
-    actEditUndo: TAction;
-    actEditCut: TAction;
-    actEditCopy: TAction;
-    actEditPaste: TAction;
-    actEditDelete: TAction;
-    actEditFind: TAction;
-    actEditFindNext: TAction;
     Undo1: TMenuItem;
     N3: TMenuItem;
     Cut1: TMenuItem;
@@ -151,15 +137,11 @@ type
     N4: TMenuItem;
     Find1: TMenuItem;
     FindNext1: TMenuItem;
-    actEditReplace: TAction;
-    actEditGoTo: TAction;
-    actEditSelectAll: TAction;
     Rreplace1: TMenuItem;
     GoTo1: TMenuItem;
     N5: TMenuItem;
     SelectAll1: TMenuItem;
     Font1: TMenuItem;
-    actScriptFont: TAction;
     Imgs16: TImageList;
     Imgs24: TImageList;
     Imgs32: TImageList;
@@ -185,9 +167,7 @@ type
     Disconnect1: TMenuItem;
     actServerDisconnect: TAction;
     ToolButton7: TToolButton;
-    actScriptExecute: TAction;
-    pScript: TPanel;
-    SynSQLSyn1: TSynSQLSyn;
+    pContent: TPanel;
     JumpList1: TJumpList;
     pSelected: TPanel;
     Panel4: TPanel;
@@ -209,9 +189,6 @@ type
     ShowSelectedObject1: TMenuItem;
     ShowMessages1: TMenuItem;
     Prog: TProgressBar;
-    actScriptBatch: TAction;
-    Search: TSynEditSearch;
-    actEditFindPrev: TAction;
     cmdFindPrev: TToolButton;
     cmdFindNext: TToolButton;
     cmdFindReplace: TToolButton;
@@ -228,6 +205,8 @@ type
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
+    actHome: TAction;
+    ToolButton6: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -249,15 +228,21 @@ type
     procedure ShowSelectedObject1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ShowLinesAffected1Click(Sender: TObject);
-    procedure Help1Click(Sender: TObject);
     procedure ScriptWindow1Click(Sender: TObject);
     procedure mRecentClick(Sender: TObject);
     procedure TabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
+    procedure actHomeExecute(Sender: TObject);
+    procedure actFileNewExecute(Sender: TObject);
+    procedure TabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab;
+      var Close: Boolean);
   private
     FConnections: TServerConnections;
     FBusy: Boolean;
     FShowLinesAffected: Bool;
     FLargeMode: Boolean;
+
+    FHome: TfrmContentHome;
+
     function TestConnection(AConnStr: String): Boolean;
     procedure LoadTables(Conn: TServerConnection; Node: TTreeNode);
     procedure LoadStoredProcs(Conn: TServerConnection; Node: TTreeNode);
@@ -268,6 +253,8 @@ type
     procedure SaveState;
     procedure AddToRecents(AConnStr: TConnectionString);
     procedure ResetSizes;
+    procedure DisplayContent(AContent: TfrmContentBase);
+    procedure SetCaption(const S: String);
   public
 
   end;
@@ -281,12 +268,11 @@ implementation
 
 uses
   StrUtils,
-  uConnection, uDatabases,
+  uConnection, uDatabases
   {$IFDEF USE_SPLASH}
-  uSplash,
+  , uSplash
   {$ENDIF}
-  uOutputWindow,
-  uContentBase, uContentScriptExec, uContentHome;
+  ;
 
 function PromptConnection(const InitialString: TConnectionString; var NewString: TConnectionString;
   var SaveRecent: Boolean): Boolean;
@@ -322,8 +308,13 @@ var
   ProgressBarStyle: integer;
   FN: String;
 begin
+
+  {$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown:= True;
+  {$ENDIF}
+
   pMain.Align:= alClient;
-  pScript.Align:= alClient;
+  pContent.Align:= alClient;
   pConnections.Align:= alClient;
   pSelected.Height:= 240;
   TV.Align:= alClient;
@@ -337,10 +328,16 @@ begin
   ProgressBarStyle := ProgressBarStyle - WS_EX_STATICEDGE;
   SetWindowLong(Prog.Handle, GWL_EXSTYLE, ProgressBarStyle);
 
+
+  FHome:= TfrmContentHome.Create(nil);
+
+
   RefreshServerActions;
   LoadState;
 
   ResetSizes;
+
+  actHome.Execute;
 
   if ParamCount > 0 then begin
     FN:= ParamStr(1);
@@ -348,6 +345,15 @@ begin
     //DoOpenFile(FN);
   end;
 
+end;
+
+procedure TfrmSqlExec2.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FHome);
+
+  SaveState;
+  FConnections.Clear;
+  FConnections.Free;
 end;
 
 procedure TfrmSqlExec2.ResetSizes;
@@ -374,13 +380,6 @@ begin
 
 end;
 
-procedure TfrmSqlExec2.FormDestroy(Sender: TObject);
-begin
-  SaveState;
-  FConnections.Clear;
-  FConnections.Free;
-end;
-
 procedure TfrmSqlExec2.FormShow(Sender: TObject);
 begin
   {$IFDEF USE_SPLASH}
@@ -389,24 +388,13 @@ begin
   {$ENDIF}
 end;
 
-procedure TfrmSqlExec2.Help1Click(Sender: TObject);
-var
-  W: TfrmOutputWindow;
-begin
-  W:= TfrmOutputWindow.Create(nil);
-  try
-    W.ShowModal;
-  finally
-    W.Free;
-  end;
-end;
-
 procedure TfrmSqlExec2.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   {$IFDEF USE_V2}
   //TODO: Check each tab for saving changes
 
   {$ELSE}
+  {
   if FIsEdited then begin
     case MessageDlg('Would you like to save your changes before exiting?',
       mtWarning, [mbYes,mbNo,mbCancel], 0)
@@ -428,6 +416,7 @@ begin
       end;
     end;
   end;
+  }
   {$ENDIF}
 end;
 
@@ -567,8 +556,35 @@ begin
 end;
 
 procedure TfrmSqlExec2.TabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
+var
+  C: TfrmContentBase;
 begin
-  //
+  //TODO: Display corresponding tab data
+  C:= TfrmContentBase(ATab.Data);
+  if Assigned(C) then begin
+    Self.DisplayContent(C);
+  end;
+end;
+
+procedure TfrmSqlExec2.TabsButtonCloseTabClick(Sender: TObject;
+  ATab: TChromeTab; var Close: Boolean);
+var
+  C: TfrmContentBase;
+begin
+  //Check content type
+  C:= TfrmContentBase(ATab.Data);
+  if Assigned(C) then begin
+    if C is TfrmContentHome then begin
+      //Do nothing, this needs to stay created
+    end else
+    if C is TfrmContentScriptExec then begin
+      //TODO: Prompt to save changes, etc.
+
+      C.Free;
+
+    end;
+
+  end;
 end;
 
 function TfrmSqlExec2.TestConnection(AConnStr: String): Boolean;
@@ -768,19 +784,19 @@ begin
   FBusy:= not Enabled;
 
   //ED.ReadOnly:= not Enabled;
-  Self.actScriptExecute.Enabled:= Enabled;
-  Self.actScriptBatch.Enabled:= Enabled;
+  //Self.actScriptExecute.Enabled:= Enabled;
+  //Self.actScriptBatch.Enabled:= Enabled;
   Self.actServerConnect.Enabled:= Enabled;
   Self.actServerDisconnect.Enabled:= Enabled;
   Self.actFileNew.Enabled:= Enabled;
-  Self.actFileOpen.Enabled:= Enabled;
+  //Self.actFileOpen.Enabled:= Enabled;
   Self.actFileExit.Enabled:= Enabled;
   //Self.actEditUndo.Enabled:= (Enabled and ED.CanUndo);
-  Self.actEditPaste.Enabled:= Enabled;
+  //Self.actEditPaste.Enabled:= Enabled;
   //Self.actEditCut.Enabled:= (Enabled and (ED.SelLength > 0));
   //Self.actEditDelete.Enabled:= (Enabled and (ED.SelLength > 0));
   //Self.actEditCopy.Enabled:= (Enabled and (ED.SelLength > 0));
-  Self.actEditReplace.Enabled:= Enabled;
+  //Self.actEditReplace.Enabled:= Enabled;
 
   if Enabled then
     Screen.Cursor:= crDefault
@@ -823,8 +839,8 @@ begin
   end;
   }
   //S:= CurrentServer;
-  actScriptExecute.Enabled:= Assigned(S);
-  actScriptBatch.Enabled:= Assigned(S);
+  //actScriptExecute.Enabled:= Assigned(S);
+  //actScriptBatch.Enabled:= Assigned(S);
 
 end;
 
@@ -935,269 +951,65 @@ begin
   end;
 end;
 
-{$IFNDEF USE_V2}
-
-procedure TfrmSqlExec.CreateNewDoc;
+procedure TfrmSqlExec2.actFileNewExecute(Sender: TObject);
+var
+  C: TfrmContentScriptExec;
+  T: TChromeTab;
 begin
-  if FIsEdited then begin
-    case MessageDlg('Would you like to save your changes?', mtWarning, [mbYes,mbNo,mbCancel], 0) of
-      mrYes: begin
-        if not DoSaveAs then
-          Exit;
-      end;
-      mrNo: begin
-        //Do not save changes
-      end;
-      else begin
-        //Abort creating new
-        Exit;
-      end;
+  //New Script Window
+  C:= TfrmContentScriptExec.Create(nil);
+  T:= Tabs.Tabs.Add;
+  T.Data:= C;
+  T.Caption:= 'SQL Script';
+  T.ImageIndex:= 44;
+  Self.DisplayContent(C);
+end;
+
+procedure TfrmSqlExec2.SetCaption(const S: String);
+begin
+  Self.Caption:= 'SQL Script Executer - ' + S;
+end;
+
+procedure TfrmSqlExec2.actHomeExecute(Sender: TObject);
+var
+  X: Integer;
+  T: TChromeTab;
+  C: TfrmContentBase;
+  D: Boolean;
+begin
+  //Show Home Page
+  D:= False;
+  for X := 0 to Tabs.Tabs.Count-1 do begin
+    T:= Tabs.Tabs[X];
+    C:= TfrmContentBase(T.Data);
+    if C = FHome then begin
+      Tabs.ActiveTabIndex:= X;
+      D:= True;
+      Break;
     end;
   end;
-  ED.Clear;
-  FIsNew:= True;
-  FIsEdited:= False;
-  ED.ClearUndo;
-  FFilename:= '';
-  actFileSave.Enabled:= False;
-  actFileSaveAs.Enabled:= True;
-  actEditUndo.Enabled:= False;
-  Stat.Panels[0].Text:= '';
-  tmrEdit.Enabled:= False;
-  tmrEdit.Enabled:= True;
-  Caption:= 'SQL Script Executer - New File';
-  FFileDateTime:= Now;
-  FDTChanged:= False;
-end;
-
-procedure TfrmSqlExec.DoEdited;
-begin
-  FIsEdited:= True;
-  actFileSave.Enabled:= True;
-  actFileSaveAs.Enabled:= True;
-  actEditUndo.Enabled:= True;
-  Stat.Panels[0].Text:= 'Modified';
-  tmrEdit.Enabled:= False;
-  tmrEdit.Enabled:= True;
-end;
-
-procedure TfrmSqlExec.DoSaved;
-begin
-  FIsEdited:= False;
-  FIsNew:= False;
-  actFileSave.Enabled:= False;
-  actFileSaveAs.Enabled:= True;
-  actEditUndo.Enabled:= False;
-  Stat.Panels[0].Text:= '';
-  FFileDateTime:= FileDateTime(FFilename);
-  FDTChanged:= False;
-end;
-
-function TfrmSqlExec.DoSave: Boolean;
-begin
-  if FIsNew then begin
-    Result:= DoSaveAs;
-  end else begin
-    try
-      ED.Lines.SaveToFile(FFilename);
-      DoSaved;
-      Result:= True;     
-      Caption:= 'SQL Script Executer - ' + FFilename;
-    except
-      on E: Exception do begin
-        MessageDlg('Failed to save file "'+FFilename+'"', mtError, [mbOk], 0);
-        Result:= DoSaveAs;
-      end;
-    end;
+  if not D then begin
+    T:= Tabs.Tabs.Add;
+    T.Data:= FHome;
+    T.Caption:= 'Home';
+    T.ImageIndex:= 43;
+    T.Index:= 0;
   end;
-  tmrEdit.Enabled:= False;
-  tmrEdit.Enabled:= True;
+  DisplayContent(FHome);
 end;
 
-function TfrmSqlExec.DoSaveAs: Boolean;
+procedure TfrmSqlExec2.DisplayContent(AContent: TfrmContentBase);
 begin
-  Result:= False;
-  dlgSave.FileName:= FFilename;
-  if dlgSave.Execute then begin
-    try
-      ED.Lines.SaveToFile(dlgSave.FileName);
-      FFilename:= dlgSave.FileName;
-      DoSaved;
-      Result:= True;
-      JumpList1.AddToRecent(FFilename); 
-      Caption:= 'SQL Script Executer - ' + FFilename;
-    except
-      on E: Exception do begin
-        //Failed to save new file
-      end;
-    end;
-  end;
-  tmrEdit.Enabled:= False;
-  tmrEdit.Enabled:= True;
+  AContent.Parent:= pContent;
+  AContent.BorderStyle:= bsNone;
+  AContent.Align:= alClient;
+  AContent.Show;
+  AContent.BringToFront;
 end;
-{$ENDIF}
 
 procedure TfrmSqlExec2.actScriptExecuteExecute(Sender: TObject);
-var
-  S: TServerConnection;
-  R: TSqlExecResult;
-  TS: DWORD;
-  TTS: DWORD;
-  EC: Integer;    //Error Count - Current Database
-  TEC: Integer;   //Total Error Count
-  TBC: Integer;   //Total Block Count
-  TDC: Integer;   //Total Selected Database Count
-  RAF: Integer;   //Rows Affected - Current Database
-  TRAF: Integer;  //Total Rows Affected
-  X: Integer;
-  {$IFNDEF USE_V2}
-  function FormatPlural(const Num: Integer; const Text: String): String;
-  begin
-    Result:= IntToStr(Num) + ' ' + Text;
-    if Num <> 1 then
-      Result:= Result + 's';
-  end;
-  procedure ClearGrids;
-  begin
-    FDataGrids.Clear;
-    while sbData.ControlCount > 0 do
-      sbData.Controls[0].Free;
-  end;
-  procedure AddGrid(ADataset: TClientDataSet; ABlock: TSqlExecBlock);
-  var
-    F: TfrmDatasetView;
-  begin
-    F:= TfrmDatasetView.Create(nil);
-    FDataGrids.Add(F);
-    F.Parent:= sbData;
-    F.Show;
-    if FDataGrids.Count = 1 then begin
-      F.Align:= alClient;
-    end else begin
-      if FDataGrids.Count = 2 then begin
-        //More than one now, the first can't hog it all up.
-        FDataGrids[0].Align:= alTop;
-        FDataGrids[0].Height:= 250;
-      end;
-      F.Height:= 250;
-      F.Align:= alTop;
-    end;
-    CloneDataset(ADataset, F.CDS);
-    PostMsg('Added dataset on block '+IntToStr(ABlock.Index), [], clGreen);
-    MsgPages.ActivePage:= tabData;
-  end;
-  procedure CheckForData(ABlock: TSqlExecBlock);
-  var
-    Y: Integer;
-    Z: Integer;
-  begin
-    //Display Dataset Grids
-    for Y := 0 to FSqlExec.BlockCount-1 do begin
-      ABlock:= FSqlExec.Blocks[Y];
-      if ABlock.DatasetCount > 0 then begin
-        for Z := 0 to ABlock.DatasetCount-1 do begin
-          AddGrid(ABlock.Datasets[Z], ABlock);
-        end;
-      end;
-    end;
-  end;
-  procedure PerformExec(DatabaseName: String);
-  var
-    Y: Integer;
-    B: TSqlExecBlock;
-  begin
-    Inc(TDC);
-
-    //Show Status in Output Message Log
-    PostMsg('');
-    PostMsg('Starting Execution on Database '+DatabaseName);
-    S.ChangeDatabase(DatabaseName);
-    TS:= GetTickCount;
-
-    // ----- PERFORM EXECUTION -----
-    R:= FSqlExec.Execute;
-
-    //Prepare Result Totals
-    TS:= GetTickCount - TS;
-    EC:= 0;
-    RAF:= 0;
-    for Y := 0 to FSqlExec.BlockCount-1 do begin
-      if FSqlExec.Blocks[Y].Status <> TSQLExecStatus.seSuccess then
-        Inc(EC);
-      RAF:= RAF + FSqlExec.Blocks[Y].Affected;
-    end;
-
-    //Show Results in Output Message Log
-    PostMsg('Execution on Database '+DatabaseName+' of '+IntToStr(FSqlExec.BlockCount)+
-      ' Block(s) Completed in '+IntToStr(TS)+' Msec');
-    if FShowLinesAffected then
-      PostMsg('Rows Affected: '+IntToStr(-RAF));
-    if EC > 0 then
-      PostMsg(FormatPlural(EC, 'Error') + ' Reported', [fsBold], clRed);
-    PostMsg('----------------------------------------------------------------');
-
-    //Update Totals
-    TEC:= TEC + EC;
-    TBC:= TBC + FSqlExec.BlockCount;
-    TRAF:= TRAF + RAF;
-
-    CheckForData(B);
-
-  end;
-  {$ENDIF}
 begin
-  {$IFNDEF USE_V2}
-  pMessages.Visible:= True;
-  Splitter3.Top:= ED.Top + ED.Height - 2;
-  EnableForm(False);
-  MsgPages.ActivePage:= tabOutput;
-  try
-    OutputBox.Clear;
-    ClearGrids;
-    S:= CurrentServer;
-    if Assigned(S) then begin
-      if ED.SelLength > 0 then
-        FSqlExec.SQL.Text:= ED.SelText
-      else
-        FSqlExec.SQL.Assign(ED.Lines);
-      FSqlExec.Connection:= S.Connection;
-      TEC:= 0;
-      TBC:= 0;
-      TDC:= 0;
-      FCurBlock:= 0;
-      TRAF:= 0;
-      case cboCurExecMethod.ItemIndex of
-        1: begin
-          FSqlExec.ExecMode:= TSQLExecMode.smRecordsets;
-        end;
-        else begin
-          FSqlExec.ExecMode:= TSQLExecMode.smExecute;
-        end;
-      end;
-      TTS:= GetTickCount;
-      if cboCurDatabase.Text = '[Multiple Selected]' then begin
-        for X := 0 to S.SelDatabases.Count-1 do begin
-          PerformExec(S.SelDatabases[X]);
-        end;
-      end else begin
-        PerformExec(cboCurDatabase.Text);
-      end;
-      TTS:= GetTickCount - TTS;
-      //Show Results in Output Message Log
-      PostMsg('');
-      PostMsg('Execution on Selected '+FormatPlural(TDC, 'Database') +
-        ' Completed in ' + IntToStr(TTS) + ' Msec', [fsBold]);
-      if FShowLinesAffected then
-        PostMsg('Total Rows Affected: '+IntToStr(-TRAF));
-      if TEC > 0 then
-        PostMsg(FormatPlural(TEC, 'Total Error') + ' Reported', [fsBold], clRed);
-      PostMsg('');
-    end;
-  finally
-    EnableForm(True);
-  end;
-  {$ENDIF}
-  Stat.Panels[2].Text:= 'Finished';
+
   RefreshServerActions;
 end;
 

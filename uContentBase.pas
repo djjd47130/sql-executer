@@ -14,11 +14,12 @@ type
   TContents = class;
   TfrmContentBase = class;
 
-
+  TfrmContentBaseClass = class of TfrmContentBase;
 
   TContents = class(TObject)
   private
     FItems: TObjectList<TfrmContentBase>;
+    procedure Register(AContent: TfrmContentBase);
   public
     constructor Create;
     destructor Destroy; override;
@@ -40,6 +41,11 @@ implementation
 
 {$R *.dfm}
 
+{$IFDEF USE_V2}
+uses
+  uMain2;
+{$ENDIF}
+
 { TContents }
 
 constructor TContents.Create;
@@ -54,12 +60,20 @@ begin
   inherited;
 end;
 
+procedure TContents.Register(AContent: TfrmContentBase);
+begin
+  Self.FItems.Add(AContent);
+end;
+
 { TfrmContentBase }
 
 constructor TfrmContentBase.Create(AOwner: TContents);
 begin
   inherited Create(nil);
   FOwner:= AOwner;
+  if Assigned(AOwner) then begin
+    AOwner.Register(Self);
+  end;
 end;
 
 destructor TfrmContentBase.Destroy;

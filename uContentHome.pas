@@ -4,10 +4,14 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uContentBase;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uContentBase, System.Actions,
+  Vcl.ActnList, Vcl.StdCtrls, Vcl.Buttons;
 
 type
-  TfrmContentBase2 = class(TfrmContentBase)
+  TfrmContentHome = class(TfrmContentBase)
+    BitBtn1: TBitBtn;
+    actNewScript: TAction;
+    procedure actNewScriptExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -15,10 +19,23 @@ type
   end;
 
 var
-  frmContentBase2: TfrmContentBase2;
+  frmContentHome: TfrmContentHome;
 
 implementation
 
 {$R *.dfm}
+
+{$IFDEF USE_V2}
+uses
+  uMain2;
+{$ENDIF}
+
+procedure TfrmContentHome.actNewScriptExecute(Sender: TObject);
+begin
+  inherited;
+  {$IFDEF USE_V2}
+  frmSqlExec2.actFileNew.Execute;
+  {$ENDIF}
+end;
 
 end.

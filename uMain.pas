@@ -79,23 +79,22 @@ unit uMain;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, Winapi.ShellApi, Winapi.ShlObj,
-  Winapi.ActiveX, Winapi.OleDB,
+  Winapi.Windows, Winapi.Messages, Winapi.ShellApi,
 
   System.SysUtils, System.Variants, System.Types, System.UITypes,
   System.Classes, System.Generics.Collections, System.Actions,
-  System.Win.Registry, System.Win.ComObj,
+  System.Win.Registry,
 
-  Data.DB, Data.Win.ADODB, Datasnap.DBClient, MidasLib,
+  Data.DB, Data.Win.ADODB,
 
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ComCtrls,
   Vcl.ToolWin, Vcl.StdCtrls,  Vcl.ActnList, Vcl.PlatformDefaultStyleActnCtrls,
   Vcl.ActnMan, Vcl.ImgList, Vcl.ExtCtrls, Vcl.ExtDlgs, Vcl.Buttons, Vcl.Grids,
-  Vcl.JumpList, Vcl.DBGrids,
+  Vcl.JumpList,
 
-  SQLExec, SQLExecThread,
+  SQLExec, SQLExecThread, SQLConnections, SQLObjects,
+  uContentBase, uContentHome, uContentScriptExec,
   uDatasetView,
-  SQLConnections,
 
   SynEdit, SynEditHighlighter, SynHighlighterSQL,
   SynMemo, SynHighlighterPas, SynEditMiscClasses, SynEditSearch;
@@ -341,8 +340,7 @@ uses
   {$IFDEF USE_SPLASH}
   uSplash,
   {$ENDIF}
-  uOutputWindow,
-  uContentBase, uContentScriptExec, uContentHome;
+  uOutputWindow;
 
 function PromptConnection(const InitialString: TConnectionString; var NewString: TConnectionString;
   var SaveRecent: Boolean): Boolean;
@@ -1479,6 +1477,7 @@ var
     while sbData.ControlCount > 0 do
       sbData.Controls[0].Free;
   end;
+  {
   procedure AddGrid(ADataset: TClientDataSet; ABlock: TSqlExecBlock);
   var
     F: TfrmDatasetView;
@@ -1502,6 +1501,7 @@ var
     PostMsg('Added dataset on block '+IntToStr(ABlock.Index), [], clGreen);
     MsgPages.ActivePage:= tabData;
   end;
+  }
   procedure CheckForData(ABlock: TSqlExecBlock);
   var
     Y: Integer;
@@ -1512,7 +1512,7 @@ var
       ABlock:= FSqlExec.Blocks[Y];
       if ABlock.DatasetCount > 0 then begin
         for Z := 0 to ABlock.DatasetCount-1 do begin
-          AddGrid(ABlock.Datasets[Z], ABlock);
+          //AddGrid(ABlock.Datasets[Z], ABlock);
         end;
       end;
     end;
