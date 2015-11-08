@@ -15,26 +15,18 @@ This component can be installed into the Delphi IDE by adding it to a package an
 **How To Use**:
 
 1. Assign `TADOConnection` to the `Connection` property
-  
 2. Load SQL script to the `SQL` property (for example `SQL.LoadFromFile(Filename)`)
-  
 3. Execute SQL script by calling `Execute` function
 
 **Features**:
 
-* Split a large SQL script file into individual blocks to be executed
-  
-* Change keyword `GO` to a different custom keyword (as supported by MS tools)
-  
-* Use transaction mode to be able to rollback changes on script errors
-  
-* Iterate through each parsed SQL script block
-  
-* Monitor current position to be able to implement a progress bar
-  
-* Caching mechanism to only parse when it needs to (via Invalidation)
-  
-* Custom exception handlers to catch specific exceptions and related data
+1. Split a large SQL script file into individual blocks to be executed
+2. Change keyword `GO` to a different custom keyword (as supported by MS tools)
+3. Use transaction mode to be able to rollback changes on script errors
+4. Iterate through each parsed SQL script block
+5. Monitor current position to be able to implement a progress bar
+6. Caching mechanism to only parse when it needs to (via Invalidation)
+7. Custom exception handlers to catch specific exceptions and related data
 
 **Sample Usage**:
 
@@ -47,8 +39,8 @@ begin
 end;
 ```
 
-**Sample Application**
-
+#Sample Application
+###SQL Script Executer
 Package also includes fully featured application to demonstrate the usage of this component.
 
 ![Alt text](/SQLExecSS.png?raw=true "Screenshot")
