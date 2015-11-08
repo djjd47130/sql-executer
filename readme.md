@@ -27,6 +27,8 @@ This component can be installed into the Delphi IDE by adding it to a package an
 5. Monitor current position to be able to implement a progress bar
 6. Caching mechanism to only parse when it needs to (via Invalidation)
 7. Custom exception handlers to catch specific exceptions and related data
+8. Return multiple recordsets and translate to datasets
+9. Return error messages (or otherwise output messages)
 
 **Sample Usage**:
 
@@ -52,9 +54,7 @@ Package also includes fully featured application to demonstrate the usage of thi
 3. Connect to multiple servers at once
 4. Full syntax highlighting with editing capabilities
 5. Supports Open With and Recent SQL files (Jump List)
-6. Return multiple recordsets and translate to datasets
-7. Return error messages (or otherwise output messages)
-8. Edit SQL files with syntax highlighting
+6. Edit SQL files with syntax highlighting
 
 **Requirements**
 
