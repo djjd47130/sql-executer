@@ -329,6 +329,7 @@ begin
   ProgressBarStyle := GetWindowLong(Prog.Handle, GWL_EXSTYLE);
   ProgressBarStyle := ProgressBarStyle - WS_EX_STATICEDGE;
   SetWindowLong(Prog.Handle, GWL_EXSTYLE, ProgressBarStyle);
+  Prog.Visible:= False;
 
   FConnections:= TServerConnections.Create(TV);
 
@@ -362,6 +363,9 @@ begin
   if FindCmdLineSwitch('s', Str, False) then begin
     //Connection String
     OpenNewConnection(Str, False);
+  end else begin
+    //TODO: Auto-connect to server(s) if configured
+
   end;
 
   if FindCmdLineSwitch('d', Str, False) then begin

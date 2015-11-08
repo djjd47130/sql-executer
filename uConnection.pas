@@ -58,6 +58,7 @@ implementation
 uses
   uMain;
 
+{
 procedure ListAvailableSQLServers(Names : TStrings);
 var
   RSCon: ADORecordsetConstruction;
@@ -126,6 +127,7 @@ begin
     Free;
   end;
 end;
+}
 
 { TRecentConn }
 
