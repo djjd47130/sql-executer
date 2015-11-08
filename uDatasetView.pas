@@ -7,7 +7,7 @@ uses
   System.SysUtils, System.Variants, System.Classes, System.Types,
   Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.DBGrids, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Data.DB, Datasnap.DBClient, Vcl.Buttons;
+  Vcl.ExtCtrls, Data.DB, Datasnap.DBClient, Vcl.Buttons, Vcl.ComCtrls;
 
 type
   TfrmDatasetView = class(TForm)
@@ -18,6 +18,7 @@ type
     CDS: TClientDataSet;
     Panel2: TPanel;
     SpeedButton1: TSpeedButton;
+    StatusBar1: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure Panel2MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);

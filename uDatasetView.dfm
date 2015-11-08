@@ -18,7 +18,7 @@ object frmDatasetView: TfrmDatasetView
   TextHeight = 13
   object Grd: TDBGrid
     Left = 0
-    Top = 97
+    Top = 78
     Width = 468
     Height = 130
     Align = alBottom
@@ -38,7 +38,10 @@ object frmDatasetView: TfrmDatasetView
     Width = 468
     Height = 23
     Align = alTop
+    BevelWidth = 2
     TabOrder = 1
+    ExplicitLeft = 8
+    ExplicitTop = 8
     DesignSize = (
       468
       23)
@@ -105,6 +108,24 @@ object frmDatasetView: TfrmDatasetView
     OnMouseDown = Panel2MouseDown
     OnMouseMove = Panel2MouseMove
     OnMouseUp = Panel2MouseUp
+    ExplicitTop = 240
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 208
+    Width = 468
+    Height = 19
+    Panels = <
+      item
+        Width = 100
+      end
+      item
+        Width = 100
+      end
+      item
+        Width = 100
+      end>
+    ExplicitTop = 202
   end
   object DS: TDataSource
     DataSet = CDS

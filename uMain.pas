@@ -1869,18 +1869,6 @@ var
   procedure AddGrid(ADataset: TClientDataSet; ABlock: TSqlExecBlock);
   var
     F: TfrmDatasetView;
-    //S: TSplitter;
-    function Split(Top: Integer): TSplitter;
-    begin
-      Result:= TSplitter.Create(nil);
-      Result.Parent:= sbData;
-      Result.Align:= alTop;
-      Result.Height:= 7;
-      Result.Beveled:= True;
-      Result.Top:= Top;
-      Result.ResizeStyle:= rsUpdate;
-      Result.AutoSnap:= False;
-    end;
   begin
     F:= TfrmDatasetView.Create(nil);
     FDataGrids.Add(F);
@@ -1893,13 +1881,10 @@ var
         //More than one now, the first can't hog it all up.
         FDataGrids[0].Align:= alTop;
         FDataGrids[0].Height:= 250;
-        //S:= Split(FDataGrids[0].Top + FDataGrids[0].Height - 2);
       end;
       F.Height:= 250;
       F.Align:= alTop;
     end;
-    //S:= Split(F.Top + F.Height - 2);
-
     CloneDataset(ADataset, F.CDS);
     PostMsg('Added dataset on block '+IntToStr(ABlock.Index), [], clGreen);
     MsgPages.ActivePage:= tabData;
@@ -1919,7 +1904,7 @@ var
       end;
     end;
   end;
-  procedure Perform(DatabaseName: String);
+  procedure PerformExec(DatabaseName: String);
   var
     Y: Integer;
     B: TSqlExecBlock;
@@ -1932,7 +1917,7 @@ var
     S.ChangeDatabase(DatabaseName);
     TS:= GetTickCount;
 
-    //PERFORM EXECUTION
+    // ----- PERFORM EXECUTION -----
     R:= FSqlExec.Execute;
 
     //Prepare Result Totals
@@ -1993,10 +1978,10 @@ begin
       TTS:= GetTickCount;
       if cboCurDatabase.Text = '[Multiple Selected]' then begin
         for X := 0 to S.SelDatabases.Count-1 do begin
-          Perform(S.SelDatabases[X]);
+          PerformExec(S.SelDatabases[X]);
         end;
       end else begin
-        Perform(cboCurDatabase.Text);
+        PerformExec(cboCurDatabase.Text);
       end;
       TTS:= GetTickCount - TTS;
       //Show Results in Output Message Log
