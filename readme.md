@@ -60,6 +60,7 @@ Package also includes fully featured application to demonstrate the usage of thi
 
 1. Requires ChromeTabs library (Not Included)
   - https://github.com/norgepaul/TChromeTabs
+  - NOTE: Only required for V2, not used in V1
 2. Requires SynEdit library (Not Included)
   - https://github.com/SynEdit/SynEdit
 3. Built and tested on Delphi XE7, none others
