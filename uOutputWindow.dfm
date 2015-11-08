@@ -4,8 +4,8 @@ object frmOutputWindow: TfrmOutputWindow
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = 'Output Window'
-  ClientHeight = 263
-  ClientWidth = 540
+  ClientHeight = 272
+  ClientWidth = 575
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,23 +20,30 @@ object frmOutputWindow: TfrmOutputWindow
   object MsgPages: TPageControl
     Left = 0
     Top = 0
-    Width = 540
-    Height = 183
+    Width = 575
+    Height = 192
     ActivePage = tabMessages
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabHeight = 20
     TabOrder = 0
     TabPosition = tpBottom
+    ExplicitWidth = 540
+    ExplicitHeight = 183
     object tabMessages: TTabSheet
       Caption = 'Messages'
+      ExplicitWidth = 532
+      ExplicitHeight = 155
       object OutputBox: TRichEdit
         Left = 0
         Top = 0
-        Width = 532
-        Height = 119
+        Width = 567
+        Height = 128
         Align = alTop
         Anchors = [akLeft, akTop, akRight, akBottom]
+        BevelOuter = bvNone
+        BorderStyle = bsNone
+        Color = clBtnFace
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -53,32 +60,41 @@ object frmOutputWindow: TfrmOutputWindow
     object tabData: TTabSheet
       Caption = 'Data View'
       ImageIndex = 3
+      ExplicitWidth = 532
+      ExplicitHeight = 155
       object sbData: TScrollBox
         Left = 0
         Top = 0
-        Width = 532
-        Height = 119
+        Width = 567
+        Height = 128
         Align = alTop
         Anchors = [akLeft, akTop, akRight, akBottom]
+        BevelOuter = bvNone
+        BorderStyle = bsNone
         TabOrder = 0
       end
     end
     object tabSearch: TTabSheet
       Caption = 'Search Results'
       ImageIndex = 1
+      ExplicitWidth = 532
+      ExplicitHeight = 155
     end
     object actBlocks: TTabSheet
       Caption = 'Block View'
       ImageIndex = 3
+      ExplicitWidth = 532
+      ExplicitHeight = 155
     end
   end
-  object ChromeTabs1: TChromeTabs
+  object Tabs: TChromeTabs
     Left = 0
-    Top = 233
-    Width = 540
+    Top = 242
+    Width = 575
     Height = 30
-    OnChange = ChromeTabs1Change
-    ActiveTabIndex = 0
+    OnChange = TabsChange
+    ActiveTabIndex = 1
+    Images = frmSqlExec2.Imgs16
     Options.Display.CloseButton.Offsets.Vertical = 6
     Options.Display.CloseButton.Offsets.Horizontal = 2
     Options.Display.CloseButton.Height = 14
@@ -117,18 +133,19 @@ object frmOutputWindow: TfrmOutputWindow
     Options.Display.Tabs.OffsetTop = 4
     Options.Display.Tabs.OffsetRight = 0
     Options.Display.Tabs.OffsetBottom = 0
-    Options.Display.Tabs.MinWidth = 50
-    Options.Display.Tabs.MaxWidth = 150
-    Options.Display.Tabs.TabWidthFromContent = True
+    Options.Display.Tabs.MinWidth = 80
+    Options.Display.Tabs.MaxWidth = 130
+    Options.Display.Tabs.TabWidthFromContent = False
     Options.Display.Tabs.PinnedWidth = 39
     Options.Display.Tabs.ImageOffsetLeft = 13
-    Options.Display.Tabs.TextTrimType = tttCharacter
+    Options.Display.Tabs.TextTrimType = tttFade
     Options.Display.Tabs.Orientation = toBottom
     Options.Display.Tabs.BaseLineTabRegionOnly = False
     Options.Display.Tabs.WordWrap = False
-    Options.Display.Tabs.TextAlignmentHorizontal = taCenter
+    Options.Display.Tabs.TextAlignmentHorizontal = taLeftJustify
     Options.Display.Tabs.TextAlignmentVertical = taVerticalCenter
     Options.Display.Tabs.ShowImages = True
+    Options.Display.Tabs.ShowPinnedTabText = True
     Options.Display.TabContainer.TransparentBackground = True
     Options.Display.TabContainer.OverlayButtons = True
     Options.Display.TabContainer.PaddingLeft = 0
@@ -154,7 +171,7 @@ object frmOutputWindow: TfrmOutputWindow
     Options.Display.TabSpinners.Download.SweepAngle = 135
     Options.Display.TabSpinners.AnimationUpdateMS = 50
     Options.Display.TabSpinners.HideImagesWhenSpinnerVisible = True
-    Options.DragDrop.DragType = dtBetweenContainers
+    Options.DragDrop.DragType = dtWithinContainer
     Options.DragDrop.DragOutsideImageAlpha = 220
     Options.DragDrop.DragOutsideDistancePixels = 30
     Options.DragDrop.DragStartPixels = 2
@@ -184,10 +201,10 @@ object frmOutputWindow: TfrmOutputWindow
     Options.Animation.MovementAnimations.TabMove.AnimationTimeMS = 500
     Options.Behaviour.BackgroundDblClickMaximiseRestoreForm = True
     Options.Behaviour.BackgroundDragMovesForm = True
-    Options.Behaviour.TabSmartDeleteResizing = True
+    Options.Behaviour.TabSmartDeleteResizing = False
     Options.Behaviour.TabSmartDeleteResizeCancelDelay = 700
     Options.Behaviour.UseBuiltInPopupMenu = True
-    Options.Behaviour.TabRightClickSelect = True
+    Options.Behaviour.TabRightClickSelect = False
     Options.Behaviour.ActivateNewTab = True
     Options.Behaviour.DebugMode = False
     Options.Behaviour.IgnoreDoubleClicksWhileAnimatingMovement = True
@@ -202,47 +219,51 @@ object frmOutputWindow: TfrmOutputWindow
     Tabs = <
       item
         Caption = 'Messages'
-        Active = True
+        Active = False
         Tag = 0
-        ImageIndex = -1
+        ImageIndex = 49
         ImageIndexOverlay = -1
         Pinned = False
         Visible = True
         Modified = False
         SpinnerState = tssNone
+        HideCloseButton = False
       end
       item
         Caption = 'Data View'
-        Active = False
+        Active = True
         Tag = 0
-        ImageIndex = -1
+        ImageIndex = 58
         ImageIndexOverlay = -1
         Pinned = False
         Visible = True
         Modified = False
         SpinnerState = tssNone
+        HideCloseButton = False
       end
       item
-        Caption = 'Search Results'
+        Caption = 'Search'
         Active = False
         Tag = 0
-        ImageIndex = -1
+        ImageIndex = 67
         ImageIndexOverlay = -1
         Pinned = False
         Visible = True
         Modified = False
         SpinnerState = tssNone
+        HideCloseButton = False
       end
       item
         Caption = 'Block View'
         Active = False
         Tag = 0
-        ImageIndex = -1
+        ImageIndex = 40
         ImageIndexOverlay = -1
         Pinned = False
         Visible = True
         Modified = False
         SpinnerState = tssNone
+        HideCloseButton = False
       end>
     LookAndFeel.TabsContainer.StartColor = 14586466
     LookAndFeel.TabsContainer.StopColor = 13201730

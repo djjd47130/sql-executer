@@ -16,19 +16,19 @@ uses
   SQLExecThread in 'SQLExecThread.pas',
   SQLObjects in 'SQLObjects.pas',
   SQLConnections in 'SQLConnections.pas',
-  uMain in 'uMain.pas' {frmSqlExec},
-  uContentObject in 'uContentObject.pas' {frmContentObject};
+  uContentObject in 'uContentObject.pas' {frmContentObject},
+  uMain2 in 'uMain2.pas' {frmSqlExec2},
+  CmdSwitches in 'CmdSwitches.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  TStyleManager.TrySetStyle('Iceberg Classico');
+  TStyleManager.TrySetStyle('Light');
   Application.Title := 'SQL Script Executer';
   RunApp;
-  Application.CreateForm(TfrmSqlExec, frmSqlExec);
+  Application.CreateForm(TfrmSqlExec2, frmSqlExec2);
   Application.CreateForm(TfrmDatabases, frmDatabases);
-  Application.CreateForm(TfrmContentObject, frmContentObject);
   Application.Run;
 end.

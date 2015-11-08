@@ -207,6 +207,7 @@ type
     ToolButton3: TToolButton;
     actHome: TAction;
     ToolButton6: TToolButton;
+    actFileOpen: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -235,6 +236,7 @@ type
     procedure actFileNewExecute(Sender: TObject);
     procedure TabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab;
       var Close: Boolean);
+    procedure actFileOpenExecute(Sender: TObject);
   private
     FConnections: TServerConnections;
     FBusy: Boolean;
@@ -255,6 +257,9 @@ type
     procedure ResetSizes;
     procedure DisplayContent(AContent: TfrmContentBase);
     procedure SetCaption(const S: String);
+    procedure DoOpenFile(const Filename: String);
+    procedure CheckForParams;
+    procedure OpenNewConnection(const Str: TConnectionString; const Rec: Boolean);
   public
 
   end;
@@ -306,7 +311,6 @@ end;
 procedure TfrmSqlExec2.FormCreate(Sender: TObject);
 var
   ProgressBarStyle: integer;
-  FN: String;
 begin
 
   {$IFDEF DEBUG}
@@ -319,8 +323,6 @@ begin
   pSelected.Height:= 240;
   TV.Align:= alClient;
 
-  FConnections:= TServerConnections.Create(TV);
-
   //Set progress bar in status bar
   Stat.Panels[4].Style := psOwnerDraw;
   Prog.Parent := Stat;
@@ -328,22 +330,60 @@ begin
   ProgressBarStyle := ProgressBarStyle - WS_EX_STATICEDGE;
   SetWindowLong(Prog.Handle, GWL_EXSTYLE, ProgressBarStyle);
 
+  FConnections:= TServerConnections.Create(TV);
 
   FHome:= TfrmContentHome.Create(nil);
 
+  LoadState;  //Window size / position, options, etc.
+
+  ResetSizes; //Large mode vs. Small mode
+
+  actHome.Execute;  //Show home content tab
+
+  CheckForParams; //Check if parameters were included
 
   RefreshServerActions;
-  LoadState;
 
-  ResetSizes;
+end;
 
-  actHome.Execute;
-
+procedure TfrmSqlExec2.CheckForParams;
+var
+  FN: String;
+  X: Integer;
+  Str: String;
+  Tmp: String;
+begin
   if ParamCount > 0 then begin
     FN:= ParamStr(1);
     FN:= StringReplace(FN, '"', '', [rfReplaceAll]);
-    //DoOpenFile(FN);
+    DoOpenFile(FN);
   end;
+
+  if FindCmdLineSwitch('s', Str, False) then begin
+    //Connection String
+    OpenNewConnection(Str, False);
+  end;
+
+  if FindCmdLineSwitch('d', Str, False) then begin
+    //Database Name(s)
+
+  end;
+
+  if FindCmdLineSwitch('q', Str, False) then begin
+    //Quiet Mode
+
+  end;
+
+  if FindCmdLineSwitch('m', Str, False) then begin
+    //Output Mode
+
+  end;
+
+  if FindCmdLineSwitch('o', Str, False) then begin
+    //Output File
+
+  end;
+
 
 end;
 
@@ -612,26 +652,36 @@ end;
 procedure TfrmSqlExec2.actServerConnectExecute(Sender: TObject);
 var
   Str: TConnectionString;
-  C: TServerConnection;
-  Rec: Boolean;
+  X: Integer;
+  Rec: boolean;
 begin
   Str:= ''; // FConnectionString;
   if PromptConnection(Str, Str, Rec) then begin
-    if TestConnection(Str) then begin
-      C:= FConnections.AddConnection(Str);
-      //cboCurConn.Items.AddObject(Str['Data Source'], C);
-      if Rec then
-        AddToRecents(Str);
-      TV.Select(C.Node);
-      {
-      if cboCurConn.ItemIndex = -1 then begin
-        cboCurConn.ItemIndex:= 0;
-        cboCurConnClick(nil);
-      end;
-      }
-    end;
+    OpenNewConnection(Str, Rec);
   end;
   RefreshServerActions;
+end;
+
+procedure TfrmSqlExec2.OpenNewConnection(const Str: TConnectionString; const Rec: Boolean);
+var
+  C: TServerConnection;
+begin
+  if TestConnection(Str) then begin
+    C:= FConnections.AddConnection(Str);
+    //cboCurConn.Items.AddObject(Str['Data Source'], C);
+    if Rec then
+      AddToRecents(Str);
+    TV.Select(C.Node);
+    //TODO: Broadcast change event
+
+    {
+    if cboCurConn.ItemIndex = -1 then begin
+      cboCurConn.ItemIndex:= 0;
+      cboCurConnClick(nil);
+    end;
+    }
+  end;
+
 end;
 
 procedure TfrmSqlExec2.AddToRecents(AConnStr: TConnectionString);
@@ -962,6 +1012,27 @@ begin
   T.Data:= C;
   T.Caption:= 'SQL Script';
   T.ImageIndex:= 44;
+  Self.DisplayContent(C);
+end;
+
+procedure TfrmSqlExec2.actFileOpenExecute(Sender: TObject);
+begin
+  if dlgOpen.Execute then begin
+    DoOpenFile(dlgOpen.FileName);
+  end;
+end;
+
+procedure TfrmSqlExec2.DoOpenFile(const Filename: String);
+var
+  C: TfrmContentScriptExec;
+  T: TChromeTab;
+begin
+  C:= TfrmContentScriptExec.Create(nil);
+  T:= Tabs.Tabs.Add;
+  T.Data:= C;
+  T.Caption:= 'SQL Script - '+ExtractFileName(Filename);
+  T.ImageIndex:= 44;
+  C.ED.Lines.LoadFromFile(Filename);
   Self.DisplayContent(C);
 end;
 

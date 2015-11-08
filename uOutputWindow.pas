@@ -36,11 +36,11 @@ type
     OutputBox: TRichEdit;
     tabData: TTabSheet;
     sbData: TScrollBox;
-    ChromeTabs1: TChromeTabs;
+    Tabs: TChromeTabs;
     tabSearch: TTabSheet;
     actBlocks: TTabSheet;
     procedure FormCreate(Sender: TObject);
-    procedure ChromeTabs1Change(Sender: TObject; ATab: TChromeTab;
+    procedure TabsChange(Sender: TObject; ATab: TChromeTab;
       TabChangeType: TTabChangeType);
     procedure FormDestroy(Sender: TObject);
   private
@@ -56,6 +56,11 @@ var
 implementation
 
 {$R *.dfm}
+
+{$IFDEF USE_V2}
+uses
+  uMain2;
+{$ENDIF}
 
 { TDataResponse }
 
@@ -85,19 +90,22 @@ procedure TfrmOutputWindow.FormCreate(Sender: TObject);
 var
   X: Integer;
 begin
-  FDatasets:= TObjectList<TfrmDatasetView>.Create(True);
   OutputBox.Align:= alClient;
   MsgPages.Align:= alClient;
   for X := 0 to MsgPages.PageCount-1 do begin
     MsgPages.Pages[X].TabVisible:= False;
   end;
+  MsgPages.ActivePageIndex:= 0;
+  Tabs.ActiveTabIndex:= 0;
+
+  FDatasets:= TObjectList<TfrmDatasetView>.Create(True);
 
 end;
 
 procedure TfrmOutputWindow.FormDestroy(Sender: TObject);
 begin
   FDatasets.Clear; //TODO
-  FDatasets.Free;
+  FreeAndNil(FDatasets);
 end;
 
 procedure TfrmOutputWindow.PostMsg(const Text: String; const Style: TFontStyles = [];
@@ -139,7 +147,7 @@ begin
   end;
 end;
 
-procedure TfrmOutputWindow.ChromeTabs1Change(Sender: TObject; ATab: TChromeTab;
+procedure TfrmOutputWindow.TabsChange(Sender: TObject; ATab: TChromeTab;
   TabChangeType: TTabChangeType);
 begin
   //

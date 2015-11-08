@@ -27,6 +27,8 @@ type
 
   TfrmContentBase = class(TForm)
     Acts: TActionList;
+    actCloseTab: TAction;
+    procedure actCloseTabExecute(Sender: TObject);
   private
     FOwner: TContents;
   public
@@ -66,6 +68,12 @@ begin
 end;
 
 { TfrmContentBase }
+
+procedure TfrmContentBase.actCloseTabExecute(Sender: TObject);
+begin
+  //TODO: Close Tab
+
+end;
 
 constructor TfrmContentBase.Create(AOwner: TContents);
 begin

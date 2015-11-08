@@ -20,9 +20,7 @@ uses
   {$IFDEF USE_SPLASH}
   , uSplash
   {$ENDIF}
-  {$IFDEF USE_V2}
-  , uMain2
-  {$ENDIF}
+  , CmdSwitches
   ;
 
 procedure RunApp;
@@ -38,12 +36,10 @@ begin
 
   //TODO: Implement running in console mode
 
+  ParseCmd;
+
   {$IFDEF USE_SPLASH}
   frmSplash:= TfrmSplash.Create(nil);
-  {$ENDIF}
-
-  {$IFDEF USE_V2}
-  Application.CreateForm(TfrmSqlExec2, frmSqlExec2);
   {$ENDIF}
 
 end;

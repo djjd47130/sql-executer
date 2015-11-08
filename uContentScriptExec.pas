@@ -11,7 +11,16 @@ uses
 
 type
   TfrmContentScriptExec = class(TfrmContentBase)
-    pMain: TPanel;
+    SynSQL: TSynSQLSyn;
+    actRefreshConnections: TAction;
+    actRefreshDatabases: TAction;
+    actBatch: TAction;
+    actExecSql: TAction;
+    pOutput: TPanel;
+    pOutputTitle: TPanel;
+    lblOutputTitle: TLabel;
+    cmdOutputClose: TSpeedButton;
+    Stat: TStatusBar;
     Splitter3: TSplitter;
     Panel2: TPanel;
     Label1: TLabel;
@@ -23,16 +32,7 @@ type
     BitBtn2: TBitBtn;
     cboCurExecMethod: TComboBox;
     ED: TSynEdit;
-    pOutput: TPanel;
-    pOutputTitle: TPanel;
-    lblOutputTitle: TLabel;
-    cmdOutputClose: TSpeedButton;
-    SynSQL: TSynSQLSyn;
-    actRefreshConnections: TAction;
-    actRefreshDatabases: TAction;
-    actBatch: TAction;
-    actExecSql: TAction;
-    Stat: TStatusBar;
+    Action1: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure actExecSqlExecute(Sender: TObject);
@@ -50,8 +50,10 @@ var
 
 implementation
 
+{$IFDEF USE_V2}
 uses
-  uMain;
+  uMain2;
+{$ENDIF}
 
 {$R *.dfm}
 
@@ -80,19 +82,25 @@ procedure TfrmContentScriptExec.actExecSqlExecute(Sender: TObject);
 begin
   inherited;
   //Execute SQL
+  //TODO: Add jobs to thread queue
+
+
+  //TODO: Execute thread queue
+
+
 
 end;
 
 procedure TfrmContentScriptExec.FormCreate(Sender: TObject);
 begin
   inherited;
-  pMain.Align:= alClient;
   ED.Align:= alClient;
   FOutput:= TfrmOutputWindow.Create(nil);
   FOutput.BorderStyle:= TFormBorderStyle.bsNone;
   FOutput.Parent:= pOutput;
   FOutput.Align:= alClient;
   FOutput.Show;
+  pOutput.Height:= 170;
 end;
 
 procedure TfrmContentScriptExec.FormDestroy(Sender: TObject);

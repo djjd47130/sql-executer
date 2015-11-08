@@ -182,6 +182,8 @@ object frmSqlExec2: TfrmSqlExec2
               Width = 230
               Height = 73
               Align = alClient
+              BevelOuter = bvNone
+              BorderStyle = bsNone
               ColCount = 2
               DefaultColWidth = 80
               DefaultRowHeight = 18
@@ -308,6 +310,8 @@ object frmSqlExec2: TfrmSqlExec2
           Width = 240
           Height = 49
           Align = alBottom
+          BevelOuter = bvNone
+          BorderStyle = bsNone
           Images = Imgs24
           Indent = 20
           ReadOnly = True
@@ -455,7 +459,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Scrolling.ScrollButtons = csbRight
         Options.Scrolling.ScrollStep = 20
         Options.Scrolling.ScrollRepeatDelay = 20
-        Options.Scrolling.AutoHideButtons = False
+        Options.Scrolling.AutoHideButtons = True
         Options.Scrolling.DragScroll = True
         Options.Scrolling.DragScrollOffset = 50
         Options.Scrolling.MouseWheelScroll = True
@@ -658,6 +662,7 @@ object frmSqlExec2: TfrmSqlExec2
         Align = alTop
         ShowHint = True
         TabOrder = 0
+        ExplicitTop = 6
       end
     end
   end
@@ -689,9 +694,7 @@ object frmSqlExec2: TfrmSqlExec2
     object cmdOpenFile: TToolButton
       Left = 64
       Top = 0
-      Hint = 'Open Script File'
-      Caption = 'Open...'
-      ImageIndex = 33
+      Action = actFileOpen
     end
     object cmdSaveFile: TToolButton
       Left = 96
@@ -817,10 +820,7 @@ object frmSqlExec2: TfrmSqlExec2
         Action = actFileNew
       end
       object Open1: TMenuItem
-        Caption = 'Open...'
-        Hint = 'Open Script File'
-        ImageIndex = 33
-        ShortCut = 16463
+        Action = actFileOpen
       end
       object Save1: TMenuItem
         Caption = 'Save'
@@ -1042,6 +1042,12 @@ object frmSqlExec2: TfrmSqlExec2
       Caption = 'Home'
       ImageIndex = 43
       OnExecute = actHomeExecute
+    end
+    object actFileOpen: TAction
+      Category = 'File'
+      Caption = 'Open Script...'
+      ImageIndex = 33
+      OnExecute = actFileOpenExecute
     end
   end
   object Imgs16: TImageList
