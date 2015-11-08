@@ -93,7 +93,7 @@ uses
   Vcl.ActnMan, Vcl.ImgList, Vcl.ExtCtrls, Vcl.ExtDlgs, Vcl.Buttons, Vcl.Grids,
   Vcl.JumpList, Vcl.DBGrids,
 
-  SQLExec, SQLExecThread,
+  SQLExec,
   uDatasetView,
   SQLConnections,
 
@@ -233,8 +233,6 @@ type
     sbData: TScrollBox;
     cboCurExecMethod: TComboBox;
     Label5: TLabel;
-    OutputWindow1: TMenuItem;
-    ScriptWindow1: TMenuItem;
     mRecent: TMenuItem;
     N2: TMenuItem;
     tmrFileChange: TTimer;
@@ -281,8 +279,6 @@ type
     procedure ShowMessages1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ShowLinesAffected1Click(Sender: TObject);
-    procedure Help1Click(Sender: TObject);
-    procedure ScriptWindow1Click(Sender: TObject);
     procedure mRecentClick(Sender: TObject);
     procedure tmrFileChangeTimer(Sender: TObject);
   private
@@ -337,12 +333,11 @@ implementation
 
 uses
   StrUtils,
-  uConnection, uDatabases,
+  uConnection, uDatabases
   {$IFDEF USE_SPLASH}
-  uSplash,
+  , uSplash
   {$ENDIF}
-  uOutputWindow,
-  uContentBase, uContentScriptExec, uContentHome;
+  ;
 
 function PromptConnection(const InitialString: TConnectionString; var NewString: TConnectionString;
   var SaveRecent: Boolean): Boolean;
@@ -467,18 +462,6 @@ begin
   {$ENDIF}
 end;
 
-procedure TfrmSqlExec.Help1Click(Sender: TObject);
-var
-  W: TfrmOutputWindow;
-begin
-  W:= TfrmOutputWindow.Create(nil);
-  try
-    W.ShowModal;
-  finally
-    W.Free;
-  end;
-end;
-
 procedure TfrmSqlExec.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   if FIsEdited then begin
@@ -536,18 +519,6 @@ begin
     end;
   finally
     R.Free;
-  end;
-end;
-
-procedure TfrmSqlExec.ScriptWindow1Click(Sender: TObject);
-var
-  W: TfrmContentScriptExec;
-begin
-  W:= TfrmContentScriptExec.Create(nil);
-  try
-    W.ShowModal;
-  finally
-    W.Free;
   end;
 end;
 

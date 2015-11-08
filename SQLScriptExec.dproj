@@ -34,19 +34,6 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='V2 Debug' or '$(Cfg_3)'!=''">
-        <Cfg_3>true</Cfg_3>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_3)'=='true') or '$(Cfg_3_Win32)'!=''">
-        <Cfg_3_Win32>true</Cfg_3_Win32>
-        <CfgParent>Cfg_3</CfgParent>
-        <Cfg_3>true</Cfg_3>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -54,12 +41,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
         <Cfg_2_Win32>true</Cfg_2_Win32>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='V2 Release' or '$(Cfg_4)'!=''">
-        <Cfg_4>true</Cfg_4>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -106,15 +87,6 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_3)'!=''">
-        <DCC_Define>USE_V2;$(DCC_Define)</DCC_Define>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_3_Win32)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Build>18</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=JD Software Inc;FileDescription=SQL Script Executer;FileVersion=1.0.0.18;InternalName=SqlScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SqlScriptExec.exe;ProductName=SqlExec;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Icon_MainIcon>SQLScriptExec_Icon1.ico</Icon_MainIcon>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
@@ -128,10 +100,6 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_Keys>CompanyName=JD Software Inc.;FileDescription=SQL Script Executer;FileVersion=1.0.0.0;InternalName=SQLScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SQLScriptExec.exe;ProductName=SQL Script Executer;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_4)'!=''">
-        <Icon_MainIcon>SQLScriptExec_Icon.ico</Icon_MainIcon>
-        <DCC_Define>USE_V2;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -147,28 +115,10 @@
             <Form>frmDatabases</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="uOutputWindow.pas">
-            <Form>frmOutputWindow</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="uDatasetView.pas">
             <Form>frmDatasetView</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="uContentBase.pas">
-            <Form>frmContentBase</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="uContentScriptExec.pas">
-            <Form>frmContentScriptExec</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="uContentHome.pas">
-            <Form>frmContentBase2</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="SQLExecThread.pas"/>
-        <DCCReference Include="SQLObjects.pas"/>
         <DCCReference Include="SQLConnections.pas"/>
         <DCCReference Include="uMain.pas">
             <Form>frmSqlExec</Form>
@@ -177,14 +127,6 @@
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
-        </BuildConfiguration>
-        <BuildConfiguration Include="V2 Release">
-            <Key>Cfg_4</Key>
-            <CfgParent>Cfg_2</CfgParent>
-        </BuildConfiguration>
-        <BuildConfiguration Include="V2 Debug">
-            <Key>Cfg_3</Key>
-            <CfgParent>Cfg_1</CfgParent>
         </BuildConfiguration>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
