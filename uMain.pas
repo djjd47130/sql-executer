@@ -103,7 +103,7 @@ uses
 const
   REG_KEY = 'Software\JD Software\SqlScriptExec\';
   REG_KEY_RECENT_CONN = 'Software\JD Software\SqlScriptExec\RecentConn\';
-
+  REG_KEY_AUTO_CONN = 'Software\JD Software\SqlScriptExec\AutoConnect\';
 
 type
   TfrmSqlExec = class(TForm)
