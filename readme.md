@@ -70,6 +70,7 @@ Package also includes fully featured application to demonstrate the usage of thi
   - https://github.com/norgepaul/TChromeTabs
 2. Requires SynEdit library (Not Included)
   - https://github.com/SynEdit/SynEdit
+3. Built and tested on Delphi XE7, none others
 
 **Background**
 
