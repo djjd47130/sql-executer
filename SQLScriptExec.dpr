@@ -2,7 +2,6 @@ program SQLScriptExec;
 
 uses
   Vcl.Forms,
-  uMain in 'uMain.pas' {frmSqlExec},
   SQLExec in 'SQLExec.pas',
   uConnection in 'uConnection.pas' {frmConnection},
   AppInit in 'AppInit.pas',
@@ -15,7 +14,9 @@ uses
   uContentScriptExec in 'uContentScriptExec.pas' {frmContentScriptExec},
   uContentHome in 'uContentHome.pas' {frmContentBase2},
   SQLExecThread in 'SQLExecThread.pas',
-  SQLObjects in 'SQLObjects.pas';
+  SQLObjects in 'SQLObjects.pas',
+  SQLConnections in 'SQLConnections.pas',
+  uMain in 'uMain.pas' {frmSqlExec};
 
 {$R *.res}
 

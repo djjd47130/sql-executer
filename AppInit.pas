@@ -15,9 +15,13 @@ unit AppInit;
 interface
 
 uses
+  Vcl.Forms,
   System.SysUtils
   {$IFDEF USE_SPLASH}
   , uSplash
+  {$ENDIF}
+  {$IFDEF USE_V2}
+  , uMain2
   {$ENDIF}
   ;
 
@@ -36,6 +40,10 @@ begin
 
   {$IFDEF USE_SPLASH}
   frmSplash:= TfrmSplash.Create(nil);
+  {$ENDIF}
+
+  {$IFDEF USE_V2}
+  Application.CreateForm(TfrmSqlExec2, frmSqlExec2);
   {$ENDIF}
 
 end;

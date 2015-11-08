@@ -1,9 +1,9 @@
-object frmSqlExec: TfrmSqlExec
+object frmSqlExec2: TfrmSqlExec2
   Left = 0
   Top = 0
   Caption = 'SQL Script Executer'
-  ClientHeight = 596
-  ClientWidth = 1172
+  ClientHeight = 589
+  ClientWidth = 1089
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -22,8 +22,8 @@ object frmSqlExec: TfrmSqlExec
   TextHeight = 13
   object Stat: TStatusBar
     Left = 0
-    Top = 573
-    Width = 1172
+    Top = 566
+    Width = 1089
     Height = 23
     Panels = <
       item
@@ -42,15 +42,18 @@ object frmSqlExec: TfrmSqlExec
         Width = 50
       end>
     OnDrawPanel = StatDrawPanel
+    ExplicitTop = 573
+    ExplicitWidth = 1172
   end
   object pMain: TPanel
     Left = 0
     Top = 33
-    Width = 1172
+    Width = 1089
     Height = 400
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 1172
     object Splitter1: TSplitter
       Left = 240
       Top = 0
@@ -174,8 +177,10 @@ object frmSqlExec: TfrmSqlExec
           TabHeight = 16
           TabOrder = 1
           TabPosition = tpBottom
+          ExplicitHeight = 193
           object TabSheet1: TTabSheet
             Caption = 'Object'
+            ExplicitHeight = 169
             object SelView: TStringGrid
               Left = 0
               Top = 0
@@ -191,6 +196,7 @@ object frmSqlExec: TfrmSqlExec
               Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goThumbTracking]
               ScrollBars = ssVertical
               TabOrder = 0
+              ExplicitHeight = 169
             end
           end
         end
@@ -320,289 +326,385 @@ object frmSqlExec: TfrmSqlExec
     object pScript: TPanel
       Left = 400
       Top = 0
-      Width = 772
+      Width = 689
       Height = 400
       Align = alRight
       Anchors = [akLeft, akTop, akRight, akBottom]
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 1
-      object Splitter3: TSplitter
-        Left = 0
-        Top = 179
-        Width = 772
-        Height = 7
-        Cursor = crVSplit
-        Align = alBottom
-        AutoSnap = False
-        Beveled = True
-        ResizeStyle = rsUpdate
-        ExplicitLeft = 1
-        ExplicitTop = 197
-        ExplicitWidth = 680
-      end
-      object Panel2: TPanel
+      ExplicitWidth = 772
+      object Tabs: TChromeTabs
         Left = 0
         Top = 0
-        Width = 772
-        Height = 44
+        Width = 689
+        Height = 30
+        OnActiveTabChanged = TabsActiveTabChanged
+        ActiveTabIndex = 0
+        Images = Imgs16
+        Options.Display.CloseButton.Offsets.Vertical = 6
+        Options.Display.CloseButton.Offsets.Horizontal = 2
+        Options.Display.CloseButton.Height = 14
+        Options.Display.CloseButton.Width = 14
+        Options.Display.CloseButton.AutoHide = True
+        Options.Display.CloseButton.Visibility = bvAll
+        Options.Display.CloseButton.AutoHideWidth = 20
+        Options.Display.CloseButton.CrossRadialOffset = 4
+        Options.Display.AddButton.Offsets.Vertical = 10
+        Options.Display.AddButton.Offsets.Horizontal = 2
+        Options.Display.AddButton.Height = 14
+        Options.Display.AddButton.Width = 31
+        Options.Display.AddButton.ShowPlusSign = False
+        Options.Display.AddButton.Visibility = avRightFloating
+        Options.Display.AddButton.HorizontalOffsetFloating = -3
+        Options.Display.ScrollButtonLeft.Offsets.Vertical = 10
+        Options.Display.ScrollButtonLeft.Offsets.Horizontal = 1
+        Options.Display.ScrollButtonLeft.Height = 15
+        Options.Display.ScrollButtonLeft.Width = 15
+        Options.Display.ScrollButtonRight.Offsets.Vertical = 10
+        Options.Display.ScrollButtonRight.Offsets.Horizontal = 1
+        Options.Display.ScrollButtonRight.Height = 15
+        Options.Display.ScrollButtonRight.Width = 15
+        Options.Display.TabModifiedGlow.Style = msRightToLeft
+        Options.Display.TabModifiedGlow.VerticalOffset = -6
+        Options.Display.TabModifiedGlow.Height = 30
+        Options.Display.TabModifiedGlow.Width = 100
+        Options.Display.TabModifiedGlow.AnimationPeriodMS = 4000
+        Options.Display.TabModifiedGlow.EaseType = ttEaseInOutQuad
+        Options.Display.TabModifiedGlow.AnimationUpdateMS = 50
+        Options.Display.Tabs.SeeThroughTabs = False
+        Options.Display.Tabs.TabOverlap = 15
+        Options.Display.Tabs.ContentOffsetLeft = 18
+        Options.Display.Tabs.ContentOffsetRight = 16
+        Options.Display.Tabs.OffsetLeft = 0
+        Options.Display.Tabs.OffsetTop = 4
+        Options.Display.Tabs.OffsetRight = 0
+        Options.Display.Tabs.OffsetBottom = 0
+        Options.Display.Tabs.MinWidth = 25
+        Options.Display.Tabs.MaxWidth = 200
+        Options.Display.Tabs.TabWidthFromContent = False
+        Options.Display.Tabs.PinnedWidth = 39
+        Options.Display.Tabs.ImageOffsetLeft = 13
+        Options.Display.Tabs.TextTrimType = tttFade
+        Options.Display.Tabs.Orientation = toTop
+        Options.Display.Tabs.BaseLineTabRegionOnly = False
+        Options.Display.Tabs.WordWrap = False
+        Options.Display.Tabs.TextAlignmentHorizontal = taLeftJustify
+        Options.Display.Tabs.TextAlignmentVertical = taVerticalCenter
+        Options.Display.Tabs.ShowImages = True
+        Options.Display.Tabs.ShowPinnedTabText = False
+        Options.Display.TabContainer.TransparentBackground = True
+        Options.Display.TabContainer.OverlayButtons = True
+        Options.Display.TabContainer.PaddingLeft = 0
+        Options.Display.TabContainer.PaddingRight = 0
+        Options.Display.TabMouseGlow.Offsets.Vertical = 0
+        Options.Display.TabMouseGlow.Offsets.Horizontal = 0
+        Options.Display.TabMouseGlow.Height = 200
+        Options.Display.TabMouseGlow.Width = 200
+        Options.Display.TabMouseGlow.Visible = True
+        Options.Display.TabSpinners.Upload.ReverseDirection = True
+        Options.Display.TabSpinners.Upload.RenderedAnimationStep = 2
+        Options.Display.TabSpinners.Upload.Position.Offsets.Vertical = 0
+        Options.Display.TabSpinners.Upload.Position.Offsets.Horizontal = 0
+        Options.Display.TabSpinners.Upload.Position.Height = 16
+        Options.Display.TabSpinners.Upload.Position.Width = 16
+        Options.Display.TabSpinners.Upload.SweepAngle = 135
+        Options.Display.TabSpinners.Download.ReverseDirection = False
+        Options.Display.TabSpinners.Download.RenderedAnimationStep = 5
+        Options.Display.TabSpinners.Download.Position.Offsets.Vertical = 0
+        Options.Display.TabSpinners.Download.Position.Offsets.Horizontal = 0
+        Options.Display.TabSpinners.Download.Position.Height = 16
+        Options.Display.TabSpinners.Download.Position.Width = 16
+        Options.Display.TabSpinners.Download.SweepAngle = 135
+        Options.Display.TabSpinners.AnimationUpdateMS = 50
+        Options.Display.TabSpinners.HideImagesWhenSpinnerVisible = True
+        Options.DragDrop.DragType = dtBetweenContainers
+        Options.DragDrop.DragOutsideImageAlpha = 220
+        Options.DragDrop.DragOutsideDistancePixels = 30
+        Options.DragDrop.DragStartPixels = 2
+        Options.DragDrop.DragControlImageResizeFactor = 0.500000000000000000
+        Options.DragDrop.DragCursor = crDefault
+        Options.DragDrop.DragDisplay = ddTabAndControl
+        Options.DragDrop.DragFormBorderWidth = 2
+        Options.DragDrop.DragFormBorderColor = 8421504
+        Options.DragDrop.ContrainDraggedTabWithinContainer = True
+        Options.Animation.DefaultMovementAnimationTimeMS = 100
+        Options.Animation.DefaultStyleAnimationTimeMS = 300
+        Options.Animation.AnimationTimerInterval = 15
+        Options.Animation.MinimumTabAnimationWidth = 40
+        Options.Animation.DefaultMovementEaseType = ttLinearTween
+        Options.Animation.DefaultStyleEaseType = ttLinearTween
+        Options.Animation.MovementAnimations.TabAdd.UseDefaultEaseType = True
+        Options.Animation.MovementAnimations.TabAdd.UseDefaultAnimationTime = True
+        Options.Animation.MovementAnimations.TabAdd.EaseType = ttEaseOutExpo
+        Options.Animation.MovementAnimations.TabAdd.AnimationTimeMS = 500
+        Options.Animation.MovementAnimations.TabDelete.UseDefaultEaseType = True
+        Options.Animation.MovementAnimations.TabDelete.UseDefaultAnimationTime = True
+        Options.Animation.MovementAnimations.TabDelete.EaseType = ttEaseOutExpo
+        Options.Animation.MovementAnimations.TabDelete.AnimationTimeMS = 500
+        Options.Animation.MovementAnimations.TabMove.UseDefaultEaseType = False
+        Options.Animation.MovementAnimations.TabMove.UseDefaultAnimationTime = False
+        Options.Animation.MovementAnimations.TabMove.EaseType = ttEaseOutExpo
+        Options.Animation.MovementAnimations.TabMove.AnimationTimeMS = 500
+        Options.Behaviour.BackgroundDblClickMaximiseRestoreForm = True
+        Options.Behaviour.BackgroundDragMovesForm = True
+        Options.Behaviour.TabSmartDeleteResizing = True
+        Options.Behaviour.TabSmartDeleteResizeCancelDelay = 700
+        Options.Behaviour.UseBuiltInPopupMenu = True
+        Options.Behaviour.TabRightClickSelect = True
+        Options.Behaviour.ActivateNewTab = True
+        Options.Behaviour.DebugMode = False
+        Options.Behaviour.IgnoreDoubleClicksWhileAnimatingMovement = True
+        Options.Scrolling.Enabled = True
+        Options.Scrolling.ScrollButtons = csbRight
+        Options.Scrolling.ScrollStep = 20
+        Options.Scrolling.ScrollRepeatDelay = 20
+        Options.Scrolling.AutoHideButtons = False
+        Options.Scrolling.DragScroll = True
+        Options.Scrolling.DragScrollOffset = 50
+        Options.Scrolling.MouseWheelScroll = True
+        Tabs = <
+          item
+            Caption = 'Home'
+            Active = True
+            Tag = 0
+            ImageIndex = 43
+            ImageIndexOverlay = -1
+            Pinned = False
+            Visible = True
+            Modified = False
+            SpinnerState = tssNone
+            HideCloseButton = False
+          end
+          item
+            Caption = 'Execute SQL'
+            Active = False
+            Tag = 0
+            ImageIndex = 44
+            ImageIndexOverlay = -1
+            Pinned = False
+            Visible = True
+            Modified = False
+            SpinnerState = tssNone
+            HideCloseButton = False
+          end
+          item
+            Caption = 'Object Information'
+            Active = False
+            Tag = 0
+            ImageIndex = 40
+            ImageIndexOverlay = -1
+            Pinned = False
+            Visible = True
+            Modified = False
+            SpinnerState = tssNone
+            HideCloseButton = False
+          end>
+        LookAndFeel.TabsContainer.StartColor = 14586466
+        LookAndFeel.TabsContainer.StopColor = 13201730
+        LookAndFeel.TabsContainer.StartAlpha = 255
+        LookAndFeel.TabsContainer.StopAlpha = 255
+        LookAndFeel.TabsContainer.OutlineColor = 14520930
+        LookAndFeel.TabsContainer.OutlineAlpha = 0
+        LookAndFeel.Tabs.BaseLine.Color = 11110509
+        LookAndFeel.Tabs.BaseLine.Thickness = 1.000000000000000000
+        LookAndFeel.Tabs.BaseLine.Alpha = 255
+        LookAndFeel.Tabs.Modified.CentreColor = clWhite
+        LookAndFeel.Tabs.Modified.OutsideColor = clWhite
+        LookAndFeel.Tabs.Modified.CentreAlpha = 130
+        LookAndFeel.Tabs.Modified.OutsideAlpha = 0
+        LookAndFeel.Tabs.DefaultFont.Name = 'Segoe UI'
+        LookAndFeel.Tabs.DefaultFont.Color = clBlack
+        LookAndFeel.Tabs.DefaultFont.Size = 9
+        LookAndFeel.Tabs.DefaultFont.Alpha = 255
+        LookAndFeel.Tabs.DefaultFont.TextRendoringMode = TextRenderingHintClearTypeGridFit
+        LookAndFeel.Tabs.MouseGlow.CentreColor = clWhite
+        LookAndFeel.Tabs.MouseGlow.OutsideColor = clWhite
+        LookAndFeel.Tabs.MouseGlow.CentreAlpha = 120
+        LookAndFeel.Tabs.MouseGlow.OutsideAlpha = 0
+        LookAndFeel.Tabs.Spinners.Upload.Color = 12759975
+        LookAndFeel.Tabs.Spinners.Upload.Thickness = 2.500000000000000000
+        LookAndFeel.Tabs.Spinners.Upload.Alpha = 255
+        LookAndFeel.Tabs.Spinners.Download.Color = 14388040
+        LookAndFeel.Tabs.Spinners.Download.Thickness = 2.500000000000000000
+        LookAndFeel.Tabs.Spinners.Download.Alpha = 255
+        LookAndFeel.Tabs.Active.Font.Name = 'Segoe UI'
+        LookAndFeel.Tabs.Active.Font.Color = clOlive
+        LookAndFeel.Tabs.Active.Font.Size = 9
+        LookAndFeel.Tabs.Active.Font.Alpha = 100
+        LookAndFeel.Tabs.Active.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+        LookAndFeel.Tabs.Active.Font.UseDefaultFont = True
+        LookAndFeel.Tabs.Active.Style.StartColor = clWhite
+        LookAndFeel.Tabs.Active.Style.StopColor = 16316920
+        LookAndFeel.Tabs.Active.Style.StartAlpha = 255
+        LookAndFeel.Tabs.Active.Style.StopAlpha = 255
+        LookAndFeel.Tabs.Active.Style.OutlineColor = 10189918
+        LookAndFeel.Tabs.Active.Style.OutlineSize = 1.000000000000000000
+        LookAndFeel.Tabs.Active.Style.OutlineAlpha = 255
+        LookAndFeel.Tabs.NotActive.Font.Name = 'Segoe UI'
+        LookAndFeel.Tabs.NotActive.Font.Color = 4603477
+        LookAndFeel.Tabs.NotActive.Font.Size = 9
+        LookAndFeel.Tabs.NotActive.Font.Alpha = 215
+        LookAndFeel.Tabs.NotActive.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+        LookAndFeel.Tabs.NotActive.Font.UseDefaultFont = False
+        LookAndFeel.Tabs.NotActive.Style.StartColor = 15194573
+        LookAndFeel.Tabs.NotActive.Style.StopColor = 15194573
+        LookAndFeel.Tabs.NotActive.Style.StartAlpha = 210
+        LookAndFeel.Tabs.NotActive.Style.StopAlpha = 210
+        LookAndFeel.Tabs.NotActive.Style.OutlineColor = 13546390
+        LookAndFeel.Tabs.NotActive.Style.OutlineSize = 1.000000000000000000
+        LookAndFeel.Tabs.NotActive.Style.OutlineAlpha = 215
+        LookAndFeel.Tabs.Hot.Font.Name = 'Segoe UI'
+        LookAndFeel.Tabs.Hot.Font.Color = 4210752
+        LookAndFeel.Tabs.Hot.Font.Size = 9
+        LookAndFeel.Tabs.Hot.Font.Alpha = 215
+        LookAndFeel.Tabs.Hot.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+        LookAndFeel.Tabs.Hot.Font.UseDefaultFont = False
+        LookAndFeel.Tabs.Hot.Style.StartColor = 15721176
+        LookAndFeel.Tabs.Hot.Style.StopColor = 15589847
+        LookAndFeel.Tabs.Hot.Style.StartAlpha = 255
+        LookAndFeel.Tabs.Hot.Style.StopAlpha = 255
+        LookAndFeel.Tabs.Hot.Style.OutlineColor = 12423799
+        LookAndFeel.Tabs.Hot.Style.OutlineSize = 1.000000000000000000
+        LookAndFeel.Tabs.Hot.Style.OutlineAlpha = 235
+        LookAndFeel.CloseButton.Cross.Normal.Color = 6643031
+        LookAndFeel.CloseButton.Cross.Normal.Thickness = 1.500000000000000000
+        LookAndFeel.CloseButton.Cross.Normal.Alpha = 255
+        LookAndFeel.CloseButton.Cross.Down.Color = 15461369
+        LookAndFeel.CloseButton.Cross.Down.Thickness = 2.000000000000000000
+        LookAndFeel.CloseButton.Cross.Down.Alpha = 220
+        LookAndFeel.CloseButton.Cross.Hot.Color = clWhite
+        LookAndFeel.CloseButton.Cross.Hot.Thickness = 2.000000000000000000
+        LookAndFeel.CloseButton.Cross.Hot.Alpha = 220
+        LookAndFeel.CloseButton.Circle.Normal.StartColor = clGradientActiveCaption
+        LookAndFeel.CloseButton.Circle.Normal.StopColor = clNone
+        LookAndFeel.CloseButton.Circle.Normal.StartAlpha = 0
+        LookAndFeel.CloseButton.Circle.Normal.StopAlpha = 0
+        LookAndFeel.CloseButton.Circle.Normal.OutlineColor = clGray
+        LookAndFeel.CloseButton.Circle.Normal.OutlineSize = 1.000000000000000000
+        LookAndFeel.CloseButton.Circle.Normal.OutlineAlpha = 0
+        LookAndFeel.CloseButton.Circle.Down.StartColor = 3487169
+        LookAndFeel.CloseButton.Circle.Down.StopColor = 3487169
+        LookAndFeel.CloseButton.Circle.Down.StartAlpha = 255
+        LookAndFeel.CloseButton.Circle.Down.StopAlpha = 255
+        LookAndFeel.CloseButton.Circle.Down.OutlineColor = clGray
+        LookAndFeel.CloseButton.Circle.Down.OutlineSize = 1.000000000000000000
+        LookAndFeel.CloseButton.Circle.Down.OutlineAlpha = 255
+        LookAndFeel.CloseButton.Circle.Hot.StartColor = 9408475
+        LookAndFeel.CloseButton.Circle.Hot.StopColor = 9803748
+        LookAndFeel.CloseButton.Circle.Hot.StartAlpha = 255
+        LookAndFeel.CloseButton.Circle.Hot.StopAlpha = 255
+        LookAndFeel.CloseButton.Circle.Hot.OutlineColor = 6054595
+        LookAndFeel.CloseButton.Circle.Hot.OutlineSize = 1.000000000000000000
+        LookAndFeel.CloseButton.Circle.Hot.OutlineAlpha = 255
+        LookAndFeel.AddButton.Button.Normal.StartColor = 14340292
+        LookAndFeel.AddButton.Button.Normal.StopColor = 14340035
+        LookAndFeel.AddButton.Button.Normal.StartAlpha = 255
+        LookAndFeel.AddButton.Button.Normal.StopAlpha = 255
+        LookAndFeel.AddButton.Button.Normal.OutlineColor = 13088421
+        LookAndFeel.AddButton.Button.Normal.OutlineSize = 1.000000000000000000
+        LookAndFeel.AddButton.Button.Normal.OutlineAlpha = 255
+        LookAndFeel.AddButton.Button.Down.StartColor = 13417645
+        LookAndFeel.AddButton.Button.Down.StopColor = 13417644
+        LookAndFeel.AddButton.Button.Down.StartAlpha = 255
+        LookAndFeel.AddButton.Button.Down.StopAlpha = 255
+        LookAndFeel.AddButton.Button.Down.OutlineColor = 10852748
+        LookAndFeel.AddButton.Button.Down.OutlineSize = 1.000000000000000000
+        LookAndFeel.AddButton.Button.Down.OutlineAlpha = 255
+        LookAndFeel.AddButton.Button.Hot.StartColor = 15524314
+        LookAndFeel.AddButton.Button.Hot.StopColor = 15524314
+        LookAndFeel.AddButton.Button.Hot.StartAlpha = 255
+        LookAndFeel.AddButton.Button.Hot.StopAlpha = 255
+        LookAndFeel.AddButton.Button.Hot.OutlineColor = 14927787
+        LookAndFeel.AddButton.Button.Hot.OutlineSize = 1.000000000000000000
+        LookAndFeel.AddButton.Button.Hot.OutlineAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Normal.StartColor = clWhite
+        LookAndFeel.AddButton.PlusSign.Normal.StopColor = clWhite
+        LookAndFeel.AddButton.PlusSign.Normal.StartAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Normal.StopAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Normal.OutlineColor = clGray
+        LookAndFeel.AddButton.PlusSign.Normal.OutlineSize = 1.000000000000000000
+        LookAndFeel.AddButton.PlusSign.Normal.OutlineAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Down.StartColor = clWhite
+        LookAndFeel.AddButton.PlusSign.Down.StopColor = clWhite
+        LookAndFeel.AddButton.PlusSign.Down.StartAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Down.StopAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Down.OutlineColor = clGray
+        LookAndFeel.AddButton.PlusSign.Down.OutlineSize = 1.000000000000000000
+        LookAndFeel.AddButton.PlusSign.Down.OutlineAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Hot.StartColor = clWhite
+        LookAndFeel.AddButton.PlusSign.Hot.StopColor = clWhite
+        LookAndFeel.AddButton.PlusSign.Hot.StartAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Hot.StopAlpha = 255
+        LookAndFeel.AddButton.PlusSign.Hot.OutlineColor = clGray
+        LookAndFeel.AddButton.PlusSign.Hot.OutlineSize = 1.000000000000000000
+        LookAndFeel.AddButton.PlusSign.Hot.OutlineAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Normal.StartColor = 14735310
+        LookAndFeel.ScrollButtons.Button.Normal.StopColor = 14274499
+        LookAndFeel.ScrollButtons.Button.Normal.StartAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Normal.StopAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Normal.OutlineColor = 11507842
+        LookAndFeel.ScrollButtons.Button.Normal.OutlineSize = 1.000000000000000000
+        LookAndFeel.ScrollButtons.Button.Normal.OutlineAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Down.StartColor = 13417645
+        LookAndFeel.ScrollButtons.Button.Down.StopColor = 13417644
+        LookAndFeel.ScrollButtons.Button.Down.StartAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Down.StopAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Down.OutlineColor = 10852748
+        LookAndFeel.ScrollButtons.Button.Down.OutlineSize = 1.000000000000000000
+        LookAndFeel.ScrollButtons.Button.Down.OutlineAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Hot.StartColor = 15524314
+        LookAndFeel.ScrollButtons.Button.Hot.StopColor = 15524313
+        LookAndFeel.ScrollButtons.Button.Hot.StartAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Hot.StopAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Hot.OutlineColor = 14927788
+        LookAndFeel.ScrollButtons.Button.Hot.OutlineSize = 1.000000000000000000
+        LookAndFeel.ScrollButtons.Button.Hot.OutlineAlpha = 255
+        LookAndFeel.ScrollButtons.Button.Disabled.StartColor = 14340036
+        LookAndFeel.ScrollButtons.Button.Disabled.StopColor = 14274499
+        LookAndFeel.ScrollButtons.Button.Disabled.StartAlpha = 150
+        LookAndFeel.ScrollButtons.Button.Disabled.StopAlpha = 150
+        LookAndFeel.ScrollButtons.Button.Disabled.OutlineColor = 11113341
+        LookAndFeel.ScrollButtons.Button.Disabled.OutlineSize = 1.000000000000000000
+        LookAndFeel.ScrollButtons.Button.Disabled.OutlineAlpha = 100
+        LookAndFeel.ScrollButtons.Arrow.Normal.StartColor = clWhite
+        LookAndFeel.ScrollButtons.Arrow.Normal.StopColor = clWhite
+        LookAndFeel.ScrollButtons.Arrow.Normal.StartAlpha = 255
+        LookAndFeel.ScrollButtons.Arrow.Normal.StopAlpha = 255
+        LookAndFeel.ScrollButtons.Arrow.Normal.OutlineColor = clGray
+        LookAndFeel.ScrollButtons.Arrow.Normal.OutlineSize = 1.000000000000000000
+        LookAndFeel.ScrollButtons.Arrow.Normal.OutlineAlpha = 200
+        LookAndFeel.ScrollButtons.Arrow.Down.StartColor = clWhite
+        LookAndFeel.ScrollButtons.Arrow.Down.StopColor = clWhite
+        LookAndFeel.ScrollButtons.Arrow.Down.StartAlpha = 255
+        LookAndFeel.ScrollButtons.Arrow.Down.StopAlpha = 255
+        LookAndFeel.ScrollButtons.Arrow.Down.OutlineColor = clGray
+        LookAndFeel.ScrollButtons.Arrow.Down.OutlineSize = 1.000000000000000000
+        LookAndFeel.ScrollButtons.Arrow.Down.OutlineAlpha = 200
+        LookAndFeel.ScrollButtons.Arrow.Hot.StartColor = clWhite
+        LookAndFeel.ScrollButtons.Arrow.Hot.StopColor = clWhite
+        LookAndFeel.ScrollButtons.Arrow.Hot.StartAlpha = 255
+        LookAndFeel.ScrollButtons.Arrow.Hot.StopAlpha = 255
+        LookAndFeel.ScrollButtons.Arrow.Hot.OutlineColor = clGray
+        LookAndFeel.ScrollButtons.Arrow.Hot.OutlineSize = 1.000000000000000000
+        LookAndFeel.ScrollButtons.Arrow.Hot.OutlineAlpha = 200
+        LookAndFeel.ScrollButtons.Arrow.Disabled.StartColor = clSilver
+        LookAndFeel.ScrollButtons.Arrow.Disabled.StopColor = clSilver
+        LookAndFeel.ScrollButtons.Arrow.Disabled.StartAlpha = 150
+        LookAndFeel.ScrollButtons.Arrow.Disabled.StopAlpha = 150
+        LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineColor = clGray
+        LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineSize = 1.000000000000000000
+        LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineAlpha = 200
         Align = alTop
-        BevelOuter = bvNone
-        ParentBackground = False
         TabOrder = 0
-        ExplicitTop = 30
-        object Label1: TLabel
-          Left = 8
-          Top = 3
-          Width = 98
-          Height = 13
-          Caption = 'Current Connection:'
-        end
-        object Label2: TLabel
-          Left = 159
-          Top = 3
-          Width = 90
-          Height = 13
-          Caption = 'Current Database:'
-        end
-        object Label5: TLabel
-          Left = 310
-          Top = 3
-          Width = 82
-          Height = 13
-          Caption = 'Execute Method:'
-        end
-        object cboCurConn: TComboBox
-          Left = 8
-          Top = 20
-          Width = 145
-          Height = 21
-          Style = csDropDownList
-          TabOrder = 0
-          OnClick = cboCurConnClick
-        end
-        object cboCurDatabase: TComboBox
-          Left = 159
-          Top = 20
-          Width = 145
-          Height = 21
-          Style = csDropDownList
-          TabOrder = 1
-          OnClick = cboCurDatabaseClick
-        end
-        object BitBtn1: TBitBtn
-          Left = 479
-          Top = 20
-          Width = 129
-          Height = 21
-          Cursor = crHandPoint
-          Action = actScriptExecute
-          Caption = 'Execute SQL'
-          TabOrder = 2
-        end
-        object BitBtn2: TBitBtn
-          Left = 405
-          Top = 20
-          Width = 69
-          Height = 21
-          Cursor = crHandPoint
-          Action = actScriptBatch
-          Caption = 'Batch'
-          TabOrder = 3
-        end
-        object cboCurExecMethod: TComboBox
-          Left = 310
-          Top = 20
-          Width = 89
-          Height = 21
-          Style = csDropDownList
-          ItemIndex = 0
-          TabOrder = 4
-          Text = 'Execute'
-          Items.Strings = (
-            'Execute'
-            'Resultsets')
-        end
-      end
-      object ED: TSynEdit
-        Left = 0
-        Top = 44
-        Width = 772
-        Height = 61
-        Align = alTop
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Courier New'
-        Font.Style = []
-        TabOrder = 1
-        OnKeyUp = EDKeyUp
-        OnMouseUp = EDMouseUp
-        Gutter.AutoSize = True
-        Gutter.DigitCount = 3
-        Gutter.Font.Charset = DEFAULT_CHARSET
-        Gutter.Font.Color = 7105644
-        Gutter.Font.Height = -11
-        Gutter.Font.Name = 'Courier New'
-        Gutter.Font.Style = []
-        Gutter.RightOffset = 6
-        Gutter.ShowLineNumbers = True
-        Highlighter = SynSQLSyn1
-        Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoShowScrollHint, eoTabsToSpaces, eoTrimTrailingSpaces]
-        RightEdge = 120
-        SearchEngine = Search
-        TabWidth = 4
-        WantTabs = True
-        OnChange = EDChange
-        OnGutterGetText = EDGutterGetText
-        FontSmoothing = fsmNone
-        ExplicitTop = 74
-      end
-      object pMessages: TPanel
-        Left = 0
-        Top = 186
-        Width = 772
-        Height = 214
-        Align = alBottom
-        Color = clSkyBlue
-        ParentBackground = False
-        TabOrder = 2
-        StyleElements = [seFont, seBorder]
-        object Panel3: TPanel
-          Left = 1
-          Top = 1
-          Width = 770
-          Height = 21
-          Align = alTop
-          Alignment = taLeftJustify
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentColor = True
-          ParentFont = False
-          TabOrder = 0
-          DesignSize = (
-            770
-            21)
-          object Label3: TLabel
-            Left = 1
-            Top = 1
-            Width = 176
-            Height = 19
-            Align = alLeft
-            AutoSize = False
-            Caption = 'Messages'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -13
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentFont = False
-            Layout = tlCenter
-            ExplicitHeight = 23
-          end
-          object cmdCloseMessages: TSpeedButton
-            Left = 746
-            Top = 0
-            Width = 21
-            Height = 20
-            Cursor = crHandPoint
-            Anchors = [akTop, akRight]
-            Flat = True
-            Glyph.Data = {
-              36030000424D3603000000000000360000002800000010000000100000000100
-              18000000000000030000C40E0000C40E00000000000000000000FF00FFFF00FF
-              FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
-              FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFC4C4C4A8A8A8C4C4C4FF00FFFF
-              00FFFF00FFC4C4C4A8A8A8C4C4C4FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
-              C4C4C4878793212155878793C4C4C4FF00FFC4C4C4878793212155878793C4C4
-              C4FF00FFFF00FFFF00FFFF00FFC4C4C48888943131685D5DA9323268888894BD
-              BDBD8888943232695D5DAA323268888894C4C4C4FF00FFFF00FFFF00FF8C8C97
-              36366E6666B34F4FB26969B637376F6D6D8537376F6A6AB75151B46767B53636
-              6E8C8C97FF00FFFF00FFFF00FF2F2F677878D95555B94F4FB55555B96E6EBC49
-              49816F6FBC5656BA5252B85757BB8080E02F2F67FF00FFFF00FFFF00FFACACB8
-              3838917C7CEF5B5BC05858BE5C5CC07878CB5D5DC15959BF5E5EC27F7FF03838
-              91ACACB8FF00FFFF00FFFF00FFFF00FFADADBA42429A8686F16464C86060C661
-              61C76161C76666CA8B8BF142429AADADBAFF00FFFF00FFFF00FFFF00FFFF00FF
-              C4C4C47878914848A88383DB6666CC6868CF6868CF8686DC4848A8787891C4C4
-              C4FF00FFFF00FFFF00FFFF00FFC4C4C490909C3C3C7F5D5DBD6D6DD47171D873
-              73DB7373DB7171D86262C33D3D7F90909CC4C4C4FF00FFFF00FFFF00FF9393A0
-              4242846060BF7070D77676DE8383E6C8C8F68585E87B7BE47676DE6666C64242
-              849393A0FF00FFFF00FFFF00FF50508C9595E77676D97878E08787E9C0C0F877
-              77D6C3C3F98C8CEF7F7FE88080E29C9CE950508CFF00FFFF00FFFF00FFB3B3C0
-              6B6BBAAFAFF68D8DE9C3C3F96E6EBC9A9AB36E6EBCC9C9FA9494F1BABAF76C6C
-              BAB3B3C0FF00FFFF00FFFF00FFFF00FFB4B4C17373BFB0B0FF7474C0B4B4C1FF
-              00FFB4B4C17474C0B8B8FF7373BFB4B4C1FF00FFFF00FFFF00FFFF00FFFF00FF
-              FF00FFB6B6C36C6CABB6B6C3FF00FFFF00FFFF00FFB6B6C36C6CABB6B6C3FF00
-              FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
-              00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
-            OnClick = cmdCloseMessagesClick
-            ExplicitLeft = 457
-          end
-        end
-        object MsgPages: TPageControl
-          Left = 1
-          Top = 22
-          Width = 770
-          Height = 191
-          ActivePage = tabOutput
-          Align = alClient
-          TabHeight = 16
-          TabOrder = 1
-          TabPosition = tpBottom
-          object tabOutput: TTabSheet
-            Caption = 'Output'
-            object OutputBox: TRichEdit
-              Left = 0
-              Top = 0
-              Width = 762
-              Height = 89
-              Align = alTop
-              Font.Charset = ANSI_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -16
-              Font.Name = 'Consolas'
-              Font.Style = []
-              ParentFont = False
-              ReadOnly = True
-              ScrollBars = ssBoth
-              TabOrder = 0
-              WordWrap = False
-              Zoom = 100
-            end
-          end
-          object tabData: TTabSheet
-            Caption = 'Data View'
-            ImageIndex = 3
-            object sbData: TScrollBox
-              Left = 0
-              Top = 0
-              Width = 762
-              Height = 81
-              Align = alTop
-              TabOrder = 0
-            end
-          end
-          object tabSearch: TTabSheet
-            Caption = 'Search'
-            ImageIndex = 1
-            TabVisible = False
-          end
-          object tabBlocks: TTabSheet
-            Caption = 'Blocks'
-            ImageIndex = 2
-            TabVisible = False
-          end
-        end
+        ExplicitWidth = 772
       end
     end
   end
   object TB: TToolBar
     Left = 0
     Top = 0
-    Width = 1172
+    Width = 1089
     Height = 33
     ButtonHeight = 32
     ButtonWidth = 32
@@ -614,6 +716,8 @@ object frmSqlExec: TfrmSqlExec
     ShowHint = True
     TabOrder = 2
     Transparent = False
+    ExplicitTop = -5
+    ExplicitWidth = 1172
     object cmdNewFile: TToolButton
       Left = 0
       Top = 0
@@ -675,10 +779,47 @@ object frmSqlExec: TfrmSqlExec
       Top = 0
       Action = actEditReplace
     end
+    object ToolButton12: TToolButton
+      Left = 304
+      Top = 0
+      Width = 8
+      Caption = 'ToolButton12'
+      ImageIndex = 98
+      Style = tbsSeparator
+      Visible = False
+    end
+    object ToolButton14: TToolButton
+      Left = 312
+      Top = 0
+      Caption = 'ToolButton14'
+      ImageIndex = 90
+      Visible = False
+    end
+    object ToolButton1: TToolButton
+      Left = 344
+      Top = 0
+      Caption = 'ToolButton1'
+      ImageIndex = 90
+      Visible = False
+    end
+    object ToolButton2: TToolButton
+      Left = 376
+      Top = 0
+      Caption = 'ToolButton2'
+      ImageIndex = 90
+      Visible = False
+    end
+    object ToolButton3: TToolButton
+      Left = 408
+      Top = 0
+      Caption = 'ToolButton3'
+      ImageIndex = 90
+      Visible = False
+    end
   end
   object Prog: TProgressBar
-    Left = 896
-    Top = 509
+    Left = 872
+    Top = 543
     Width = 94
     Height = 17
     TabOrder = 3
@@ -801,7 +942,6 @@ object frmSqlExec: TfrmSqlExec
       object ShowMessages1: TMenuItem
         Caption = 'Show Messages'
         Checked = True
-        OnClick = ShowMessages1Click
       end
       object ShowLinesAffected1: TMenuItem
         Caption = 'Show Lines Affected'
@@ -836,7 +976,6 @@ object frmSqlExec: TfrmSqlExec
       Hint = 'Create New Script File'
       ImageIndex = 24
       ShortCut = 16462
-      OnExecute = actFileNewExecute
     end
     object actFileOpen: TAction
       Category = 'File'
@@ -844,7 +983,6 @@ object frmSqlExec: TfrmSqlExec
       Hint = 'Open Script File'
       ImageIndex = 33
       ShortCut = 16463
-      OnExecute = actFileOpenExecute
     end
     object actFileSave: TAction
       Category = 'File'
@@ -852,7 +990,6 @@ object frmSqlExec: TfrmSqlExec
       Hint = 'Save Script File'
       ImageIndex = 65
       ShortCut = 16467
-      OnExecute = actFileSaveExecute
     end
     object actFileSaveAs: TAction
       Category = 'File'
@@ -860,7 +997,6 @@ object frmSqlExec: TfrmSqlExec
       Hint = 'Save Script File As'
       ImageIndex = 65
       ShortCut = 49235
-      OnExecute = actFileSaveAsExecute
     end
     object actServerConnect: TAction
       Category = 'Server'
@@ -884,7 +1020,6 @@ object frmSqlExec: TfrmSqlExec
       Hint = 'Undo Last Edit'
       ImageIndex = 82
       ShortCut = 16474
-      OnExecute = actEditUndoExecute
     end
     object actEditCut: TAction
       Category = 'Edit'
@@ -921,7 +1056,6 @@ object frmSqlExec: TfrmSqlExec
       ImageIndex = 67
       ShortCut = 16454
       Visible = False
-      OnExecute = actEditFindExecute
     end
     object actEditFindNext: TAction
       Category = 'Edit'
@@ -930,7 +1064,6 @@ object frmSqlExec: TfrmSqlExec
       ImageIndex = 92
       ShortCut = 114
       Visible = False
-      OnExecute = actEditFindNextExecute
     end
     object actEditFindPrev: TAction
       Category = 'Edit'
@@ -938,7 +1071,6 @@ object frmSqlExec: TfrmSqlExec
       ImageIndex = 93
       ShortCut = 115
       Visible = False
-      OnExecute = actEditFindPrevExecute
     end
     object actEditReplace: TAction
       Category = 'Edit'
@@ -947,7 +1079,6 @@ object frmSqlExec: TfrmSqlExec
       ImageIndex = 97
       ShortCut = 16456
       Visible = False
-      OnExecute = actEditReplaceExecute
     end
     object actEditGoTo: TAction
       Category = 'Edit'
@@ -962,7 +1093,6 @@ object frmSqlExec: TfrmSqlExec
       Caption = 'Select All'
       Hint = 'Select All Text'
       ShortCut = 16449
-      OnExecute = actEditSelectAllExecute
     end
     object actScriptFont: TAction
       Category = 'Script'
@@ -970,7 +1100,6 @@ object frmSqlExec: TfrmSqlExec
       Hint = 'Change Text Font'
       ImageIndex = 35
       ShortCut = 16454
-      OnExecute = actScriptFontExecute
     end
     object actServerDisconnect: TAction
       Category = 'Server'
@@ -997,14 +1126,13 @@ object frmSqlExec: TfrmSqlExec
       Hint = 'Execute script on multiple databases at once'
       ImageIndex = 40
       ShortCut = 117
-      OnExecute = actScriptBatchExecute
     end
   end
   object Imgs16: TImageList
     Left = 96
     Top = 448
     Bitmap = {
-      494C010163009000680010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010163009000640010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000009001000001002000000000000090
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4317,7 +4445,7 @@ object frmSqlExec: TfrmSqlExec
     Left = 144
     Top = 448
     Bitmap = {
-      494C010163007000780018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010163007000740018001800FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000600000005802000001002000000000000084
       0300000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -11755,7 +11883,7 @@ object frmSqlExec: TfrmSqlExec
     Left = 192
     Top = 448
     Bitmap = {
-      494C01015E00B000700020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01015E00B0006C0020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000800000000003000001002000000000000000
       0600000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -24440,7 +24568,7 @@ object frmSqlExec: TfrmSqlExec
     Left = 240
     Top = 448
     Bitmap = {
-      494C01015E00B000700030003000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01015E00B0006C0030003000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000008004000001002000000000000080
       0D00000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -53006,25 +53134,11 @@ object frmSqlExec: TfrmSqlExec
     Left = 216
     Top = 512
   end
-  object tmrBlockCount: TTimer
-    Interval = 80
-    OnTimer = tmrBlockCountTimer
-    Left = 424
-    Top = 504
-  end
-  object tmrEdit: TTimer
-    Enabled = False
-    Interval = 600
-    OnTimer = tmrEditTimer
-    Left = 504
-    Top = 504
-  end
   object Search: TSynEditSearch
     Left = 320
     Top = 456
   end
   object tmrFileChange: TTimer
-    OnTimer = tmrFileChangeTimer
     Left = 424
     Top = 456
   end
