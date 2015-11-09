@@ -41,7 +41,6 @@ object frmSqlExec2: TfrmSqlExec2
       item
         Width = 50
       end>
-    OnDrawPanel = StatDrawPanel
   end
   object pMain: TPanel
     Left = 0
@@ -174,6 +173,8 @@ object frmSqlExec2: TfrmSqlExec2
           TabHeight = 16
           TabOrder = 1
           TabPosition = tpBottom
+          ExplicitLeft = -4
+          ExplicitTop = 27
           object TabSheet1: TTabSheet
             Caption = 'Object'
             object SelView: TStringGrid
@@ -296,11 +297,13 @@ object frmSqlExec2: TfrmSqlExec2
           object ToolButton16: TToolButton
             Left = 0
             Top = 0
+            Cursor = crHandPoint
             Action = actServerConnect
           end
           object ToolButton5: TToolButton
             Left = 25
             Top = 0
+            Cursor = crHandPoint
             Action = actServerDisconnect
           end
         end
@@ -337,13 +340,14 @@ object frmSqlExec2: TfrmSqlExec2
         Height = 30
         Cursor = crHandPoint
         OnActiveTabChanged = TabsActiveTabChanged
+        OnButtonAddClick = TabsButtonAddClick
         OnButtonCloseTabClick = TabsButtonCloseTabClick
         ActiveTabIndex = -1
         Images = dmDataModule.Imgs16
         Options.Display.CloseButton.Offsets.Vertical = 6
         Options.Display.CloseButton.Offsets.Horizontal = 2
-        Options.Display.CloseButton.Height = 14
-        Options.Display.CloseButton.Width = 14
+        Options.Display.CloseButton.Height = 16
+        Options.Display.CloseButton.Width = 16
         Options.Display.CloseButton.AutoHide = True
         Options.Display.CloseButton.Visibility = bvAll
         Options.Display.CloseButton.AutoHideWidth = 20
@@ -353,7 +357,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Display.AddButton.Height = 14
         Options.Display.AddButton.Width = 31
         Options.Display.AddButton.ShowPlusSign = False
-        Options.Display.AddButton.Visibility = avNone
+        Options.Display.AddButton.Visibility = avRightFloating
         Options.Display.AddButton.HorizontalOffsetFloating = -3
         Options.Display.ScrollButtonLeft.Offsets.Vertical = 10
         Options.Display.ScrollButtonLeft.Offsets.Horizontal = 1
@@ -678,33 +682,37 @@ object frmSqlExec2: TfrmSqlExec2
     ShowHint = True
     TabOrder = 2
     Transparent = False
+    ExplicitLeft = 2
+    ExplicitTop = -5
     object ToolButton6: TToolButton
       Left = 0
       Top = 0
+      Cursor = crHandPoint
       Action = actHome
     end
     object cmdNewFile: TToolButton
       Left = 32
       Top = 0
+      Cursor = crHandPoint
       Action = actFileNew
     end
     object cmdOpenFile: TToolButton
       Left = 64
       Top = 0
+      Cursor = crHandPoint
       Action = actFileOpen
     end
     object cmdSaveFile: TToolButton
       Left = 96
       Top = 0
+      Cursor = crHandPoint
       Action = actFileSave
     end
     object cmdUndo: TToolButton
       Left = 128
       Top = 0
-      Hint = 'Undo Last Edit'
-      Caption = 'Undo'
-      Enabled = False
-      ImageIndex = 82
+      Cursor = crHandPoint
+      Action = actEditUndo
     end
     object ToolButton4: TToolButton
       Left = 160
@@ -717,9 +725,8 @@ object frmSqlExec2: TfrmSqlExec2
     object cmdFont: TToolButton
       Left = 168
       Top = 0
-      Hint = 'Change Text Font'
-      Caption = 'Font...'
-      ImageIndex = 35
+      Cursor = crHandPoint
+      Action = actScriptFont
     end
     object ToolButton7: TToolButton
       Left = 200
@@ -732,6 +739,7 @@ object frmSqlExec2: TfrmSqlExec2
     object cmdFind: TToolButton
       Left = 208
       Top = 0
+      Cursor = crHandPoint
       Hint = 'Find Text'
       Caption = 'Find...'
       ImageIndex = 67
@@ -740,6 +748,7 @@ object frmSqlExec2: TfrmSqlExec2
     object cmdFindPrev: TToolButton
       Left = 240
       Top = 0
+      Cursor = crHandPoint
       Caption = 'Find Previous'
       ImageIndex = 93
       Visible = False
@@ -747,6 +756,7 @@ object frmSqlExec2: TfrmSqlExec2
     object cmdFindNext: TToolButton
       Left = 272
       Top = 0
+      Cursor = crHandPoint
       Hint = 'Find Next in Text'
       Caption = 'Find Next'
       ImageIndex = 92
@@ -755,6 +765,7 @@ object frmSqlExec2: TfrmSqlExec2
     object cmdFindReplace: TToolButton
       Left = 304
       Top = 0
+      Cursor = crHandPoint
       Hint = 'Replace Text'
       Caption = 'Replace...'
       ImageIndex = 97
@@ -772,16 +783,19 @@ object frmSqlExec2: TfrmSqlExec2
     object ToolButton14: TToolButton
       Left = 344
       Top = 0
+      Cursor = crHandPoint
       Action = actServerConnect
     end
     object ToolButton1: TToolButton
       Left = 376
       Top = 0
+      Cursor = crHandPoint
       Action = actServerDisconnect
     end
     object ToolButton2: TToolButton
       Left = 408
       Top = 0
+      Cursor = crHandPoint
       Caption = 'ToolButton2'
       ImageIndex = 90
       Visible = False
@@ -789,17 +803,11 @@ object frmSqlExec2: TfrmSqlExec2
     object ToolButton3: TToolButton
       Left = 440
       Top = 0
+      Cursor = crHandPoint
       Caption = 'ToolButton3'
       ImageIndex = 90
       Visible = False
     end
-  end
-  object Prog: TProgressBar
-    Left = 872
-    Top = 543
-    Width = 94
-    Height = 17
-    TabOrder = 3
   end
   object MM: TMainMenu
     Images = dmDataModule.Imgs16
@@ -843,11 +851,7 @@ object frmSqlExec2: TfrmSqlExec2
     object Edit1: TMenuItem
       Caption = 'Edit'
       object Undo1: TMenuItem
-        Caption = 'Undo'
-        Enabled = False
-        Hint = 'Undo Last Edit'
-        ImageIndex = 82
-        ShortCut = 16474
+        Action = actEditUndo
       end
       object N3: TMenuItem
         Caption = '-'
@@ -1039,11 +1043,13 @@ object frmSqlExec2: TfrmSqlExec2
       Category = 'File'
       Caption = 'Save As...'
       ImageIndex = 65
+      OnExecute = actFileSaveAsExecute
     end
     object actCloseScript: TAction
       Category = 'File'
       Caption = 'Close Script'
       ImageIndex = 21
+      OnExecute = actCloseScriptExecute
     end
     object actFileExit: TAction
       Category = 'File'
@@ -1052,31 +1058,23 @@ object frmSqlExec2: TfrmSqlExec2
       ImageIndex = 48
       OnExecute = actFileExitExecute
     end
+    object actEditUndo: TAction
+      Category = 'Edit'
+      Caption = 'Undo'
+      ImageIndex = 82
+      OnExecute = actEditUndoExecute
+    end
+    object actScriptFont: TAction
+      Category = 'Script'
+      Caption = 'Script Font'
+      ImageIndex = 35
+    end
   end
   object dlgOpen: TOpenTextFileDialog
     Filter = 
       'SQL Script Files (*.sql)|*.sql|Text Files (*.txt)|*.txt|All File' +
       's (*.*)|*.*'
     Left = 16
-    Top = 504
-  end
-  object dlgSave: TSaveTextFileDialog
-    Filter = 
-      'SQL Script Files (*.sql)|*.sql|Text Files (*.txt)|*.txt|All File' +
-      's (*.*)|*.*'
-    Left = 72
-    Top = 504
-  end
-  object dlgFont: TFontDialog
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    MinFontSize = 6
-    MaxFontSize = 100
-    Options = [fdEffects, fdNoFaceSel, fdNoStyleSel]
-    Left = 128
     Top = 504
   end
   object JumpList1: TJumpList

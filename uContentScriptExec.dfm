@@ -131,6 +131,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       item
         Width = 120
       end>
+    OnDrawPanel = StatDrawPanel
   end
   object Panel2: TPanel [3]
     Left = 0
@@ -219,7 +220,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Text = 'Execute'
       Items.Strings = (
         'Execute'
-        'Resultsets')
+        'Datasets')
     end
   end
   object ED: TSynEdit [4]
@@ -248,9 +249,19 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     RightEdge = 120
     TabWidth = 4
     WantTabs = True
+    OnChange = EDChange
     FontSmoothing = fsmNone
+    ExplicitLeft = 1
+    ExplicitTop = 47
   end
-  object SynSQL: TSynSQLSyn [5]
+  object Prog: TProgressBar [5]
+    Left = 491
+    Top = 175
+    Width = 94
+    Height = 17
+    TabOrder = 4
+  end
+  object SynSQL: TSynSQLSyn [6]
     Options.AutoDetectEnabled = True
     Options.AutoDetectLineLimit = 0
     Options.Visible = True
@@ -286,8 +297,51 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       ImageIndex = 7
       OnExecute = actExecSqlExecute
     end
-    object Action1: TAction
-      Caption = 'Action1'
+    object actSave: TAction
+      Caption = 'Save'
+      ImageIndex = 65
+      OnExecute = actSaveExecute
     end
+    object actSaveAs: TAction
+      Caption = 'Save As'
+      ImageIndex = 65
+      OnExecute = actSaveAsExecute
+    end
+    object actUndo: TAction
+      Caption = 'Undo'
+      ImageIndex = 82
+      OnExecute = actUndoExecute
+    end
+    object actFont: TAction
+      Caption = 'Font'
+      ImageIndex = 35
+      OnExecute = actFontExecute
+    end
+  end
+  object dlgSave: TSaveTextFileDialog
+    Filter = 
+      'SQL Script Files (*.sql)|*.sql|Text Files (*.txt)|*.txt|All File' +
+      's (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    Left = 152
+    Top = 140
+  end
+  object dlgFont: TFontDialog
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    MinFontSize = 6
+    MaxFontSize = 100
+    Options = [fdEffects, fdNoFaceSel, fdNoStyleSel]
+    Left = 216
+    Top = 140
+  end
+  object tmrProg: TTimer
+    Interval = 200
+    OnTimer = tmrProgTimer
+    Left = 280
+    Top = 144
   end
 end

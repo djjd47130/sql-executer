@@ -20,11 +20,7 @@ unit uMain2;
 
   TODO:
   - Implement tabular document interface (MAJOR)
-    - Use ChromeTabs control
     - Currently in progress
-      - uContentBase.pas has ancester form inherited by any content form
-      - Chrome Tabs to control content form display
-      - Chrome Tabs to also be used for any tabs
     - Different types of tab content
       - Home View (New File, Recent, etc.)
         - uContentHome.pas
@@ -62,8 +58,7 @@ unit uMain2;
   - Implmenet script block view
     - List individual blocks, the first line of script, errors, etc.
   - Implement help menu
-  - Change progress bar to be for all databases, not just current
-  - Change Save As to automatically include filename extension
+  - Fix Save As to automatically include filename extension
   - Fix total lines affected count
   - Implement "USES" statement
   - Implement "PRINT" statement
@@ -146,8 +141,6 @@ type
     Font1: TMenuItem;
     pMain: TPanel;
     dlgOpen: TOpenTextFileDialog;
-    dlgSave: TSaveTextFileDialog;
-    dlgFont: TFontDialog;
     pLeft: TPanel;
     Splitter1: TSplitter;
     TB: TToolBar;
@@ -186,7 +179,6 @@ type
     ShowConnections1: TMenuItem;
     ShowSelectedObject1: TMenuItem;
     ShowMessages1: TMenuItem;
-    Prog: TProgressBar;
     cmdFindPrev: TToolButton;
     cmdFindNext: TToolButton;
     cmdFindReplace: TToolButton;
@@ -210,6 +202,8 @@ type
     actFileSaveAs: TAction;
     actCloseScript: TAction;
     Close1: TMenuItem;
+    actEditUndo: TAction;
+    actScriptFont: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -220,8 +214,6 @@ type
     procedure TVClick(Sender: TObject);
     procedure TVExpanding(Sender: TObject; Node: TTreeNode;
       var AllowExpansion: Boolean);
-    procedure StatDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
-      const Rect: TRect);
     procedure cboCurConnClick(Sender: TObject);
     procedure cboCurDatabaseClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
@@ -239,6 +231,10 @@ type
       var Close: Boolean);
     procedure actFileOpenExecute(Sender: TObject);
     procedure actFileSaveExecute(Sender: TObject);
+    procedure actFileSaveAsExecute(Sender: TObject);
+    procedure actCloseScriptExecute(Sender: TObject);
+    procedure actEditUndoExecute(Sender: TObject);
+    procedure TabsButtonAddClick(Sender: TObject; var Handled: Boolean);
   private
     FConnections: TServerConnections;
     FBusy: Boolean;
@@ -247,16 +243,12 @@ type
     FAutoExec: Boolean;
     FQuietMode: Boolean;
     FOutputFile: String;
-
     FMsgHwnd: HWND;
-
     FHome: TfrmContentHome;
-
     function TestConnection(AConnStr: String): Boolean;
     procedure LoadTables(Conn: TServerConnection; Node: TTreeNode);
     procedure LoadStoredProcs(Conn: TServerConnection; Node: TTreeNode);
     function SelectedServer: TServerConnection;
-    procedure RefreshServerActions;
     procedure EnableForm(const Enabled: Boolean);
     procedure LoadState;
     procedure SaveState;
@@ -273,9 +265,11 @@ type
     procedure OpenAutoConnections;
     procedure RunVisible;
     procedure WndMethod(var Msg: TMessage);
+    function CurScript: TfrmContentScriptExec;
   public
     function Wnd: HWND;
     property Connections: TServerConnections read FConnections;
+    procedure RefreshServerActions;
   end;
 
 var
@@ -324,8 +318,6 @@ end;
 { TfrmMain }
 
 procedure TfrmSqlExec2.FormCreate(Sender: TObject);
-var
-  ProgressBarStyle: integer;
 begin
 
   {$IFDEF DEBUG}
@@ -337,14 +329,6 @@ begin
   pConnections.Align:= alClient;
   pSelected.Height:= 240;
   TV.Align:= alClient;
-
-  //Set progress bar in status bar
-  Stat.Panels[4].Style := psOwnerDraw;
-  Prog.Parent := Stat;
-  ProgressBarStyle := GetWindowLong(Prog.Handle, GWL_EXSTYLE);
-  ProgressBarStyle := ProgressBarStyle - WS_EX_STATICEDGE;
-  SetWindowLong(Prog.Handle, GWL_EXSTYLE, ProgressBarStyle);
-  Prog.Visible:= False;
 
   FConnections:= TServerConnections.Create(TV);
 
@@ -395,6 +379,7 @@ var
   X: Integer;
   Str: String;
   Tmp: String;
+  CS: TfrmContentScriptExec;
 begin
   if ParamCount > 0 then begin
     FN:= ParamStr(1);
@@ -409,6 +394,35 @@ begin
     OpenAutoConnections;
   end;
 
+  if FindCmdLineSwitch('d', Str, False) then begin
+    //Database Name(s)
+    if Str <> '' then begin
+      CS:= CurScript;
+      if Assigned(CS) then begin
+        if CS.cboCurDatabase.Items.IndexOf(Str) >= 0 then begin
+          CS.cboCurDatabase.ItemIndex:= CS.cboCurDatabase.Items.IndexOf(Str);
+          CS.cboCurDatabaseClick(nil);
+          //TODO: Support multiple databases
+        end;
+      end;
+    end;
+  end;
+
+  if FindCmdLineSwitch('m', Str, False) then begin
+    //Output Mode
+    //TODO: Choose either Execute or Resultset
+    if Str <> '' then begin
+      CS:= CurScript;
+      if Assigned(CS) then begin
+        if SameText(Str, 'data') then
+          CS.cboCurExecMethod.ItemIndex:= 1
+        else
+          CS.cboCurExecMethod.ItemIndex:= 0;
+      end;
+    end;
+
+  end;
+
   if FindCmdLineSwitch('e', Str, False) then begin
     //Perform Execution Automatically
     FAutoExec:= True;
@@ -420,24 +434,12 @@ begin
     FQuietMode:= True;
   end;
 
-  if FindCmdLineSwitch('d', Str, False) then begin
-    //Database Name(s)
-    // - Only works when "e" is provided
-
-  end;
-
-  if FindCmdLineSwitch('m', Str, False) then begin
-    //Output Mode
-    // - Only works when "e" is provided
-    //TODO: Choose either Execute or Resultset
-  end;
-
   if FindCmdLineSwitch('o', Str, False) then begin
     //Output File
     // - Only works when "e" is provided
-    //TODO: Save to output file
-    Self.FOutputFile:= Str;
-
+    FOutputFile:= Str;
+  end else begin
+    FOutputFile:= '';
   end;
 
   if FAutoExec then begin
@@ -450,6 +452,21 @@ begin
 
   end;
 
+end;
+
+function TfrmSqlExec2.CurScript: TfrmContentScriptExec;
+var
+  T: TChromeTab;
+  C: TfrmContentBase;
+begin
+  Result:= nil;
+  T:= Tabs.ActiveTab;
+  if Assigned(T) then begin
+    C:= TfrmContentBase(T.Data);
+    if C is TfrmContentScriptExec then begin
+      Result:= TfrmContentScriptExec(C);
+    end;
+  end;
 end;
 
 procedure TfrmSqlExec2.RunSilent;
@@ -721,12 +738,21 @@ begin
   if Assigned(C) then begin
     Self.DisplayContent(C);
   end;
+  RefreshServerActions;
+end;
+
+procedure TfrmSqlExec2.TabsButtonAddClick(Sender: TObject;
+  var Handled: Boolean);
+begin
+  Handled:= True;
+  Self.actFileNew.Execute;
 end;
 
 procedure TfrmSqlExec2.TabsButtonCloseTabClick(Sender: TObject;
   ATab: TChromeTab; var Close: Boolean);
 var
   C: TfrmContentBase;
+  S: TfrmContentScriptExec;
 begin
   //Check content type
   C:= TfrmContentBase(ATab.Data);
@@ -735,12 +761,13 @@ begin
       //Do nothing, this needs to stay created
     end else
     if C is TfrmContentScriptExec then begin
-      //TODO: Prompt to save changes, etc.
-
-      C.Free;
-
+      S:= TfrmContentScriptExec(C);
+      if S.PromptClose then begin
+        C.Free;
+      end else begin
+        Close:= False;
+      end;
     end;
-
   end;
 end;
 
@@ -932,6 +959,24 @@ begin
   RefreshServerActions;
 end;
 
+procedure TfrmSqlExec2.actCloseScriptExecute(Sender: TObject);
+begin
+  //Close currently active script
+
+
+end;
+
+procedure TfrmSqlExec2.actEditUndoExecute(Sender: TObject);
+var
+  S: TfrmContentScriptExec;
+begin
+  //TODO: Undo
+  S:= CurScript;
+  if Assigned(S) then begin
+    S.actUndo.Execute;
+  end;
+end;
+
 procedure TfrmSqlExec2.actFileExitExecute(Sender: TObject);
 begin
   Close;
@@ -963,18 +1008,6 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure TfrmSqlExec2.StatDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
-  const Rect: TRect);
-begin
-  if Panel = StatusBar.Panels[4] then
-  with Prog do begin
-    Top := Rect.Top;
-    Left := Rect.Left;
-    Width := Rect.Right - Rect.Left - 15;
-    Height := Rect.Bottom - Rect.Top;
-  end;
-end;
-
 procedure TfrmSqlExec2.TVClick(Sender: TObject);
 begin
   RefreshServerActions;
@@ -984,10 +1017,26 @@ end;
 
 procedure TfrmSqlExec2.RefreshServerActions;
 var
-  S: TServerConnection;
+  Svr: TServerConnection;
+  S: TfrmContentScriptExec;
 begin
-  S:= SelectedServer;
-  actServerDisconnect.Enabled:= Assigned(S);
+  Svr:= SelectedServer;
+  actServerDisconnect.Enabled:= Assigned(Svr);
+  S:= CurScript;
+  if Assigned(S) then begin
+    actFileSave.Enabled:= S.actSave.Enabled;
+    actFileSaveAs.Enabled:= S.actSaveAs.Enabled;
+    actEditUndo.Enabled:= S.actUndo.Enabled;
+    actCloseScript.Enabled:= True;
+    actScriptFont.Enabled:= S.actFont.Enabled;
+  end else begin
+    actFileSave.Enabled:= False;
+    actFileSaveAs.Enabled:= False;
+    actCloseScript.Enabled:= False;
+    actEditUndo.Enabled:= False;
+    actCloseScript.Enabled:= False;
+    actScriptFont.Enabled:= False;
+  end;
   {
   cboCurConn.Enabled:= Assigned(S);
   cboCurDatabase.Enabled:= Assigned(S);
@@ -1139,7 +1188,7 @@ begin
   C:= TfrmContentScriptExec.Create(nil);
   T:= Tabs.Tabs.Add;
   T.Data:= C;
-  T.Caption:= 'SQL Script';
+  C.Tab:= T;
   T.ImageIndex:= 44;
   Self.DisplayContent(C);
 end;
@@ -1151,10 +1200,24 @@ begin
   end;
 end;
 
-procedure TfrmSqlExec2.actFileSaveExecute(Sender: TObject);
+procedure TfrmSqlExec2.actFileSaveAsExecute(Sender: TObject);
+var
+  C: TfrmContentScriptExec;
 begin
-  //TODO: Save active script file
+  C:= CurScript;
+  if Assigned(C) then begin
+    C.actSaveAs.Execute;
+  end;
+end;
 
+procedure TfrmSqlExec2.actFileSaveExecute(Sender: TObject);
+var
+  C: TfrmContentScriptExec;
+begin
+  C:= CurScript;
+  if Assigned(C) then begin
+    C.actSave.Execute;
+  end;
 end;
 
 procedure TfrmSqlExec2.DoOpenFile(const Filename: String);
@@ -1165,10 +1228,10 @@ begin
   C:= TfrmContentScriptExec.Create(nil);
   T:= Tabs.Tabs.Add;
   T.Data:= C;
-  T.Caption:= 'SQL Script - '+ExtractFileName(Filename);
   T.ImageIndex:= 44;
-  C.ED.Lines.LoadFromFile(Filename);
-  Self.DisplayContent(C);
+  DisplayContent(C);
+  C.Tab:= T;
+  C.LoadFromFile(Filename);
 end;
 
 procedure TfrmSqlExec2.SetCaption(const S: String);
