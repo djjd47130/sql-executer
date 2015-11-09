@@ -142,10 +142,6 @@ type
     N5: TMenuItem;
     SelectAll1: TMenuItem;
     Font1: TMenuItem;
-    Imgs16: TImageList;
-    Imgs24: TImageList;
-    Imgs32: TImageList;
-    Imgs48: TImageList;
     pMain: TPanel;
     dlgOpen: TOpenTextFileDialog;
     dlgSave: TSaveTextFileDialog;
@@ -208,6 +204,10 @@ type
     actHome: TAction;
     ToolButton6: TToolButton;
     actFileOpen: TAction;
+    actFileSave: TAction;
+    actFileSaveAs: TAction;
+    actCloseScript: TAction;
+    Close1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -237,11 +237,14 @@ type
     procedure TabsButtonCloseTabClick(Sender: TObject; ATab: TChromeTab;
       var Close: Boolean);
     procedure actFileOpenExecute(Sender: TObject);
+    procedure actFileSaveExecute(Sender: TObject);
   private
     FConnections: TServerConnections;
     FBusy: Boolean;
     FShowLinesAffected: Bool;
     FLargeMode: Boolean;
+    FQuietMode: Boolean;
+    FOutputFile: String;
 
     FHome: TfrmContentHome;
 
@@ -260,6 +263,8 @@ type
     procedure DoOpenFile(const Filename: String);
     procedure CheckForParams;
     procedure OpenNewConnection(const Str: TConnectionString; const Rec: Boolean);
+    function ActiveScript: TfrmContentScriptExec;
+    procedure WriteToOutput(const S: String);
   public
 
   end;
@@ -273,6 +278,7 @@ implementation
 
 uses
   StrUtils,
+  uDataModule,
   uConnection, uDatabases
   {$IFDEF USE_SPLASH}
   , uSplash
@@ -375,6 +381,10 @@ begin
 
   if FindCmdLineSwitch('q', Str, False) then begin
     //Quiet Mode
+    FQuietMode:= True;
+    Application.ShowMainForm:= False;
+    Application.MainFormOnTaskBar:= True;
+    //TODO: Execute if requested...
 
   end;
 
@@ -400,26 +410,43 @@ begin
   FConnections.Free;
 end;
 
+function TfrmSqlExec2.ActiveScript: TfrmContentScriptExec;
+var
+  T: TChromeTab;
+  C: TfrmContentBase;
+begin
+  Result:= nil;
+  T:= Tabs.ActiveTab;
+  if Assigned(T) then begin
+    C:= TfrmContentBase(T.Data);
+    if Assigned(C) then begin
+      if C is TfrmContentScriptExec then begin
+        Result:= TfrmContentScriptExec(C);
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmSqlExec2.ResetSizes;
 begin
 
   FLargeMode:= True;
 
   if FLargeMode then begin
-    TB.Images:= Self.Imgs32;
+    TB.Images:= dmDataModule.Imgs32;
     TB.ButtonWidth:= 36;
     TB.ButtonHeight:= 36;
     TB.Height:= 38;
-    TV.Images:= Self.Imgs24;
+    TV.Images:= dmDataModule.Imgs24;
     TV.Font.Size:= TV.Font.Size + 2;
-    ToolBar1.Images:= Imgs24;
+    ToolBar1.Images:= dmDataModule.Imgs24;
     ToolBar1.ButtonWidth:= 30;
     ToolBar1.ButtonHeight:= 30;
     ToolBar1.Height:= 32;
   end else begin
-    TB.Images:= Self.Imgs24;
-    TV.Images:= Self.Imgs16;
-    ToolBar1.Images:= Imgs16;
+    TB.Images:= dmDataModule.Imgs24;
+    TV.Images:= dmDataModule.Imgs16;
+    ToolBar1.Images:= dmDataModule.Imgs16;
   end;
 
 end;
@@ -943,6 +970,22 @@ begin
   ShowLinesAffected1.Checked:= FShowLinesAffected;
 end;
 
+procedure TfrmSqlExec2.WriteToOutput(const S: String);
+begin
+  //TODO: Write to output file
+  if FOutputFile <> '' then begin
+    if DirectoryExists(ExtractFilePath(FOutputFile)) then begin
+
+    end else begin
+      //Directory doesn't exist
+
+    end;
+  end else begin
+    //Print to output window
+
+  end;
+end;
+
 procedure TfrmSqlExec2.LoadTables(Conn: TServerConnection; Node: TTreeNode);
 var
   N: TTreeNode;
@@ -1024,6 +1067,12 @@ begin
   if dlgOpen.Execute then begin
     DoOpenFile(dlgOpen.FileName);
   end;
+end;
+
+procedure TfrmSqlExec2.actFileSaveExecute(Sender: TObject);
+begin
+  //TODO: Save active script file
+
 end;
 
 procedure TfrmSqlExec2.DoOpenFile(const Filename: String);

@@ -50,10 +50,10 @@ var
 
 implementation
 
-{$IFDEF USE_V2}
 uses
-  uMain2;
-{$ENDIF}
+  uDataModule
+  , uMain2
+  ;
 
 {$R *.dfm}
 

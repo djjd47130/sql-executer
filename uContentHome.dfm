@@ -18,7 +18,6 @@ inherited frmContentHome: TfrmContentHome
     TabOrder = 0
   end
   inherited Acts: TActionList
-    Images = frmSqlExec2.Imgs16
     Left = 264
     Top = 368
     object actNewScript: TAction

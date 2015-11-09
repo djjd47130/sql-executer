@@ -28,12 +28,8 @@ object frmOutputWindow: TfrmOutputWindow
     TabHeight = 20
     TabOrder = 0
     TabPosition = tpBottom
-    ExplicitWidth = 540
-    ExplicitHeight = 183
     object tabMessages: TTabSheet
       Caption = 'Messages'
-      ExplicitWidth = 532
-      ExplicitHeight = 155
       object OutputBox: TRichEdit
         Left = 0
         Top = 0
@@ -60,8 +56,6 @@ object frmOutputWindow: TfrmOutputWindow
     object tabData: TTabSheet
       Caption = 'Data View'
       ImageIndex = 3
-      ExplicitWidth = 532
-      ExplicitHeight = 155
       object sbData: TScrollBox
         Left = 0
         Top = 0
@@ -77,14 +71,10 @@ object frmOutputWindow: TfrmOutputWindow
     object tabSearch: TTabSheet
       Caption = 'Search Results'
       ImageIndex = 1
-      ExplicitWidth = 532
-      ExplicitHeight = 155
     end
     object actBlocks: TTabSheet
       Caption = 'Block View'
       ImageIndex = 3
-      ExplicitWidth = 532
-      ExplicitHeight = 155
     end
   end
   object Tabs: TChromeTabs
@@ -94,7 +84,7 @@ object frmOutputWindow: TfrmOutputWindow
     Height = 30
     OnChange = TabsChange
     ActiveTabIndex = 1
-    Images = frmSqlExec2.Imgs16
+    Images = dmDataModule.Imgs16
     Options.Display.CloseButton.Offsets.Vertical = 6
     Options.Display.CloseButton.Offsets.Horizontal = 2
     Options.Display.CloseButton.Height = 14

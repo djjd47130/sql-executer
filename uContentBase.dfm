@@ -17,7 +17,6 @@ object frmContentBase: TfrmContentBase
   PixelsPerInch = 96
   TextHeight = 13
   object Acts: TActionList
-    Images = frmSqlExec2.Imgs16
     Left = 224
     Top = 112
     object actCloseTab: TAction

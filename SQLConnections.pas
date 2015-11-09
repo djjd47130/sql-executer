@@ -85,11 +85,9 @@ type
   private
     FOwner: TServerConnection;
     FName: String;
-    {$IFDEF USE_V2}
     FTableNode: TTreeNode;
     FStoredProcNode: TTreeNode;
     FOptionsNode: TTreeNode;
-    {$ENDIF}
     FTables: TObjectList<TServerDatabaseTable>;
     FStoredProcs: TObjectList<TServerDatabaseStoredProc>;
     function GetStoredProc(const Index: Integer): TServerDatabaseStoredProc;

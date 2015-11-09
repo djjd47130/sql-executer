@@ -43,10 +43,10 @@ implementation
 
 {$R *.dfm}
 
-{$IFDEF USE_V2}
 uses
-  uMain2;
-{$ENDIF}
+  uDataModule
+  , uMain2
+  ;
 
 { TContents }
 

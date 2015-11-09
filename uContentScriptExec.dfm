@@ -31,8 +31,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     ParentBackground = False
     TabOrder = 0
     StyleElements = [seFont, seBorder]
-    ExplicitTop = 231
-    ExplicitWidth = 768
     object pOutputTitle: TPanel
       Left = 1
       Top = 1
@@ -48,7 +46,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       ParentColor = True
       ParentFont = False
       TabOrder = 0
-      ExplicitWidth = 766
       DesignSize = (
         647
         21)
@@ -133,8 +130,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       item
         Width = 120
       end>
-    ExplicitTop = 325
-    ExplicitWidth = 768
   end
   object Panel2: TPanel [3]
     Left = 0
@@ -145,9 +140,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 2
-    ExplicitLeft = -8
-    ExplicitTop = -15
-    ExplicitWidth = 768
     object Label1: TLabel
       Left = 8
       Top = 3
@@ -254,7 +246,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     TabWidth = 4
     WantTabs = True
     FontSmoothing = fsmNone
-    ExplicitWidth = 768
   end
   object SynSQL: TSynSQLSyn [5]
     Options.AutoDetectEnabled = True
@@ -269,7 +260,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     Top = 138
   end
   inherited Acts: TActionList
-    Images = frmSqlExec.Imgs16
+    Images = dmDataModule.Imgs16
     Left = 24
     Top = 136
     object actRefreshConnections: TAction [0]

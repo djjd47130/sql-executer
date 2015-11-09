@@ -25,17 +25,15 @@ implementation
 
 {$R *.dfm}
 
-{$IFDEF USE_V2}
 uses
-  uMain2;
-{$ENDIF}
+  uDataModule
+  , uMain2
+  ;
 
 procedure TfrmContentHome.actNewScriptExecute(Sender: TObject);
 begin
   inherited;
-  {$IFDEF USE_V2}
   frmSqlExec2.actFileNew.Execute;
-  {$ENDIF}
 end;
 
 end.

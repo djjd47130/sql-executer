@@ -18,7 +18,9 @@ uses
   SQLConnections in 'SQLConnections.pas',
   uContentObject in 'uContentObject.pas' {frmContentObject},
   uMain2 in 'uMain2.pas' {frmSqlExec2},
-  CmdSwitches in 'CmdSwitches.pas';
+  CmdSwitches in 'CmdSwitches.pas',
+  uDataModule in 'uDataModule.pas' {dmDataModule: TDataModule},
+  SQLExecCommon in 'SQLExecCommon.pas';
 
 {$R *.res}
 
@@ -28,6 +30,7 @@ begin
   TStyleManager.TrySetStyle('Light');
   Application.Title := 'SQL Script Executer';
   RunApp;
+  Application.CreateForm(TdmDataModule, dmDataModule);
   Application.CreateForm(TfrmSqlExec2, frmSqlExec2);
   Application.CreateForm(TfrmDatabases, frmDatabases);
   Application.Run;

@@ -6,7 +6,7 @@
         <MainSource>SQLScriptExec.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -99,6 +99,8 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Build>2</VerInfo_Build>
         <Debugger_RunParams>&quot;C:\Users\jerryd\Desktop\RMPro Update Script Combined 2015.9.sql&quot; -s &quot;Provider=SQLOLEDB.1;Persist Security Info=True;Data Source=INNO004, 11303;Initial Catalog=RugDemoAPI;User ID=sa;Password=RMPro9a2012&quot;</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -161,6 +163,12 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="CmdSwitches.pas"/>
+        <DCCReference Include="uDataModule.pas">
+            <Form>dmDataModule</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="SQLExecCommon.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -189,6 +197,12 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment>
+                <DeployFile LocalName="Win64\Debug\SQLScriptExec.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>SQLScriptExec.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Win32\V2 Debug\SQLScriptExec.exe" Configuration="V2 Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>SQLScriptExec.exe</RemoteName>
@@ -204,6 +218,12 @@
                 <DeployFile LocalName="Win32\Release\SQLScriptExec.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>SQLScriptExec.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Debug\SQLScriptExec.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64">
+                        <RemoteName>SQLScriptExec.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
