@@ -49,6 +49,7 @@ type
     FOwner: TSQLExecThread;
     FSQL: TStringList;
     FConnStr: TConnectionString;
+    FExecMode: TSQLExecMode;
     function GetSQL: TStrings;
     procedure SetSQL(const Value: TStrings);
     procedure SetConnStr(const Value: TConnectionString);
@@ -57,6 +58,7 @@ type
     destructor Destroy; override;
     property SQL: TStrings read GetSQL write SetSQL;
     property ConnStr: TConnectionString read FConnStr write SetConnStr;
+    property ExecMode: TSQLExecMode read FExecMode write FExecMode;
   end;
 
   TSQLExecThread = class(TThread)
@@ -74,6 +76,7 @@ type
     FException: Exception;
     FBlock: TSqlExecBlock;
     FMessage: String;
+    FDataset: TDataset;
     FOnStatus: TSQLThreadStatusEvent;
     FOnLog: TSQLThreadLogEvent;
     FOnDataset: TSQLThreadDatasetEvent;
@@ -99,6 +102,8 @@ type
     procedure CalcBlocks;
     procedure DoBlockMsg;
     procedure DoOnWork;
+    procedure PerformJobs;
+    procedure DoAddDataset;
   protected
     procedure Execute; override;
   public
@@ -242,82 +247,22 @@ begin
   end;
 end;
 
-function TSQLExecThread.NextInQueue: Boolean;
-begin
-  if FQueue.Count > 0 then begin
-    SetCurJob(FQueue[0]);
-    FQueue.Delete(0);
-    Result:= True;
-  end else begin
-    Result:= False;
-  end;
-end;
-
-procedure TSQLExecThread.DoConnect;
-begin
-  if Terminated then Exit;
-  FConn.Connected:= False;
-  FConn.ConnectionString:= FCurJob.ConnStr;
-  try
-    FConn.Connected:= True;
-    FSqlExec.Connection:= FConn;
-  except
-    on E: Exception do begin
-      //TODO: Replace with custom exception type
-      raise Exception.Create('Failed to connect to database: '+E.Message);
-    end;
-  end;
-end;
-
 procedure TSQLExecThread.DoException;
 begin
   if Assigned(FOnError) then
     FOnError(Self, FException);
 end;
 
-procedure TSQLExecThread.DoJob;
-  procedure HandleSuccess;
-  begin
-    //TODO: Handle successful execution
-
-  end;
-  procedure HandleFailure;
-  begin
-    //TODO: Handle failed execution
-
-  end;
+procedure TSQLExecThread.DoOnWork;
 begin
-  if Terminated then Exit;
-  try
-    // ------- ACTUAL EXECUTION -------
-    FSqlExec.Connection:= FConn;
-    FSqlExec.SQL.Assign(FCurJob.SQL);
-    case FSqlExec.Execute of
-      srSuccess: begin
-        HandleSuccess;
-      end;
-      else begin
-        HandleFailure;
-      end;
-    end;
-  except
-    on E: Exception do begin
-      //TODO: Replace with custom exception type
-      raise Exception.Create('Failed to execute job: '+E.Message);
-    end;
-  end;
+  if Assigned(FOnWork) then
+    FOnWork(Self, FCurrentBlock, FTotalBlocks, FCurrentJob, FTotalJobs);
 end;
 
 procedure TSQLExecThread.DoJobStart;
 begin
   if Assigned(FOnJobStart) then
     FOnJobStart(Self, FCurJob);
-end;
-
-procedure TSQLExecThread.DoOnWork;
-begin
-  if Assigned(FOnWork) then
-    FOnWork(Self, FCurrentBlock, FTotalBlocks, FCurrentJob, FTotalJobs);
 end;
 
 procedure TSQLExecThread.DoJobEnd;
@@ -330,7 +275,13 @@ procedure TSQLExecThread.BlockStarted(Sender: TSQLExec; Block: TSQLExecBlock);
 begin
   FBlock:= Block;
   Inc(FCurrentBlock);
-  //Synchronize(DoOnWork);
+  Synchronize(DoOnWork);
+end;
+
+procedure TSQLExecThread.DoAddDataset;
+begin
+  if Assigned(Self.FOnDataset) then
+    FOnDataset(Self, FCurJob, FDataset);
 end;
 
 procedure TSQLExecThread.BlockFinished(Sender: TSQLExec; Block: TSQLExecBlock);
@@ -340,15 +291,14 @@ begin
   FBlock:= Block;
   case Block.Status of
     seSuccess: begin
-
+      for X := 0 to Block.DatasetCount-1 do begin
+        FDataset:= Block.Datasets[X];
+        Synchronize(DoAddDataset);
+      end;
     end;
     else begin
-      FMessage:= 'Failure on block '+IntToStr(Block.Index);
+      FMessage:= 'Failure on block '+IntToStr(Block.Index)+': '+Block.Message;
       Synchronize(DoBlockMsg);
-      if Block.Message <> '' then begin
-        FMessage:= Block.Message;
-        Synchronize(DoBlockMsg);
-      end;
     end;
   end;
   for X := 0 to Block.Errors.Count-1 do begin
@@ -381,53 +331,114 @@ begin
   end;
 end;
 
-procedure TSQLExecThread.Execute;
-  procedure PerformJobs;
+function TSQLExecThread.NextInQueue: Boolean;
+begin
+  if FQueue.Count > 0 then begin
+    SetCurJob(FQueue[0]);
+    FQueue.Delete(0);
+    Result:= True;
+  end else begin
+    Result:= False;
+  end;
+end;
+
+procedure TSQLExecThread.DoConnect;
+begin
+  if Terminated then Exit;
+  FConn.Connected:= False;
+  FConn.ConnectionString:= FCurJob.ConnStr;
+  try
+    FConn.Connected:= True;
+    FSqlExec.Connection:= FConn;
+  except
+    on E: Exception do begin
+      //TODO: Replace with custom exception type
+      raise Exception.Create('Failed to connect to database: '+E.Message);
+    end;
+  end;
+end;
+
+procedure TSQLExecThread.DoJob;
+  procedure HandleSuccess;
   begin
-    CalcBlocks;
-    FCurrentBlock:= 0;
-    FCurrentJob:= 0;
-    FTotalJobs:= FQueue.Count;
-    while FQueue.Count > 0 do begin
-      Inc(FCurrentJob);
-      try
-        if Terminated then Break;
-        if NextInQueue then begin
+    //TODO: Handle successful execution
+
+  end;
+  procedure HandleFailure;
+  begin
+    //TODO: Handle failed execution
+
+  end;
+begin
+  if Terminated then Exit;
+  try
+    // ------- ACTUAL EXECUTION -------
+    FSqlExec.Connection:= FConn;
+    FSqlExec.SQL.Assign(FCurJob.SQL);
+    FSqlExec.ExecMode:= FCurJob.ExecMode;
+    case FSqlExec.Execute of
+      srSuccess: begin
+        HandleSuccess;
+      end;
+      else begin
+        HandleFailure;
+      end;
+    end;
+  except
+    on E: Exception do begin
+      //TODO: Replace with custom exception type
+      raise Exception.Create('Failed to execute job: '+E.Message);
+    end;
+  end;
+end;
+
+procedure TSQLExecThread.PerformJobs;
+begin
+  CalcBlocks;
+  FCurrentBlock:= 0;
+  FCurrentJob:= 0;
+  FTotalJobs:= FQueue.Count;
+  while FQueue.Count > 0 do begin
+    Inc(FCurrentJob);
+    try
+      if Terminated then Break;
+      if NextInQueue then begin
+        try
+          Synchronize(DoJobStart);
           try
-            Synchronize(DoJobStart);
-            try
-              // ------- EXECUTION -------
-              DoConnect;
-              DoJob;
-            finally
-              Synchronize(DoJobEnd);
-            end;
+            // ------- EXECUTION -------
+            DoConnect;
+            DoJob;
           finally
-            FreeAndNil(FCurJob);
+            Synchronize(DoJobEnd);
           end;
+        finally
+          FreeAndNil(FCurJob);
         end;
-      except
-        on E: Exception do begin
-          FException:= E;
-          Synchronize(DoException);
-        end;
+      end;
+    except
+      on E: Exception do begin
+        FException:= E;
+        Synchronize(DoException);
       end;
     end;
   end;
+end;
+
+procedure TSQLExecThread.Execute;
 begin
   try
     CoInitialize(nil);
     try
       FSqlExec:= TSqlExec.Create(nil);
+      FSqlExec.Options:= [soUseTransactions, soAbortOnFail];
       FSqlExec.OnBlockStart:= BlockStarted;
       FSqlExec.OnBlockFinish:= BlockFinished;
-      //FSqlExec.OnPrint:= BlockPrinted; //TODO
       FConn:= TADOConnection.Create(nil);
       try
         FConn.LoginPrompt:= False;
         SetStatus(esBusy);
         try
-          // ------- EXECUTION -------
           PerformJobs;
         finally
           SetStatus(esReady);

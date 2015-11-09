@@ -52,11 +52,11 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <VCL_Custom_Styles>Light|VCLSTYLE|$(PUBLIC)\Documents\Embarcadero\Studio\15.0\Styles\Light.vsf</VCL_Custom_Styles>
         <DCC_Define>USE_V2;$(DCC_Define)</DCC_Define>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_Keys>CompanyName=JD Software Inc.;FileDescription=SQL Script Executer;FileVersion=1.0.0.0;InternalName=SQLScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SQLScriptExec.exe;ProductName=SQL Script Executer;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VCL_Custom_Styles>Light|VCLSTYLE|$(PUBLIC)\Documents\Embarcadero\Studio\15.0\Styles\Light.vsf</VCL_Custom_Styles>
         <Icon_MainIcon>SQLScriptExec_Icon.ico</Icon_MainIcon>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>SQLScriptExec</SanitizedProjectName>
@@ -91,9 +91,9 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <Debugger_RunParams>&quot;C:\Users\jerryd\Desktop\Test Script.sql&quot; -s &quot;Provider=SQLOLEDB.1;Persist Security Info=True;Data Source=INNO004, 11303;Initial Catalog=RugDemoAPI;User ID=sa;Password=RMPro9a2012&quot; -d RugDemoAPI -m data</Debugger_RunParams>
-        <VerInfo_Build>21</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=JD Software Inc;FileDescription=SQL Script Executer;FileVersion=1.0.0.21;InternalName=SqlScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SqlScriptExec.exe;ProductName=SqlExec;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <Debugger_RunParams>&quot;C:\Users\jerryd\Desktop\Test Script.sql&quot; -s &quot;Provider=SQLOLEDB.1;Persist Security Info=True;Data Source=INNO004, 11303;Initial Catalog=RugDemoAPI;User ID=sa;Password=RMPro9a2012&quot; -d RugDemoAPI</Debugger_RunParams>
+        <VerInfo_Build>22</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=JD Software Inc;FileDescription=SQL Script Executer;FileVersion=1.0.0.22;InternalName=SqlScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SqlScriptExec.exe;ProductName=SqlExec;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -121,12 +121,17 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="SQLExec.pas"/>
+        <DCCReference Include="uDataModule.pas">
+            <Form>dmDataModule</Form>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="uMain2.pas">
+            <Form>frmSqlExec2</Form>
+        </DCCReference>
         <DCCReference Include="uConnection.pas">
             <Form>frmConnection</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="AppInit.pas"/>
         <DCCReference Include="uDatabases.pas">
             <Form>frmDatabases</Form>
             <FormType>dfm</FormType>
@@ -151,23 +156,14 @@
             <Form>frmContentHome</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="uContentObject.pas">
+            <Form>frmContentObject</Form>
+        </DCCReference>
+        <DCCReference Include="AppInit.pas"/>
+        <DCCReference Include="SQLExec.pas"/>
         <DCCReference Include="SQLExecThread.pas"/>
         <DCCReference Include="SQLObjects.pas"/>
         <DCCReference Include="SQLConnections.pas"/>
-        <DCCReference Include="uContentObject.pas">
-            <Form>frmContentObject</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="uMain2.pas">
-            <Form>frmSqlExec2</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="CmdSwitches.pas"/>
-        <DCCReference Include="uDataModule.pas">
-            <Form>dmDataModule</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
         <DCCReference Include="SQLExecCommon.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -218,12 +214,6 @@
                 <DeployFile LocalName="Win32\Release\SQLScriptExec.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>SQLScriptExec.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Win64\Debug\SQLScriptExec.rsm" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="Win64">
-                        <RemoteName>SQLScriptExec.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

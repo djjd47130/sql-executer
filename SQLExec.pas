@@ -144,7 +144,7 @@ type
     smExecute,
 
     ///<summary>
-    ///Return recordsets
+    ///Execute and return recordsets
     ///</summary>
     smRecordsets);
 
@@ -166,12 +166,7 @@ type
     ///<summary>
     ///Forcefully parse script on execution (ignore cache)
     ///</summary>
-    soForceParse,
-
-    ///<summary>
-    ///Handle PRINT statements to output text
-    ///</summary>
-    soPrintOutput);
+    soForceParse);
 
   ///<summary>
   ///Set of options for script execution
@@ -182,12 +177,6 @@ type
   ///Executed on events such as before/after execution
   ///</summary>
   TSQLBlockEvent = procedure(Sender: TSQLExec; Block: TSQLExecBlock) of object;
-
-  ///<summary>
-  ///Executed on a PRINT statement (outputs text)
-  ///NOTE: Not yet implemented
-  ///</summary>
-  TSQLPrintEvent = procedure(Sender: TSQLExec; Block: TSQLExecBlock; Msg: String) of object;
 
   ///<summary>
   ///Global exception object for component
@@ -272,8 +261,14 @@ type
     ///</summary>
     property Errors: TStrings read GetErrors write SetErrors;
 
+    ///<summary>
+    ///Total number of datasets in result
+    ///</summary>
     function DatasetCount: Integer;
 
+    ///<summary>
+    ///Access to individual dataset in result
+    ///</summary>
     property Datasets[const Index: Integer]: TClientDataSet read GetDataset;
   end;
 
@@ -311,7 +306,6 @@ type
     FOnBlockStart: TSQLBlockEvent;
     FOnBlockFinish: TSQLBlockEvent;
     FSplitWord: String;
-    FOnPrint: TSQLPrintEvent;
     FExecMode: TSQLExecMode;
     function GetSQL: TStrings;
     procedure SetSQL(const Value: TStrings);
@@ -393,11 +387,6 @@ type
     ///Event triggered at the finish of a single block execution
     ///</summary>
     property OnBlockFinish: TSQLBlockEvent read FOnBlockFinish write FOnBlockFinish;
-
-    ///<summary>
-    ///[NOT IMPLEMENTED] Event triggered when a `PRINT` statement is detected
-    ///</summary>
-    property OnPrint: TSQLPrintEvent read FOnPrint write FOnPrint;
   end;
 
 procedure CloneDataset(FromDataset: TDataset; ToDataset: TClientDataset);

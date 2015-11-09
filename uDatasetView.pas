@@ -18,7 +18,7 @@ type
     CDS: TClientDataSet;
     Panel2: TPanel;
     SpeedButton1: TSpeedButton;
-    StatusBar1: TStatusBar;
+    Stat: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure Panel2MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -27,6 +27,7 @@ type
     procedure Panel2MouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure DSDataChange(Sender: TObject; Field: TField);
   private
     FStartHeight: Integer;
     FStartPos: TPoint;
@@ -106,6 +107,11 @@ begin
   inherited;
   //Params.ExStyle := Params.ExStyle or WS_EX_STATICEDGE;
   //Params.Style := Params.Style or WS_SIZEBOX;
+end;
+
+procedure TfrmDatasetView.DSDataChange(Sender: TObject; Field: TField);
+begin
+  Stat.Panels[0].Text:= IntToStr(CDS.RecordCount)+' Records';
 end;
 
 end.

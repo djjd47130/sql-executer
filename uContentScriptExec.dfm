@@ -39,14 +39,16 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Height = 21
       Align = alTop
       Alignment = taLeftJustify
+      Color = clSkyBlue
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = []
-      ParentColor = True
+      ParentBackground = False
       ParentFont = False
       TabOrder = 0
+      StyleElements = [seFont, seBorder]
       DesignSize = (
         647
         21)
@@ -190,7 +192,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         '[Select Database]')
     end
     object BitBtn1: TBitBtn
-      Left = 479
+      Left = 483
       Top = 20
       Width = 129
       Height = 21
@@ -290,16 +292,19 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     object actBatch: TAction [2]
       Caption = 'Batch'
       ImageIndex = 40
+      ShortCut = 16450
       OnExecute = actBatchExecute
     end
     object actExecSql: TAction [3]
       Caption = 'Execute SQL'
       ImageIndex = 7
+      ShortCut = 116
       OnExecute = actExecSqlExecute
     end
     object actSave: TAction
       Caption = 'Save'
       ImageIndex = 65
+      ShortCut = 16467
       OnExecute = actSaveExecute
     end
     object actSaveAs: TAction
@@ -310,11 +315,13 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     object actUndo: TAction
       Caption = 'Undo'
       ImageIndex = 82
+      ShortCut = 16474
       OnExecute = actUndoExecute
     end
     object actFont: TAction
       Caption = 'Font'
       ImageIndex = 35
+      ShortCut = 16454
       OnExecute = actFontExecute
     end
   end

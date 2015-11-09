@@ -90,6 +90,8 @@ type
     FOptionsNode: TTreeNode;
     FTables: TObjectList<TServerDatabaseTable>;
     FStoredProcs: TObjectList<TServerDatabaseStoredProc>;
+    FTablesLoaded: Boolean;
+    FStoredProcsLoaded: Boolean;
     function GetStoredProc(const Index: Integer): TServerDatabaseStoredProc;
     function GetTable(const Index: Integer): TServerDatabaseTable;
   public
@@ -284,6 +286,7 @@ begin
       N.StateIndex:= 2;
       D:= TServerDatabase.Create(N, Self, S);
       FDatabases.Add(D);
+      N.Data:= D;
       Q.Next;
     end;
     Q.Close;
@@ -315,10 +318,14 @@ begin
   FName:= AName;
   FTables:= TObjectList<TServerDatabaseTable>.Create(True);
   FStoredProcs:= TObjectList<TServerDatabaseStoredProc>.Create(True);
+  FTablesLoaded:= False;
+  FStoredProcsLoaded:= False;
 end;
 
 destructor TServerDatabase.Destroy;
 begin
+  FTables.Clear;
+  FStoredProcs.Clear;
   FStoredProcs.Free;
   FTables.Free;
   inherited;
@@ -337,27 +344,62 @@ end;
 procedure TServerDatabase.RefreshStoredProcs;
 var
   Q: TADOQuery;
+  P: TServerDatabaseStoredProc;
 begin
+  FStoredProcs.Clear;
   Q:= FOwner.NewQuery;
   try
-    Q.SQL.Text:= 'select * from ';
+    Q.SQL.Text:= 'Use '+FName;
+    Q.ExecSQL;
+    Q.SQL.Text:= 'select * from SysObjects where xType = ''P''';
+    Q.Open;
+    while not Q.Eof do begin
+      P:= TServerDatabaseStoredProc.Create(Self, Q.FieldByName('Name').AsString);
+      FStoredProcs.Add(P);
+      Q.Next;
+    end;
+    Q.Close;
   finally
     Q.Free;
   end;
+  FStoredProcsLoaded:= True;
 end;
 
 procedure TServerDatabase.RefreshTables;
+var
+  Q: TADOQuery;
+  T: TServerDatabaseTable;
 begin
-
+  FTables.Clear;
+  Q:= FOwner.NewQuery;
+  try
+    Q.SQL.Text:= 'Use '+FName;
+    Q.ExecSQL;
+    Q.SQL.Text:= 'select * from SysObjects where xType = ''U''';
+    Q.Open;
+    while not Q.Eof do begin
+      T:= TServerDatabaseTable.Create(Self, Q.FieldByName('Name').AsString);
+      FTables.Add(T);
+      Q.Next;
+    end;
+    Q.Close;
+  finally
+    Q.Free;
+  end;
+  FTablesLoaded:= True;
 end;
 
 function TServerDatabase.StoredProcCount: Integer;
 begin
+  if not FStoredProcsLoaded then
+    RefreshStoredProcs;
   Result:= FStoredProcs.Count;
 end;
 
 function TServerDatabase.TableCount: Integer;
 begin
+  if not FTablesLoaded then
+    RefreshTables;
   Result:= FTables.Count;
 end;
 

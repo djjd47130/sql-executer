@@ -8,6 +8,7 @@ uses
   Vcl.ComCtrls, Vcl.Buttons, SynEdit, Vcl.ExtCtrls,
   uOutputWindow, SynEditHighlighter, SynHighlighterSQL, System.Actions,
   Vcl.ActnList,
+  Data.DB,
   SQLExec,
   SQLExecThread,
   SQLExecCommon,
@@ -86,6 +87,8 @@ type
       TotalBlocks, CurrentJob, TotalJobs: Integer);
     procedure ThreadBlockMsg(Sender: TSQLExecThread; const Job: TSQLThreadJob;
       const Block: TSqlExecBlock; const Msg: String);
+    procedure ThreadDataset(Sender: TSQLExecThread; const Job: TSQLThreadJob;
+      const Dataset: TDataset);
     procedure RefreshCaption;
   public
     procedure WndMethod(var Msg: TMessage); override;
@@ -129,7 +132,7 @@ begin
   FOutput.Parent:= pOutput;
   FOutput.Align:= alClient;
   FOutput.Show;
-  pOutput.Height:= 170;
+  pOutput.Height:= 300;
   FFilename:= '';
   FIsNew:= True;
   FIsChanged:= False;
@@ -152,9 +155,9 @@ end;
 procedure TfrmContentScriptExec.RefreshCaption;
 begin
   if FIsNew then begin
-    Caption:= 'New SQL Script';
+    Caption:= 'New Script';
   end else begin
-    Caption:= 'SQL Script - "'+ExtractFileName(FFilename)+'"';
+    Caption:= ExtractFileName(FFilename)+' ('+ExtractFilePath(FFilename)+')';
   end;
 end;
 
@@ -167,15 +170,6 @@ begin
   RefreshCaption;
 end;
 
-procedure TfrmContentScriptExec.actExecSqlExecute(Sender: TObject);
-begin
-  inherited;
-  //TODO: Clear current output
-
-  StartNewThread;
-  RefreshActions;
-end;
-
 procedure TfrmContentScriptExec.actFontExecute(Sender: TObject);
 begin
   inherited;
@@ -183,6 +177,22 @@ begin
   if dlgFont.Execute then begin
     ED.Font.Assign(dlgFont.Font);
   end;
+end;
+
+procedure TfrmContentScriptExec.actExecSqlExecute(Sender: TObject);
+begin
+  inherited;
+  Screen.Cursor:= crHourglass;
+  try
+    FOutput.ClearAll;
+    FOutput.SetFocus;
+    FOutput.Tabs.ActiveTabIndex:= 0;
+    FOutput.OutputBox.SetFocus;
+    StartNewThread;
+  finally
+    Screen.Cursor:= crDefault;
+  end;
+  RefreshActions;
 end;
 
 procedure TfrmContentScriptExec.StartNewThread;
@@ -202,14 +212,19 @@ begin
     T.OnJobEnd:= ThreadJobEnded;
     T.OnBlockMsg:= ThreadBlockMsg;
     T.OnWork:= ThreadWork;
+    T.OnDataset:= ThreadDataset;
     try
       //Populate jobs
       for X := 0 to C.SelDatabases.Count-1 do begin
-        CS:= C.ConnectionString;
+        CS:= String(C.ConnectionString);
         CS['Initial Catalog']:= C.SelDatabases[X];
         J:= T.AddToQueue;
         J.ConnStr:= CS;
-        J.SQL.Assign(ED.Lines);
+        if ED.SelLength > 0 then
+          J.SQL.Text:= ED.SelText
+        else
+          J.SQL.Assign(ED.Lines);
+        J.ExecMode:= TSQLExecMode(cboCurExecMethod.ItemIndex);
       end;
     finally
       T.Start;
@@ -233,21 +248,6 @@ begin
   end;
 end;
 
-procedure TfrmContentScriptExec.ThreadStatus(Sender: TSQLExecThread;
-  const Status: TSQLThreadStatus);
-begin
-  FStatus:= Status;
-end;
-
-procedure TfrmContentScriptExec.ThreadWork(Sender: TSQLExecThread;
-  const CurrentBlock, TotalBlocks, CurrentJob, TotalJobs: Integer);
-begin
-  FCurrentBlock:= CurrentBlock;
-  FTotalBlocks:= TotalBlocks;
-  FCurrentJob:= CurrentJob;
-  FTotalJobs:= TotalJobs;
-end;
-
 procedure TfrmContentScriptExec.tmrProgTimer(Sender: TObject);
 begin
   inherited;
@@ -265,13 +265,41 @@ begin
 
     end;
   end;
-  RefreshActions;
   if Prog.Visible then begin
     if Prog.Max <> FTotalBlocks then
       Prog.Max:= FTotalBlocks;
     if Prog.Position <> FCurrentBlock then
       Prog.Position:= FCurrentBlock;
   end;
+end;
+
+procedure TfrmContentScriptExec.ThreadStatus(Sender: TSQLExecThread;
+  const Status: TSQLThreadStatus);
+begin
+  FStatus:= Status;
+  case FStatus of
+    esBusy: begin
+      PostLog('');
+      PostLog('Started execution...', [fsBold], clGreen);
+    end;
+    esReady: begin
+      PostLog('');
+      PostLog('Finished execution of '+IntToStr(FTotalJobs)+' Jobs', [fsBold], clGreen);
+    end;
+    esError: begin
+      PostLog('');
+      PostLog('SQL EXEC ERROR', [fsBold], clRed);
+    end;
+  end;
+end;
+
+procedure TfrmContentScriptExec.ThreadWork(Sender: TSQLExecThread;
+  const CurrentBlock, TotalBlocks, CurrentJob, TotalJobs: Integer);
+begin
+  FCurrentBlock:= CurrentBlock;
+  FTotalBlocks:= TotalBlocks;
+  FCurrentJob:= CurrentJob;
+  FTotalJobs:= TotalJobs;
 end;
 
 procedure TfrmContentScriptExec.ThreadJobStarted(Sender: TSQLExecThread; const Job: TSQLThreadJob);
@@ -284,6 +312,12 @@ procedure TfrmContentScriptExec.ThreadBlockMsg(Sender: TSQLExecThread;
   const Job: TSQLThreadJob; const Block: TSqlExecBlock; const Msg: String);
 begin
   PostLog(' > Message: '+Msg, [fsItalic], clBlue);
+end;
+
+procedure TfrmContentScriptExec.ThreadDataset(Sender: TSQLExecThread;
+  const Job: TSQLThreadJob; const Dataset: TDataset);
+begin
+  FOutput.AddDataset(Job, Dataset);
 end;
 
 procedure TfrmContentScriptExec.ThreadJobEnded(Sender: TSQLExecThread; const Job: TSQLThreadJob);
@@ -461,7 +495,7 @@ begin
   if cboCurDatabase.Items.Count = 1 then
     cboCurDatabase.ItemIndex:= 0;
 
-  frmSqlExec2.RefreshServerActions; //TODO: Decouple
+  frmSqlExec2.RefreshActions; //TODO: Decouple
 
   RefreshCaption;
 end;
@@ -539,7 +573,8 @@ begin
   if Assigned(C) then begin
     if cboCurDatabase.ItemIndex > 0 then begin
       if cboCurDatabase.ItemIndex = cboCurDatabase.Items.Count-1 then begin
-        actBatch.Execute;
+        if cboCurDatabase.Focused then
+          actBatch.Execute;
       end else begin
         C.SelDatabases.Text:= cboCurDatabase.Text;
       end;

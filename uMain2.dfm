@@ -51,7 +51,7 @@ object frmSqlExec2: TfrmSqlExec2
     BevelOuter = bvNone
     TabOrder = 1
     object Splitter1: TSplitter
-      Left = 240
+      Left = 265
       Top = 0
       Width = 7
       Height = 400
@@ -64,7 +64,7 @@ object frmSqlExec2: TfrmSqlExec2
     object pLeft: TPanel
       Left = 0
       Top = 0
-      Width = 240
+      Width = 265
       Height = 400
       Align = alLeft
       BevelOuter = bvNone
@@ -72,7 +72,7 @@ object frmSqlExec2: TfrmSqlExec2
       object Splitter2: TSplitter
         Left = 0
         Top = 273
-        Width = 240
+        Width = 265
         Height = 7
         Cursor = crVSplit
         Align = alBottom
@@ -83,14 +83,15 @@ object frmSqlExec2: TfrmSqlExec2
       object pSelected: TPanel
         Left = 0
         Top = 280
-        Width = 240
+        Width = 265
         Height = 120
         Align = alBottom
         TabOrder = 0
+        ExplicitWidth = 240
         object Panel4: TPanel
           Left = 1
           Top = 1
-          Width = 238
+          Width = 263
           Height = 21
           Align = alTop
           Alignment = taLeftJustify
@@ -104,16 +105,16 @@ object frmSqlExec2: TfrmSqlExec2
           ParentFont = False
           TabOrder = 0
           StyleElements = [seFont, seBorder]
+          ExplicitWidth = 238
           DesignSize = (
-            238
+            263
             21)
           object lblSelectedObject: TLabel
             Left = 1
             Top = 1
-            Width = 176
+            Width = 56
             Height = 19
             Align = alLeft
-            AutoSize = False
             Caption = 'Selected'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -122,10 +123,10 @@ object frmSqlExec2: TfrmSqlExec2
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
-            ExplicitHeight = 23
+            ExplicitHeight = 16
           end
           object SpeedButton1: TSpeedButton
-            Left = 215
+            Left = 240
             Top = 0
             Width = 21
             Height = 20
@@ -166,7 +167,7 @@ object frmSqlExec2: TfrmSqlExec2
         object PageControl1: TPageControl
           Left = 1
           Top = 22
-          Width = 238
+          Width = 263
           Height = 97
           ActivePage = TabSheet1
           Align = alClient
@@ -175,12 +176,14 @@ object frmSqlExec2: TfrmSqlExec2
           TabPosition = tpBottom
           ExplicitLeft = -4
           ExplicitTop = 27
+          ExplicitWidth = 238
           object TabSheet1: TTabSheet
             Caption = 'Object'
+            ExplicitWidth = 230
             object SelView: TStringGrid
               Left = 0
               Top = 0
-              Width = 230
+              Width = 255
               Height = 73
               Align = alClient
               BevelOuter = bvNone
@@ -189,11 +192,15 @@ object frmSqlExec2: TfrmSqlExec2
               DefaultColWidth = 80
               DefaultRowHeight = 18
               FixedCols = 0
-              RowCount = 1
-              FixedRows = 0
+              RowCount = 2
               Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goThumbTracking]
               ScrollBars = ssVertical
               TabOrder = 0
+              ExplicitLeft = -1
+              ExplicitTop = -3
+              ColWidths = (
+                104
+                124)
             end
           end
         end
@@ -201,15 +208,16 @@ object frmSqlExec2: TfrmSqlExec2
       object pConnections: TPanel
         Left = 0
         Top = 0
-        Width = 240
-        Height = 129
+        Width = 265
+        Height = 153
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitWidth = 240
         object Panel1: TPanel
           Left = 0
           Top = 0
-          Width = 240
+          Width = 265
           Height = 21
           Align = alTop
           Alignment = taLeftJustify
@@ -223,8 +231,9 @@ object frmSqlExec2: TfrmSqlExec2
           ParentFont = False
           TabOrder = 0
           StyleElements = [seFont, seBorder]
+          ExplicitWidth = 240
           DesignSize = (
-            240
+            265
             21)
           object Label4: TLabel
             Left = 1
@@ -244,7 +253,7 @@ object frmSqlExec2: TfrmSqlExec2
             ExplicitHeight = 23
           end
           object SpeedButton2: TSpeedButton
-            Left = 217
+            Left = 242
             Top = 0
             Width = 21
             Height = 20
@@ -285,7 +294,7 @@ object frmSqlExec2: TfrmSqlExec2
         object ToolBar1: TToolBar
           Left = 0
           Top = 21
-          Width = 240
+          Width = 265
           Height = 26
           ButtonHeight = 25
           ButtonWidth = 25
@@ -294,6 +303,7 @@ object frmSqlExec2: TfrmSqlExec2
           ParentShowHint = False
           ShowHint = True
           TabOrder = 1
+          ExplicitWidth = 240
           object ToolButton16: TToolButton
             Left = 0
             Top = 0
@@ -310,8 +320,8 @@ object frmSqlExec2: TfrmSqlExec2
         object TV: TTreeView
           Left = 0
           Top = 80
-          Width = 240
-          Height = 49
+          Width = 265
+          Height = 73
           Align = alBottom
           BevelOuter = bvNone
           BorderStyle = bsNone
@@ -319,7 +329,9 @@ object frmSqlExec2: TfrmSqlExec2
           ReadOnly = True
           TabOrder = 2
           OnClick = TVClick
+          OnDblClick = TVDblClick
           OnExpanding = TVExpanding
+          ExplicitWidth = 240
         end
       end
     end
@@ -337,7 +349,7 @@ object frmSqlExec2: TfrmSqlExec2
         Left = 0
         Top = 0
         Width = 689
-        Height = 30
+        Height = 32
         Cursor = crHandPoint
         OnActiveTabChanged = TabsActiveTabChanged
         OnButtonAddClick = TabsButtonAddClick
@@ -356,7 +368,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Display.AddButton.Offsets.Horizontal = 2
         Options.Display.AddButton.Height = 14
         Options.Display.AddButton.Width = 31
-        Options.Display.AddButton.ShowPlusSign = False
+        Options.Display.AddButton.ShowPlusSign = True
         Options.Display.AddButton.Visibility = avRightFloating
         Options.Display.AddButton.HorizontalOffsetFloating = -3
         Options.Display.ScrollButtonLeft.Offsets.Vertical = 10
@@ -385,7 +397,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Display.Tabs.MinWidth = 25
         Options.Display.Tabs.MaxWidth = 200
         Options.Display.Tabs.TabWidthFromContent = False
-        Options.Display.Tabs.PinnedWidth = 39
+        Options.Display.Tabs.PinnedWidth = 42
         Options.Display.Tabs.ImageOffsetLeft = 13
         Options.Display.Tabs.TextTrimType = tttFade
         Options.Display.Tabs.Orientation = toTop
@@ -394,7 +406,7 @@ object frmSqlExec2: TfrmSqlExec2
         Options.Display.Tabs.TextAlignmentHorizontal = taLeftJustify
         Options.Display.Tabs.TextAlignmentVertical = taVerticalCenter
         Options.Display.Tabs.ShowImages = True
-        Options.Display.Tabs.ShowPinnedTabText = True
+        Options.Display.Tabs.ShowPinnedTabText = False
         Options.Display.TabContainer.TransparentBackground = True
         Options.Display.TabContainer.OverlayButtons = True
         Options.Display.TabContainer.PaddingLeft = 0
@@ -929,21 +941,13 @@ object frmSqlExec2: TfrmSqlExec2
     object Script1: TMenuItem
       Caption = 'Script'
       object ExecuteScript1: TMenuItem
-        Caption = 'Execute SQL'
-        Enabled = False
-        Hint = 'Execute SQL Script'
-        ImageIndex = 7
-        ShortCut = 116
-        OnClick = actScriptExecuteExecute
+        Action = actScriptExec
       end
       object N6: TMenuItem
         Caption = '-'
       end
       object Font1: TMenuItem
-        Caption = 'Font...'
-        Hint = 'Change Text Font'
-        ImageIndex = 35
-        ShortCut = 16454
+        Action = actScriptFont
       end
     end
     object Server1: TMenuItem
@@ -1031,12 +1035,14 @@ object frmSqlExec2: TfrmSqlExec2
       Category = 'File'
       Caption = 'Open Script...'
       ImageIndex = 33
+      ShortCut = 16463
       OnExecute = actFileOpenExecute
     end
     object actFileSave: TAction
       Category = 'File'
       Caption = 'Save Script'
       ImageIndex = 65
+      ShortCut = 16467
       OnExecute = actFileSaveExecute
     end
     object actFileSaveAs: TAction
@@ -1061,13 +1067,25 @@ object frmSqlExec2: TfrmSqlExec2
     object actEditUndo: TAction
       Category = 'Edit'
       Caption = 'Undo'
+      Hint = 'Undo Last Change'
       ImageIndex = 82
+      ShortCut = 16474
       OnExecute = actEditUndoExecute
     end
     object actScriptFont: TAction
       Category = 'Script'
       Caption = 'Script Font'
       ImageIndex = 35
+      ShortCut = 16454
+      OnExecute = actScriptFontExecute
+    end
+    object actScriptExec: TAction
+      Category = 'Script'
+      Caption = 'Execute Script'
+      Hint = 'Execute Script on Selected Database(s)'
+      ImageIndex = 44
+      ShortCut = 116
+      OnExecute = actScriptExecExecute
     end
   end
   object dlgOpen: TOpenTextFileDialog

@@ -79,10 +79,10 @@ object frmOutputWindow: TfrmOutputWindow
   end
   object Tabs: TChromeTabs
     Left = 0
-    Top = 242
+    Top = 245
     Width = 575
-    Height = 30
-    OnChange = TabsChange
+    Height = 27
+    OnActiveTabChanged = TabsActiveTabChanged
     ActiveTabIndex = 1
     Images = dmDataModule.Imgs16
     Options.Display.CloseButton.Offsets.Vertical = 6
@@ -90,7 +90,7 @@ object frmOutputWindow: TfrmOutputWindow
     Options.Display.CloseButton.Height = 14
     Options.Display.CloseButton.Width = 14
     Options.Display.CloseButton.AutoHide = True
-    Options.Display.CloseButton.Visibility = bvAll
+    Options.Display.CloseButton.Visibility = bvNever
     Options.Display.CloseButton.AutoHideWidth = 20
     Options.Display.CloseButton.CrossRadialOffset = 4
     Options.Display.AddButton.Offsets.Vertical = 10
@@ -124,7 +124,7 @@ object frmOutputWindow: TfrmOutputWindow
     Options.Display.Tabs.OffsetRight = 0
     Options.Display.Tabs.OffsetBottom = 0
     Options.Display.Tabs.MinWidth = 80
-    Options.Display.Tabs.MaxWidth = 130
+    Options.Display.Tabs.MaxWidth = 120
     Options.Display.Tabs.TabWidthFromContent = False
     Options.Display.Tabs.PinnedWidth = 39
     Options.Display.Tabs.ImageOffsetLeft = 13
@@ -132,7 +132,7 @@ object frmOutputWindow: TfrmOutputWindow
     Options.Display.Tabs.Orientation = toBottom
     Options.Display.Tabs.BaseLineTabRegionOnly = False
     Options.Display.Tabs.WordWrap = False
-    Options.Display.Tabs.TextAlignmentHorizontal = taLeftJustify
+    Options.Display.Tabs.TextAlignmentHorizontal = taCenter
     Options.Display.Tabs.TextAlignmentVertical = taVerticalCenter
     Options.Display.Tabs.ShowImages = True
     Options.Display.Tabs.ShowPinnedTabText = True
@@ -222,7 +222,7 @@ object frmOutputWindow: TfrmOutputWindow
       item
         Caption = 'Data View'
         Active = True
-        Tag = 0
+        Tag = 1
         ImageIndex = 58
         ImageIndexOverlay = -1
         Pinned = False
@@ -234,7 +234,7 @@ object frmOutputWindow: TfrmOutputWindow
       item
         Caption = 'Search'
         Active = False
-        Tag = 0
+        Tag = 2
         ImageIndex = 67
         ImageIndexOverlay = -1
         Pinned = False
@@ -246,7 +246,7 @@ object frmOutputWindow: TfrmOutputWindow
       item
         Caption = 'Block View'
         Active = False
-        Tag = 0
+        Tag = 3
         ImageIndex = 40
         ImageIndexOverlay = -1
         Pinned = False
@@ -452,5 +452,6 @@ object frmOutputWindow: TfrmOutputWindow
     LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineAlpha = 200
     Align = alBottom
     TabOrder = 1
+    ExplicitTop = 246
   end
 end

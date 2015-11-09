@@ -20,7 +20,6 @@ uses
   {$IFDEF USE_SPLASH}
   , uSplash
   {$ENDIF}
-  , CmdSwitches
   ;
 
 procedure RunApp;
@@ -35,8 +34,6 @@ begin
     //Use param names similar to those used in OSQL
 
   //TODO: Implement running in console mode
-
-  ParseCmd;
 
   {$IFDEF USE_SPLASH}
   frmSplash:= TfrmSplash.Create(nil);

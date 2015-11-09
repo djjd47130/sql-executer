@@ -9,6 +9,7 @@ uses
   DB, ADODB, MidasLib, DBClient,
   SqlExec,
   uDatasetView,
+  SQLExecThread,
   ChromeTabs,
   ChromeTabsTypes,
   ChromeTabsUtils,
@@ -40,14 +41,15 @@ type
     tabSearch: TTabSheet;
     actBlocks: TTabSheet;
     procedure FormCreate(Sender: TObject);
-    procedure TabsChange(Sender: TObject; ATab: TChromeTab;
-      TabChangeType: TTabChangeType);
     procedure FormDestroy(Sender: TObject);
+    procedure TabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
   private
     FDatasets: TObjectList<TfrmDatasetView>;
   public
+    procedure ClearAll;
     procedure PostMsg(const Text: String; const Style: TFontStyles = [];
       const Color: TColor = clBlack; const Detail: String = '');
+    procedure AddDataset(AJob: TSQLThreadJob; ADataset: TDataset);
   end;
 
 var
@@ -91,6 +93,7 @@ var
   X: Integer;
 begin
   OutputBox.Align:= alClient;
+  sbData.Align:= alClient;
   MsgPages.Align:= alClient;
   for X := 0 to MsgPages.PageCount-1 do begin
     MsgPages.Pages[X].TabVisible:= False;
@@ -106,6 +109,19 @@ procedure TfrmOutputWindow.FormDestroy(Sender: TObject);
 begin
   FDatasets.Clear; //TODO
   FreeAndNil(FDatasets);
+end;
+
+procedure TfrmOutputWindow.TabsActiveTabChanged(Sender: TObject;
+  ATab: TChromeTab);
+begin
+  if Assigned(ATab) then
+    MsgPages.ActivePageIndex:= ATab.Tag;
+end;
+
+procedure TfrmOutputWindow.ClearAll;
+begin
+  OutputBox.Lines.Clear;
+  FDatasets.Clear;
 end;
 
 procedure TfrmOutputWindow.PostMsg(const Text: String; const Style: TFontStyles = [];
@@ -136,21 +152,30 @@ begin
       end;
     end;
 
-    //Jump to end of output box
-    if OutputBox.CanFocus then
-      OutputBox.SetFocus;
-    OutputBox.SelStart := OutputBox.GetTextLen;
-    OutputBox.Perform(EM_SCROLLCARET, 0, 0);
-    //Application.ProcessMessages;
   finally
     OutputBox.Lines.EndUpdate;
   end;
+  //Jump to end of output box
+  if OutputBox.CanFocus then
+    OutputBox.SetFocus;
+  OutputBox.SelStart := OutputBox.GetTextLen;
+  OutputBox.Perform(EM_SCROLLCARET, 0, 0);
+  //Application.ProcessMessages;
 end;
 
-procedure TfrmOutputWindow.TabsChange(Sender: TObject; ATab: TChromeTab;
-  TabChangeType: TTabChangeType);
+procedure TfrmOutputWindow.AddDataset(AJob: TSQLThreadJob; ADataset: TDataset);
+var
+  F: TfrmDatasetView;
 begin
-  //
+  F:= TfrmDatasetView.Create(sbData);
+  F.Parent:= sbData;
+  F.Align:= alTop;
+  F.Height:= 240;
+  F.Show;
+  F.BringToFront;
+  FDatasets.Add(F);
+  CloneDataset(ADataset, F.CDS);
+  Tabs.ActiveTabIndex:= 1;
 end;
 
 end.

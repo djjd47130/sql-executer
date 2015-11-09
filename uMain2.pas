@@ -61,7 +61,6 @@ unit uMain2;
   - Fix Save As to automatically include filename extension
   - Fix total lines affected count
   - Implement "USES" statement
-  - Implement "PRINT" statement
   - Implement backup schedules
     - Requires service to be built first
   - Database server service application
@@ -204,14 +203,13 @@ type
     Close1: TMenuItem;
     actEditUndo: TAction;
     actScriptFont: TAction;
+    actScriptExec: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure actServerConnectExecute(Sender: TObject);
     procedure actServerDisconnectExecute(Sender: TObject);
     procedure actFileExitExecute(Sender: TObject);
-    procedure actScriptExecuteExecute(Sender: TObject);
-    procedure TVClick(Sender: TObject);
     procedure TVExpanding(Sender: TObject; Node: TTreeNode;
       var AllowExpansion: Boolean);
     procedure cboCurConnClick(Sender: TObject);
@@ -235,6 +233,10 @@ type
     procedure actCloseScriptExecute(Sender: TObject);
     procedure actEditUndoExecute(Sender: TObject);
     procedure TabsButtonAddClick(Sender: TObject; var Handled: Boolean);
+    procedure actScriptFontExecute(Sender: TObject);
+    procedure actScriptExecExecute(Sender: TObject);
+    procedure TVDblClick(Sender: TObject);
+    procedure TVClick(Sender: TObject);
   private
     FConnections: TServerConnections;
     FBusy: Boolean;
@@ -266,10 +268,14 @@ type
     procedure RunVisible;
     procedure WndMethod(var Msg: TMessage);
     function CurScript: TfrmContentScriptExec;
+    procedure RefreshCaption;
+    procedure ShowDatabaseDetails(ANode: TTreeNode);
+    procedure ShowServerDetails(ANode: TTreeNode);
+    procedure ClearSelectedObject;
   public
     function Wnd: HWND;
     property Connections: TServerConnections read FConnections;
-    procedure RefreshServerActions;
+    procedure RefreshActions;
   end;
 
 var
@@ -344,7 +350,7 @@ begin
 
   CheckForParams; //Check if parameters were included
 
-  RefreshServerActions;
+  RefreshActions;
 
 end;
 
@@ -371,6 +377,23 @@ begin
     Msg.Result := DefWindowProc(frmSqlExec2.Wnd, Msg.Msg, Msg.wParam, Msg.lParam);
   end;
   }
+end;
+
+procedure TfrmSqlExec2.RefreshCaption;
+var
+  S: String;
+  T: TChromeTab;
+  C: TfrmContentBase;
+begin
+  S:= 'SQL Script Executer';
+  T:= Tabs.ActiveTab;
+  if Assigned(T) then begin
+    C:= TfrmContentBase(T.Data);
+    if Assigned(C) then begin
+      S:= S + ' - ' + C.Caption;
+    end;
+  end;
+  Caption:= S;
 end;
 
 procedure TfrmSqlExec2.CheckForParams;
@@ -738,7 +761,7 @@ begin
   if Assigned(C) then begin
     Self.DisplayContent(C);
   end;
-  RefreshServerActions;
+  RefreshActions;
 end;
 
 procedure TfrmSqlExec2.TabsButtonAddClick(Sender: TObject;
@@ -757,8 +780,10 @@ begin
   //Check content type
   C:= TfrmContentBase(ATab.Data);
   if Assigned(C) then begin
+    C.Hide;
     if C is TfrmContentHome then begin
-      //Do nothing, this needs to stay created
+      //Nothing...
+      Close:= False;
     end else
     if C is TfrmContentScriptExec then begin
       S:= TfrmContentScriptExec(C);
@@ -803,7 +828,7 @@ begin
   if PromptConnection(Str, Str, Rec) then begin
     OpenNewConnection(Str, Rec);
   end;
-  RefreshServerActions;
+  RefreshActions;
 end;
 
 procedure TfrmSqlExec2.OpenNewConnection(const Str: TConnectionString; const Rec: Boolean);
@@ -815,6 +840,7 @@ begin
     if Rec then
       AddToRecents(Str);
     TV.Select(C.Node);
+    TVClick(nil);
     DoConnectionAdded(C);
   end;
 end;
@@ -909,7 +935,7 @@ begin
       FConnections.Delete(FConnections.IndexOf(S));
     end;
   end;
-  RefreshServerActions;
+  RefreshActions;
 end;
 
 procedure TfrmSqlExec2.cboCurConnClick(Sender: TObject);
@@ -939,7 +965,7 @@ begin
     cboCurDatabase.Items.Clear;
   end;
   }
-  RefreshServerActions;
+  RefreshActions;
 end;
 
 procedure TfrmSqlExec2.cboCurDatabaseClick(Sender: TObject);
@@ -956,7 +982,7 @@ begin
     end;
   end;
   }
-  RefreshServerActions;
+  RefreshActions;
 end;
 
 procedure TfrmSqlExec2.actCloseScriptExecute(Sender: TObject);
@@ -1009,13 +1035,99 @@ begin
 end;
 
 procedure TfrmSqlExec2.TVClick(Sender: TObject);
+var
+  N: TTreeNode;
 begin
-  RefreshServerActions;
-  //TODO: Show properties specific to selected item
+  Screen.Cursor:= crHourglass;
+  try
+    ClearSelectedObject;
+    N:= TV.Selected;
+    if Assigned(N) then begin
+      case N.Level of
+        0: begin
+          //Server Connection
+          lblSelectedObject.Caption:= 'Server: ' + N.Text;
+          ShowServerDetails(N);
+        end;
+        1: begin
+          //Database
+          lblSelectedObject.Caption:= 'Database: ' + N.Text;
+          ShowDatabaseDetails(N);
+        end;
+      end;
+    end else begin
+      lblSelectedObject.Caption:= 'Selected Object';
+
+    end;
+  finally
+    Screen.Cursor:= crDefault;
+  end;
+  RefreshActions;
+end;
+
+procedure TfrmSqlExec2.ClearSelectedObject;
+begin
+  SelView.RowCount:= 2;
+  SelView.Rows[1].Clear;
+  SelView.Cells[0, 0]:= 'Name';
+  SelView.Cells[1, 0]:= 'Value';
+end;
+
+procedure TfrmSqlExec2.ShowServerDetails(ANode: TTreeNode);
+var
+  I: Integer;
+  S: TServerConnection;
+  procedure A(const N, S: String);
+  begin
+    if I > 1 then
+      SelView.RowCount:= SelView.RowCount + 1;
+    SelView.Cells[0, I]:= N;
+    SelView.Cells[1, I]:= S;
+    Inc(I);
+  end;
+begin
+  I:= 1;
+  S:= TServerConnection(ANode.Data);
+  A('Server Name', S.ConnectionString['Data Source']);
+  A('Current User', S.ConnectionString['User ID']);
+  A('Databases', IntToStr(S.DatabaseCount));
+  A('Selected', IntToStr(S.SelDatabases.Count));
+end;
+
+procedure TfrmSqlExec2.ShowDatabaseDetails(ANode: TTreeNode);
+var
+  I: Integer;
+  D: TServerDatabase;
+  procedure A(const N, S: String);
+  begin
+    if I > 1 then
+      SelView.RowCount:= SelView.RowCount + 1;
+    SelView.Cells[0, I]:= N;
+    SelView.Cells[1, I]:= S;
+    Inc(I);
+  end;
+begin
+  I:= 1;
+  D:= TServerDatabase(ANode.Data);
+  A('Database Name', D.Name);
+  A('Table Count', IntToStr(D.TableCount));
+  A('Stored Proc Count', IntToStr(D.StoredProcCount));
 
 end;
 
-procedure TfrmSqlExec2.RefreshServerActions;
+procedure TfrmSqlExec2.TVDblClick(Sender: TObject);
+var
+  N: TTreeNode;
+begin
+  //Double-clicked node in tree view
+  N:= TV.Selected;
+  if Assigned(N) then begin
+    pSelected.Visible:= True;
+    Splitter2.Top:= pConnections.Top + pConnections.Height - 2;
+  end;
+end;
+
+procedure TfrmSqlExec2.RefreshActions;
 var
   Svr: TServerConnection;
   S: TfrmContentScriptExec;
@@ -1029,6 +1141,7 @@ begin
     actEditUndo.Enabled:= S.actUndo.Enabled;
     actCloseScript.Enabled:= True;
     actScriptFont.Enabled:= S.actFont.Enabled;
+    actScriptExec.Enabled:= S.actExecSql.Enabled;
   end else begin
     actFileSave.Enabled:= False;
     actFileSaveAs.Enabled:= False;
@@ -1036,19 +1149,9 @@ begin
     actEditUndo.Enabled:= False;
     actCloseScript.Enabled:= False;
     actScriptFont.Enabled:= False;
+    actScriptExec.Enabled:= False;
   end;
-  {
-  cboCurConn.Enabled:= Assigned(S);
-  cboCurDatabase.Enabled:= Assigned(S);
-  if not Assigned(S) then begin
-    cboCurConn.Items.Clear;
-    cboCurDatabase.Items.Clear;
-  end;
-  }
-  //S:= CurrentServer;
-  //actScriptExecute.Enabled:= Assigned(S);
-  //actScriptBatch.Enabled:= Assigned(S);
-
+  RefreshCaption;
 end;
 
 procedure TfrmSqlExec2.TVExpanding(Sender: TObject; Node: TTreeNode;
@@ -1263,6 +1366,8 @@ begin
     T.Caption:= 'Home';
     T.ImageIndex:= 43;
     T.Index:= 0;
+    T.Pinned:= True;
+    T.HideCloseButton:= True;
   end;
   DisplayContent(FHome);
 end;
@@ -1276,10 +1381,24 @@ begin
   AContent.BringToFront;
 end;
 
-procedure TfrmSqlExec2.actScriptExecuteExecute(Sender: TObject);
+procedure TfrmSqlExec2.actScriptExecExecute(Sender: TObject);
+var
+  S: TfrmContentScriptExec;
 begin
+  S:= CurScript;
+  if Assigned(S) then begin
+    S.actExecSql.Execute;
+  end;
+end;
 
-  RefreshServerActions;
+procedure TfrmSqlExec2.actScriptFontExecute(Sender: TObject);
+var
+  S: TfrmContentScriptExec;
+begin
+  S:= CurScript;
+  if Assigned(S) then begin
+    S.actFont.Execute;
+  end;
 end;
 
 end.

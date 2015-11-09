@@ -56,78 +56,7 @@ implementation
 {$R *.dfm}
 
 uses
-  uMain;
-
-{
-procedure ListAvailableSQLServers(Names : TStrings);
-var
-  RSCon: ADORecordsetConstruction;
-  Rowset: IRowset;
-  SourcesRowset: ISourcesRowset;
-  SourcesRecordset: _Recordset;
-  SourcesName, SourcesType: TField;
-
-    function PtCreateADOObject
-             (const ClassID: TGUID): IUnknown;
-    var
-      Status: HResult;
-      FPUControlWord: Word;
-    begin
-      asm
-        FNSTCW FPUControlWord
-      end;
-      Status := CoCreateInstance(
-                  CLASS_Recordset,
-                  nil,
-                  CLSCTX_INPROC_SERVER or
-                  CLSCTX_LOCAL_SERVER,
-                  IUnknown,
-                  Result);
-      asm
-        FNCLEX
-        FLDCW FPUControlWord
-      end;
-      OleCheck(Status);
-    end;
-begin
-  SourcesRecordset :=
-      PtCreateADOObject(CLASS_Recordset)
-      as _Recordset;
-  RSCon :=
-      SourcesRecordset
-      as ADORecordsetConstruction;
-  SourcesRowset :=
-      CreateComObject(ProgIDToClassID('SQLOLEDB Enumerator'))
-      as ISourcesRowset;
-  OleCheck(SourcesRowset.GetSourcesRowset(
-       nil,
-       IRowset, 0,
-       nil,
-       IUnknown(Rowset)));
-  RSCon.Rowset := RowSet;
-  with TADODataSet.Create(nil) do
-  try
-    Recordset := SourcesRecordset;
-    SourcesName := FieldByName('SOURCES_NAME');
-    SourcesType := FieldByName('SOURCES_TYPE');
-    Names.BeginUpdate;
-    try
-      while not EOF do begin
-        if (SourcesType.AsInteger = DBSOURCETYPE_DATASOURCE)
-          and (SourcesName.AsString <> '') then
-        begin
-          Names.Add(SourcesName.AsString);
-        end;
-        Next;
-      end;
-    finally
-      Names.EndUpdate;
-    end;
-  finally
-    Free;
-  end;
-end;
-}
+  uMain2;
 
 { TRecentConn }
 
