@@ -32,6 +32,5 @@ begin
   RunApp;
   Application.CreateForm(TdmDataModule, dmDataModule);
   Application.CreateForm(TfrmSqlExec2, frmSqlExec2);
-  Application.CreateForm(TfrmDatabases, frmDatabases);
   Application.Run;
 end.

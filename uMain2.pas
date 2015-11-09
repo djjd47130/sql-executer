@@ -95,6 +95,7 @@ uses
 
   SQLExec, SQLExecThread,
   SQLConnections,
+  SQLExecCommon,
   uContentBase, uContentScriptExec, uContentHome,
 
   ChromeTabs,
@@ -107,6 +108,7 @@ uses
 const
   REG_KEY = 'Software\JD Software\SqlScriptExec\';
   REG_KEY_RECENT_CONN = 'Software\JD Software\SqlScriptExec\RecentConn\';
+  REG_KEY_AUTO_CONN = 'Software\JD Software\SqlScriptExec\AutoConn\';
 
 
 type
@@ -229,7 +231,6 @@ type
     procedure ShowSelectedObject1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ShowLinesAffected1Click(Sender: TObject);
-    procedure ScriptWindow1Click(Sender: TObject);
     procedure mRecentClick(Sender: TObject);
     procedure TabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
     procedure actHomeExecute(Sender: TObject);
@@ -243,8 +244,11 @@ type
     FBusy: Boolean;
     FShowLinesAffected: Bool;
     FLargeMode: Boolean;
+    FAutoExec: Boolean;
     FQuietMode: Boolean;
     FOutputFile: String;
+
+    FMsgHwnd: HWND;
 
     FHome: TfrmContentHome;
 
@@ -265,8 +269,13 @@ type
     procedure OpenNewConnection(const Str: TConnectionString; const Rec: Boolean);
     function ActiveScript: TfrmContentScriptExec;
     procedure WriteToOutput(const S: String);
+    procedure RunSilent;
+    procedure OpenAutoConnections;
+    procedure RunVisible;
+    procedure WndMethod(var Msg: TMessage);
   public
-
+    function Wnd: HWND;
+    property Connections: TServerConnections read FConnections;
   end;
 
 var
@@ -341,6 +350,8 @@ begin
 
   FHome:= TfrmContentHome.Create(nil);
 
+  FMsgHwnd:= AllocateHWnd(WndMethod);
+
   LoadState;  //Window size / position, options, etc.
 
   ResetSizes; //Large mode vs. Small mode
@@ -351,6 +362,31 @@ begin
 
   RefreshServerActions;
 
+end;
+
+procedure TfrmSqlExec2.WndMethod(var Msg: TMessage);
+var
+  X: Integer;
+  C: TfrmContentbase;
+begin
+  for X := 0 to Tabs.Tabs.Count-1 do begin
+    C:= TfrmContentBase(Tabs.Tabs[X].Data);
+    C.WndMethod(Msg);
+  end;
+
+  {
+  if Msg.Msg = MSG_CONNECTION_ADD then begin
+    C:= TServerConnection(Msg.WParam);
+    if Assigned(C) then begin
+
+    end;
+  end else
+  if Msg.Msg = MSG_CONNECTION_DEL then begin
+
+  end else begin
+    Msg.Result := DefWindowProc(frmSqlExec2.Wnd, Msg.Msg, Msg.wParam, Msg.lParam);
+  end;
+  }
 end;
 
 procedure TfrmSqlExec2.CheckForParams;
@@ -370,35 +406,96 @@ begin
     //Connection String
     OpenNewConnection(Str, False);
   end else begin
-    //TODO: Auto-connect to server(s) if configured
-
+    OpenAutoConnections;
   end;
 
-  if FindCmdLineSwitch('d', Str, False) then begin
-    //Database Name(s)
-
+  if FindCmdLineSwitch('e', Str, False) then begin
+    //Perform Execution Automatically
+    FAutoExec:= True;
   end;
 
   if FindCmdLineSwitch('q', Str, False) then begin
     //Quiet Mode
+    // - Only works when "e" is provided
     FQuietMode:= True;
-    Application.ShowMainForm:= False;
-    Application.MainFormOnTaskBar:= True;
-    //TODO: Execute if requested...
+  end;
+
+  if FindCmdLineSwitch('d', Str, False) then begin
+    //Database Name(s)
+    // - Only works when "e" is provided
 
   end;
 
   if FindCmdLineSwitch('m', Str, False) then begin
     //Output Mode
-
+    // - Only works when "e" is provided
+    //TODO: Choose either Execute or Resultset
   end;
 
   if FindCmdLineSwitch('o', Str, False) then begin
     //Output File
+    // - Only works when "e" is provided
+    //TODO: Save to output file
+    Self.FOutputFile:= Str;
 
   end;
 
+  if FAutoExec then begin
+    if FQuietMode then begin
+      RunSilent;
+    end else begin
+      RunVisible;
+    end;
+  end else begin
 
+  end;
+
+end;
+
+procedure TfrmSqlExec2.RunSilent;
+begin
+  Application.ShowMainForm:= False;
+  Application.MainFormOnTaskBar:= True;
+  //TODO: Execute
+
+  Application.Terminate;
+end;
+
+procedure TfrmSqlExec2.RunVisible;
+begin
+  //TODO: Execute
+
+end;
+
+procedure TfrmSqlExec2.OpenAutoConnections;
+var
+  R: TRegistry;
+  L: TStringList;
+  X: Integer;
+begin
+  R:= TRegistry.Create(KEY_READ);
+  try
+    R.RootKey:= HKEY_CURRENT_USER;
+    if R.KeyExists(REG_KEY_AUTO_CONN) then begin
+      if R.OpenKey(REG_KEY_AUTO_CONN, False) then begin
+        try
+          L:= TStringList.Create;
+          try
+            R.GetKeyNames(L);
+            for X := 0 to L.Count-1 do begin
+
+            end;
+          finally
+            L.Free;
+          end;
+        finally
+          R.CloseKey;
+        end;
+      end;
+    end;
+  finally
+    R.Free;
+  end;
 end;
 
 procedure TfrmSqlExec2.FormDestroy(Sender: TObject);
@@ -406,6 +503,7 @@ begin
   FreeAndNil(FHome);
 
   SaveState;
+  DeallocateHWnd(FMsgHwnd);
   FConnections.Clear;
   FConnections.Free;
 end;
@@ -519,18 +617,6 @@ begin
     end;
   finally
     R.Free;
-  end;
-end;
-
-procedure TfrmSqlExec2.ScriptWindow1Click(Sender: TObject);
-var
-  W: TfrmContentScriptExec;
-begin
-  W:= TfrmContentScriptExec.Create(nil);
-  try
-    W.ShowModal;
-  finally
-    W.Free;
   end;
 end;
 
@@ -699,20 +785,11 @@ var
 begin
   if TestConnection(Str) then begin
     C:= FConnections.AddConnection(Str);
-    //cboCurConn.Items.AddObject(Str['Data Source'], C);
     if Rec then
       AddToRecents(Str);
     TV.Select(C.Node);
-    //TODO: Broadcast change event
-
-    {
-    if cboCurConn.ItemIndex = -1 then begin
-      cboCurConn.ItemIndex:= 0;
-      cboCurConnClick(nil);
-    end;
-    }
+    DoConnectionAdded(C);
   end;
-
 end;
 
 procedure TfrmSqlExec2.AddToRecents(AConnStr: TConnectionString);
@@ -801,7 +878,7 @@ begin
     if MessageDlg('Are you sure you wish to disconnect from server?',
       mtWarning, [mbYes,mbNo], 0) = mrYes then
     begin
-      //cboCurConn.Items.Delete(cboCurConn.Items.IndexOfObject(S));
+      DoConnectionDeleted(S);
       FConnections.Delete(FConnections.IndexOf(S));
     end;
   end;
@@ -968,6 +1045,11 @@ begin
   ShowSelectedObject1.Checked:= pSelected.Visible;
   //ShowMessages1.Checked:= pMessages.Visible;
   ShowLinesAffected1.Checked:= FShowLinesAffected;
+end;
+
+function TfrmSqlExec2.Wnd: HWND;
+begin
+  Result:= Self.FMsgHwnd;
 end;
 
 procedure TfrmSqlExec2.WriteToOutput(const S: String);

@@ -4,6 +4,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
   ClientWidth = 649
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   ExplicitWidth = 655
   ExplicitHeight = 365
   PixelsPerInch = 96
@@ -170,6 +171,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       ItemIndex = 0
       TabOrder = 0
       Text = '[Select Connection]'
+      OnClick = cboCurConnClick
       Items.Strings = (
         '[Select Connection]')
     end
@@ -182,6 +184,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       ItemIndex = 0
       TabOrder = 1
       Text = '[Select Database]'
+      OnClick = cboCurDatabaseClick
       Items.Strings = (
         '[Select Database]')
     end

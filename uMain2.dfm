@@ -981,7 +981,6 @@ object frmSqlExec2: TfrmSqlExec2
       end
       object ScriptWindow1: TMenuItem
         Caption = 'Script Window'
-        OnClick = ScriptWindow1Click
       end
     end
   end

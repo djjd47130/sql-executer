@@ -34,6 +34,7 @@ type
   public
     constructor Create(AOwner: TContents); reintroduce; virtual;
     destructor Destroy; override;
+    procedure WndMethod(var Msg: TMessage); virtual;
   end;
 
 var
@@ -88,6 +89,11 @@ destructor TfrmContentBase.Destroy;
 begin
 
   inherited;
+end;
+
+procedure TfrmContentBase.WndMethod(var Msg: TMessage);
+begin
+
 end;
 
 end.
