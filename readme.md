@@ -60,14 +60,11 @@ Package also includes fully featured application to demonstrate the usage of thi
 
 **Requirements**
 
-1. Requires ChromeTabs library (Not Included)
-  - https://github.com/norgepaul/TChromeTabs
-  - NOTE: Only required for V2, not used in V1
-2. Requires SynEdit library (Not Included)
+1. Requires SynEdit library (Not Included)
   - https://github.com/SynEdit/SynEdit
-3. Built and tested on Delphi XE7, none others
+2. Built and tested on Delphi XE7, none others
 
-**Background**
+#Background
 
 This project originally started about a year ago when I was tasked with enhancing how our customers' SQL Server Database gets updated. We have a script file over 38,000 lines of SQL text, and over 2,000 "GO" statements. ADO does not support "GO", it's specific to MS tools. But it does have an advantage - anywhere a GO statement appears, it makes sure the previous code finishes executing before moving onto the next segment.
 
