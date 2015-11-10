@@ -5,6 +5,10 @@ _This code uses the Mozilla Public License 1.1_
 
 Use the SQL Executer component to run a large SQL script file which contains "GO" statements using ADO.
 
+**NOTE**: This has been branched into Version two:
+
+https://github.com/djjd47130/sql-executer/tree/SQL-Exec-V2
+
 [See Wiki for more information](https://github.com/djjd47130/sql-executer/wiki)
 
 **Main Unit**: `SQLExec.pas`
