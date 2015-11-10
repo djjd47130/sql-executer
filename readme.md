@@ -5,6 +5,8 @@ _This code uses the Mozilla Public License 1.1_
 
 Use the SQL Executer component to run a large SQL script file which contains "GO" statements using ADO.
 
+[See Wiki for more information](https://github.com/djjd47130/sql-executer/wiki)
+
 **Main Unit**: `SQLExec.pas`
 
 **Main Component**:
@@ -66,7 +68,7 @@ Package also includes fully featured application to demonstrate the usage of thi
   - https://github.com/SynEdit/SynEdit
 3. Built and tested on Delphi XE7, none others
 
-**Background**
+#Background
 
 This project originally started about a year ago when I was tasked with enhancing how our customers' SQL Server Database gets updated. We have a script file over 38,000 lines of SQL text, and over 2,000 "GO" statements. ADO does not support "GO", it's specific to MS tools. But it does have an advantage - anywhere a GO statement appears, it makes sure the previous code finishes executing before moving onto the next segment.
 
