@@ -45,7 +45,7 @@ end;
 ###SQL Script Executer
 Package also includes fully featured application to demonstrate the usage of this component.
 
-![Alt text](/SQLExecSS.png?raw=true "Screenshot")
+![Alt text](/SQL Exec V2 SS.png?raw=true "Screenshot")
 
 **Application Features**:
 
@@ -55,6 +55,8 @@ Package also includes fully featured application to demonstrate the usage of thi
 4. Full syntax highlighting with editing capabilities
 5. Supports Open With and Recent SQL files (Jump List)
 6. Edit SQL files with syntax highlighting
+7. Open multiple script files in different tabs
+8. Browse database objects in a tree and view details
 
 **Requirements**
 
