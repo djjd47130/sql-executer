@@ -69,6 +69,7 @@ Package also includes fully featured application to demonstrate the usage of thi
 2. Requires SynEdit library (Not Included)
   - https://github.com/SynEdit/SynEdit
 3. Built and tested on Delphi XE7, none others
+4. VCL Style: "Light" (pre-shipped with Delphi XE7)
 
 #Background
 
