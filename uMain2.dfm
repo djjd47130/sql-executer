@@ -87,7 +87,6 @@ object frmSqlExec2: TfrmSqlExec2
         Height = 120
         Align = alBottom
         TabOrder = 0
-        ExplicitWidth = 240
         object Panel4: TPanel
           Left = 1
           Top = 1
@@ -105,7 +104,6 @@ object frmSqlExec2: TfrmSqlExec2
           ParentFont = False
           TabOrder = 0
           StyleElements = [seFont, seBorder]
-          ExplicitWidth = 238
           DesignSize = (
             263
             21)
@@ -174,12 +172,8 @@ object frmSqlExec2: TfrmSqlExec2
           TabHeight = 16
           TabOrder = 1
           TabPosition = tpBottom
-          ExplicitLeft = -4
-          ExplicitTop = 27
-          ExplicitWidth = 238
           object TabSheet1: TTabSheet
             Caption = 'Object'
-            ExplicitWidth = 230
             object SelView: TStringGrid
               Left = 0
               Top = 0
@@ -196,8 +190,6 @@ object frmSqlExec2: TfrmSqlExec2
               Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goThumbTracking]
               ScrollBars = ssVertical
               TabOrder = 0
-              ExplicitLeft = -1
-              ExplicitTop = -3
               ColWidths = (
                 104
                 124)
@@ -213,7 +205,6 @@ object frmSqlExec2: TfrmSqlExec2
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitWidth = 240
         object Panel1: TPanel
           Left = 0
           Top = 0
@@ -231,7 +222,6 @@ object frmSqlExec2: TfrmSqlExec2
           ParentFont = False
           TabOrder = 0
           StyleElements = [seFont, seBorder]
-          ExplicitWidth = 240
           DesignSize = (
             265
             21)
@@ -303,7 +293,6 @@ object frmSqlExec2: TfrmSqlExec2
           ParentShowHint = False
           ShowHint = True
           TabOrder = 1
-          ExplicitWidth = 240
           object ToolButton16: TToolButton
             Left = 0
             Top = 0
@@ -331,7 +320,6 @@ object frmSqlExec2: TfrmSqlExec2
           OnClick = TVClick
           OnDblClick = TVDblClick
           OnExpanding = TVExpanding
-          ExplicitWidth = 240
         end
       end
     end
@@ -345,6 +333,7 @@ object frmSqlExec2: TfrmSqlExec2
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 1
+      ExplicitTop = 6
       object Tabs: TChromeTabs
         Left = 0
         Top = 0
@@ -694,8 +683,6 @@ object frmSqlExec2: TfrmSqlExec2
     ShowHint = True
     TabOrder = 2
     Transparent = False
-    ExplicitLeft = 2
-    ExplicitTop = -5
     object ToolButton6: TToolButton
       Left = 0
       Top = 0

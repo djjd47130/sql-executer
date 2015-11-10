@@ -91,6 +91,7 @@ type
     property Count: Integer read GetCount write SetCount;
   end;
 
+
   ///<summary>
   ///Current status of block execution
   ///</summary>
@@ -115,6 +116,7 @@ type
     ///</summary>
     seFail);
 
+
   ///<summary>
   ///Result of TSQLExec.Execute function
   ///</summary>
@@ -134,6 +136,7 @@ type
     ///</summary>
     srSQLFail);
 
+
   ///<summary>
   ///Different options to handle how execution is performed
   ///</summary>
@@ -148,6 +151,7 @@ type
     ///</summary>
     smRecordsets);
 
+
   ///<summary>
   ///Different options to enable/disable for handling script execution
   ///NOTE: Not completely implemented yet
@@ -161,12 +165,8 @@ type
     ///<summary>
     ///Abort execution on script failure
     ///</summary>
-    soAbortOnFail,
+    soAbortOnFail);
 
-    ///<summary>
-    ///Forcefully parse script on execution (ignore cache)
-    ///</summary>
-    soForceParse);
 
   ///<summary>
   ///Set of options for script execution
@@ -767,26 +767,23 @@ begin
   try
     for I:= 0 to FSQL.Count - 1 do begin
       Line:= FSQL[I]; //Get copy of line to string
-      if (Pos('use ', LowerCase(Trim(Line))) = 1) and (not Comment) then begin //USE Statement
-        //FSQL[I]:= '';     //Implement later
-      end
-      else if (SameText(FSplitWord, Trim(Line))) and (not Comment) then begin //GO Statement
+      if (SameText(FSplitWord, Trim(Line))) and (not Comment) then begin //GO Statement
         B:= FBlocks.Add;
         B.FLine:= I; //Assign the original starting line index of block
-      end
-      else if (Pos('/*', Trim(Line)) = 1) then begin //Begin comment block
+      end else
+      if (Pos('/*', Trim(Line)) = 1) then begin
         //Could be more intelligent here to find it in the middle of a line
         //However, that would also require parsing strings within script
         if (Pos('*/', Trim(Line)) = 0) then          //Check if same line ends comment block
-          Comment:= True;                            //Entering comment block
-      end
-      else if (Pos('*/', Trim(Line)) > 0) then begin //End comment block
+          Comment:= True;
+      end else
+      if (Pos('*/', Trim(Line)) > 0) then begin
         //Same applies here as with begin comment blocks
-        Comment:= False;                             //Leaving comment block
-      end
-      else begin //Normal Script
+        Comment:= False;
+      end else
+      begin //Normal Script
         if not Comment then
-          B.SQL.Append(Line); //Add SQL script to current block
+          B.SQL.Append(Line);
       end;
     end;
     FParsed:= True; //Flag parse completion
@@ -823,7 +820,7 @@ var
   procedure DoPrep;
   begin
     Cmd.Connection:= FConnection;
-    if (soForceParse in FOptions) or (not FParsed) then
+    if not FParsed then
       ParseSQL;
     if soUseTransactions in FOptions then
       FConnection.BeginTrans;
@@ -856,11 +853,11 @@ var
   end;
   function DoExec: Boolean;
   begin
-    //ACTUAL SQL EXECUTION
     try
       MS:= GetTickCount;
       case FExecMode of
         smExecute: begin
+          //ACTUAL SQL EXECUTION
           FConnection.Execute(B.SQL.Text, R);
         end;
         smRecordsets: begin
