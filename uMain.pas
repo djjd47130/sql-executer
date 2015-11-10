@@ -21,20 +21,7 @@ unit uMain;
   TODO:
   - Implement tabular document interface (MAJOR)
     - Use ChromeTabs control
-    - Currently in progress
-      - uContentBase.pas has ancester form inherited by any content form
-      - Chrome Tabs to control content form display
-      - Chrome Tabs to also be used for any tabs
-    - Different types of tab content
-      - Home View (New File, Recent, etc.)
-        - uContentHome.pas
-      - Script File View (Plus result messages / data)
-        - uContentScriptExec.pas
-      - Server Detail View (Databases, etc.)
-      - Database Detail View (Tables, etc.)
-      - Table Detail View (Columns, etc.)
-      - Stored Procedure View
-      - Database Backup Scheduling
+    - Currently in progress in V2 branch
   - Implement tree view browsing databases, tables, stored procs, etc. (MAJOR)
     - Tree view along left side
     - Expand nodes to view more details of Tables, Stored Procs, etc.
@@ -57,21 +44,13 @@ unit uMain;
   - Implement Drag/Drop Open File(s)
   - Implement showing datasets
     - Partially implemented, needs revision
-  - Implement recent documents selection (Menu)
+  - Implement recent documents selection (File Menu)
     - Partially implemented, not yet working
   - Implmenet script block view
     - List individual blocks, the first line of script, errors, etc.
   - Implement help menu
-  - Change progress bar to be for all databases, not just current
   - Change Save As to automatically include filename extension
   - Fix total lines affected count
-  - Implement "USES" statement
-  - Implement "PRINT" statement
-  - Implement backup schedules
-    - Requires service to be built first
-  - Database server service application
-    - Performs scheduled maintenance on databases
-  - Implement Toolboxes for smaller portions of content
   - Monitor file date/time for changes
 
 *)
