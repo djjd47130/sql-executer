@@ -5,6 +5,8 @@ _This code uses the Mozilla Public License 1.1_
 
 Use the SQL Executer component to run a large SQL script file which contains "GO" statements using ADO.
 
+**NOTE**: This branch is version two, and is in active development. Changes to version 1 (master) are only for fixes to stablize the primary version. Version 2 has many major changes and will eventually be merged into the master branch once stable.
+
 [See Wiki for more information](https://github.com/djjd47130/sql-executer/wiki)
 
 **Main Unit**: `SQLExec.pas`
