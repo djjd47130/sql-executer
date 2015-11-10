@@ -49,7 +49,7 @@ end;
 ###SQL Script Executer
 Package also includes fully featured application to demonstrate the usage of this component.
 
-![Alt text](/SSV2.png?raw=true "Screenshot")
+![Screenshot](/SSV2.png?raw=true "Screenshot")
 
 **Application Features**:
 
