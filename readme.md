@@ -51,6 +51,8 @@ Package also includes fully featured application to demonstrate the usage of thi
 
 ![Screenshot](/SSV2.png)
 
+![Alt text](/SSV2.png?raw=true "Optional Title")
+
 **Application Features**:
 
 1. Execute single script on multiple databases at once
