@@ -51,6 +51,12 @@
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <VCL_Custom_Styles>Light|VCLSTYLE|$(PUBLIC)\Documents\Embarcadero\Studio\15.0\Styles\Light.vsf</VCL_Custom_Styles>
         <DCC_Define>USE_V2;$(DCC_Define)</DCC_Define>
@@ -91,6 +97,7 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <Debugger_RunParams>&quot;C:\Users\jerryd\Desktop\Test Script.sql&quot; -s &quot;Provider=SQLOLEDB.1;Persist Security Info=True;Data Source=INNO004, 11303;Initial Catalog=RugDemoAPI;User ID=sa;Password=RMPro9a2012&quot; -d RugDemoAPI</Debugger_RunParams>
         <VerInfo_Build>23</VerInfo_Build>
         <VerInfo_Keys>CompanyName=JD Software Inc;FileDescription=SQL Script Executer;FileVersion=1.0.0.23;InternalName=SqlScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SqlScriptExec.exe;ProductName=SqlExec;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
@@ -113,6 +120,9 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_Keys>CompanyName=JD Software Inc.;FileDescription=SQL Script Executer;FileVersion=1.0.0.0;InternalName=SQLScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SQLScriptExec.exe;ProductName=SQL Script Executer;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <ItemGroup>
