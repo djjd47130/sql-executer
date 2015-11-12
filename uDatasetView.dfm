@@ -36,18 +36,17 @@ object frmDatasetView: TfrmDatasetView
     Left = 0
     Top = 0
     Width = 468
-    Height = 23
+    Height = 19
     Align = alTop
-    BevelWidth = 2
+    Color = 15194573
+    Padding.Left = 2
     TabOrder = 1
-    DesignSize = (
-      468
-      23)
     object lblTitle: TLabel
-      Left = 8
-      Top = 4
+      Left = 3
+      Top = 1
       Width = 102
-      Height = 13
+      Height = 17
+      Align = alLeft
       Caption = 'Script Result Data'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -55,14 +54,18 @@ object frmDatasetView: TfrmDatasetView
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentFont = False
+      Layout = tlCenter
+      ExplicitLeft = 8
+      ExplicitTop = 4
+      ExplicitHeight = 13
     end
     object SpeedButton1: TSpeedButton
-      Left = 445
-      Top = 0
+      Left = 446
+      Top = 1
       Width = 21
-      Height = 20
+      Height = 17
       Cursor = crHandPoint
-      Anchors = [akTop, akRight]
+      Align = alRight
       Flat = True
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -92,6 +95,9 @@ object frmDatasetView: TfrmDatasetView
         FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
         00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
       OnClick = SpeedButton1Click
+      ExplicitLeft = 445
+      ExplicitTop = 0
+      ExplicitHeight = 20
     end
   end
   object Panel2: TPanel
@@ -122,7 +128,6 @@ object frmDatasetView: TfrmDatasetView
       item
         Width = 100
       end>
-    ExplicitTop = 207
   end
   object DS: TDataSource
     DataSet = CDS

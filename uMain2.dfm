@@ -2,8 +2,8 @@ object frmSqlExec2: TfrmSqlExec2
   Left = 0
   Top = 0
   Caption = 'SQL Script Executer'
-  ClientHeight = 589
-  ClientWidth = 1089
+  ClientHeight = 494
+  ClientWidth = 756
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -22,8 +22,8 @@ object frmSqlExec2: TfrmSqlExec2
   TextHeight = 13
   object Stat: TStatusBar
     Left = 0
-    Top = 566
-    Width = 1089
+    Top = 471
+    Width = 756
     Height = 23
     Panels = <
       item
@@ -45,18 +45,17 @@ object frmSqlExec2: TfrmSqlExec2
   object pMain: TPanel
     Left = 0
     Top = 33
-    Width = 1089
-    Height = 400
+    Width = 756
+    Height = 336
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
     object Splitter1: TSplitter
-      Left = 265
+      Left = 272
       Top = 0
       Width = 7
-      Height = 400
+      Height = 336
       AutoSnap = False
-      Beveled = True
       ResizeStyle = rsUpdate
       ExplicitLeft = 241
       ExplicitHeight = 203
@@ -64,51 +63,51 @@ object frmSqlExec2: TfrmSqlExec2
     object pLeft: TPanel
       Left = 0
       Top = 0
-      Width = 265
-      Height = 400
+      Width = 272
+      Height = 336
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
       object Splitter2: TSplitter
         Left = 0
-        Top = 273
-        Width = 265
+        Top = 209
+        Width = 272
         Height = 7
         Cursor = crVSplit
         Align = alBottom
-        Beveled = True
         ExplicitTop = 177
         ExplicitWidth = 39
       end
       object pSelected: TPanel
         Left = 0
-        Top = 280
-        Width = 265
+        Top = 216
+        Width = 272
         Height = 120
         Align = alBottom
+        BevelOuter = bvNone
         TabOrder = 0
+        ExplicitWidth = 265
         object Panel4: TPanel
-          Left = 1
-          Top = 1
-          Width = 263
+          Left = 0
+          Top = 0
+          Width = 272
           Height = 21
           Align = alTop
           Alignment = taLeftJustify
-          Color = clSkyBlue
+          Color = 15194573
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ParentBackground = False
+          Padding.Left = 2
           ParentFont = False
           TabOrder = 0
-          StyleElements = [seFont, seBorder]
-          DesignSize = (
-            263
-            21)
+          ExplicitLeft = 1
+          ExplicitTop = 1
+          ExplicitWidth = 263
           object lblSelectedObject: TLabel
-            Left = 1
+            Left = 3
             Top = 1
             Width = 56
             Height = 19
@@ -121,15 +120,16 @@ object frmSqlExec2: TfrmSqlExec2
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
+            ExplicitLeft = 1
             ExplicitHeight = 16
           end
           object SpeedButton1: TSpeedButton
-            Left = 240
-            Top = 0
+            Left = 250
+            Top = 1
             Width = 21
-            Height = 20
+            Height = 19
             Cursor = crHandPoint
-            Anchors = [akTop, akRight]
+            Align = alRight
             Flat = True
             Glyph.Data = {
               36030000424D3603000000000000360000002800000010000000100000000100
@@ -159,79 +159,66 @@ object frmSqlExec2: TfrmSqlExec2
               FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
               00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
             OnClick = SpeedButton1Click
-            ExplicitLeft = 224
+            ExplicitLeft = 240
+            ExplicitHeight = 20
           end
         end
-        object PageControl1: TPageControl
-          Left = 1
-          Top = 22
-          Width = 263
-          Height = 97
-          ActivePage = TabSheet1
+        object SelView: TStringGrid
+          Left = 0
+          Top = 21
+          Width = 272
+          Height = 99
           Align = alClient
-          TabHeight = 16
+          BevelOuter = bvNone
+          BorderStyle = bsNone
+          ColCount = 2
+          DefaultColWidth = 80
+          DefaultRowHeight = 18
+          FixedCols = 0
+          RowCount = 2
+          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goThumbTracking]
+          ScrollBars = ssVertical
           TabOrder = 1
-          TabPosition = tpBottom
-          object TabSheet1: TTabSheet
-            Caption = 'Object'
-            object SelView: TStringGrid
-              Left = 0
-              Top = 0
-              Width = 255
-              Height = 73
-              Align = alClient
-              BevelOuter = bvNone
-              BorderStyle = bsNone
-              ColCount = 2
-              DefaultColWidth = 80
-              DefaultRowHeight = 18
-              FixedCols = 0
-              RowCount = 2
-              Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goThumbTracking]
-              ScrollBars = ssVertical
-              TabOrder = 0
-              ColWidths = (
-                104
-                124)
-            end
-          end
+          ExplicitTop = 0
+          ExplicitWidth = 255
+          ExplicitHeight = 73
+          ColWidths = (
+            115
+            133)
         end
       end
       object pConnections: TPanel
         Left = 0
         Top = 0
-        Width = 265
+        Width = 272
         Height = 153
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitWidth = 265
         object Panel1: TPanel
           Left = 0
           Top = 0
-          Width = 265
+          Width = 272
           Height = 21
           Align = alTop
           Alignment = taLeftJustify
-          Color = clSkyBlue
+          Color = 15194573
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ParentBackground = False
+          Padding.Left = 2
           ParentFont = False
           TabOrder = 0
-          StyleElements = [seFont, seBorder]
-          DesignSize = (
-            265
-            21)
+          ExplicitWidth = 265
           object Label4: TLabel
-            Left = 1
+            Left = 3
             Top = 1
-            Width = 176
+            Width = 79
             Height = 19
             Align = alLeft
-            AutoSize = False
             Caption = 'Connections'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -240,15 +227,16 @@ object frmSqlExec2: TfrmSqlExec2
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
-            ExplicitHeight = 23
+            ExplicitLeft = 1
+            ExplicitHeight = 16
           end
           object SpeedButton2: TSpeedButton
-            Left = 242
-            Top = 0
+            Left = 250
+            Top = 1
             Width = 21
-            Height = 20
+            Height = 19
             Cursor = crHandPoint
-            Anchors = [akTop, akRight]
+            Align = alRight
             Flat = True
             Glyph.Data = {
               36030000424D3603000000000000360000002800000010000000100000000100
@@ -278,13 +266,14 @@ object frmSqlExec2: TfrmSqlExec2
               FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
               00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
             OnClick = SpeedButton2Click
-            ExplicitLeft = 224
+            ExplicitLeft = 242
+            ExplicitHeight = 20
           end
         end
         object ToolBar1: TToolBar
           Left = 0
           Top = 21
-          Width = 265
+          Width = 272
           Height = 26
           ButtonHeight = 25
           ButtonWidth = 25
@@ -293,6 +282,7 @@ object frmSqlExec2: TfrmSqlExec2
           ParentShowHint = False
           ShowHint = True
           TabOrder = 1
+          ExplicitWidth = 265
           object ToolButton16: TToolButton
             Left = 0
             Top = 0
@@ -309,7 +299,7 @@ object frmSqlExec2: TfrmSqlExec2
         object TV: TTreeView
           Left = 0
           Top = 80
-          Width = 265
+          Width = 272
           Height = 73
           Align = alBottom
           BevelOuter = bvNone
@@ -320,24 +310,24 @@ object frmSqlExec2: TfrmSqlExec2
           OnClick = TVClick
           OnDblClick = TVDblClick
           OnExpanding = TVExpanding
+          ExplicitWidth = 265
         end
       end
     end
     object pContent: TPanel
-      Left = 400
+      Left = 376
       Top = 0
-      Width = 689
-      Height = 400
+      Width = 380
+      Height = 336
       Align = alRight
       Anchors = [akLeft, akTop, akRight, akBottom]
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 1
-      ExplicitTop = 6
       object Tabs: TChromeTabs
         Left = 0
         Top = 0
-        Width = 689
+        Width = 380
         Height = 32
         Cursor = crHandPoint
         OnActiveTabChanged = TabsActiveTabChanged
@@ -501,8 +491,8 @@ object frmSqlExec2: TfrmSqlExec2
         LookAndFeel.Tabs.Active.Font.Alpha = 100
         LookAndFeel.Tabs.Active.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
         LookAndFeel.Tabs.Active.Font.UseDefaultFont = True
-        LookAndFeel.Tabs.Active.Style.StartColor = clWhite
-        LookAndFeel.Tabs.Active.Style.StopColor = 16316920
+        LookAndFeel.Tabs.Active.Style.StartColor = 16645115
+        LookAndFeel.Tabs.Active.Style.StopColor = clWhite
         LookAndFeel.Tabs.Active.Style.StartAlpha = 255
         LookAndFeel.Tabs.Active.Style.StopAlpha = 255
         LookAndFeel.Tabs.Active.Style.OutlineColor = 10189918
@@ -671,7 +661,7 @@ object frmSqlExec2: TfrmSqlExec2
   object TB: TToolBar
     Left = 0
     Top = 0
-    Width = 1089
+    Width = 756
     Height = 33
     ButtonHeight = 32
     ButtonWidth = 32
@@ -810,8 +800,8 @@ object frmSqlExec2: TfrmSqlExec2
   end
   object MM: TMainMenu
     Images = dmDataModule.Imgs16
-    Left = 56
-    Top = 448
+    Left = 80
+    Top = 400
     object File1: TMenuItem
       Caption = 'File'
       object New1: TMenuItem
@@ -985,8 +975,8 @@ object frmSqlExec2: TfrmSqlExec2
       end>
     LargeImages = dmDataModule.Imgs24
     Images = dmDataModule.Imgs16
-    Left = 16
-    Top = 448
+    Left = 40
+    Top = 400
     StyleName = 'Platform Default'
     object actFileNew: TAction
       Category = 'File'
@@ -1079,8 +1069,8 @@ object frmSqlExec2: TfrmSqlExec2
     Filter = 
       'SQL Script Files (*.sql)|*.sql|Text Files (*.txt)|*.txt|All File' +
       's (*.*)|*.*'
-    Left = 16
-    Top = 504
+    Left = 144
+    Top = 400
   end
   object JumpList1: TJumpList
     AutoRefresh = True
@@ -1089,11 +1079,11 @@ object frmSqlExec2: TfrmSqlExec2
     CustomCategories = <>
     ShowRecent = True
     TaskList = <>
-    Left = 216
-    Top = 512
+    Left = 232
+    Top = 408
   end
   object tmrFileChange: TTimer
-    Left = 424
-    Top = 456
+    Left = 320
+    Top = 408
   end
 end

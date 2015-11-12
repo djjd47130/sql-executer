@@ -163,9 +163,6 @@ type
     Panel4: TPanel;
     lblSelectedObject: TLabel;
     SpeedButton1: TSpeedButton;
-    PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    SelView: TStringGrid;
     pConnections: TPanel;
     Panel1: TPanel;
     Label4: TLabel;
@@ -204,6 +201,7 @@ type
     actEditUndo: TAction;
     actScriptFont: TAction;
     actScriptExec: TAction;
+    SelView: TStringGrid;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);

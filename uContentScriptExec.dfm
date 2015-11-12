@@ -17,7 +17,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     Cursor = crVSplit
     Align = alBottom
     AutoSnap = False
-    Beveled = True
     ResizeStyle = rsUpdate
     ExplicitLeft = -1
     ExplicitTop = 310
@@ -39,26 +38,21 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Height = 21
       Align = alTop
       Alignment = taLeftJustify
-      Color = clSkyBlue
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = []
-      ParentBackground = False
+      Padding.Left = 2
+      ParentColor = True
       ParentFont = False
       TabOrder = 0
-      StyleElements = [seFont, seBorder]
-      DesignSize = (
-        647
-        21)
       object lblOutputTitle: TLabel
-        Left = 1
+        Left = 3
         Top = 1
-        Width = 176
+        Width = 87
         Height = 19
         Align = alLeft
-        AutoSize = False
         Caption = 'Script Output'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -67,15 +61,16 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
-        ExplicitHeight = 23
+        ExplicitLeft = 1
+        ExplicitHeight = 16
       end
       object cmdOutputClose: TSpeedButton
-        Left = 623
-        Top = 0
+        Left = 625
+        Top = 1
         Width = 21
-        Height = 20
+        Height = 19
         Cursor = crHandPoint
-        Anchors = [akTop, akRight]
+        Align = alRight
         Flat = True
         Glyph.Data = {
           36030000424D3603000000000000360000002800000010000000100000000100
@@ -104,7 +99,8 @@ inherited frmContentScriptExec: TfrmContentScriptExec
           FF00FFB6B6C36C6CABB6B6C3FF00FFFF00FFFF00FFB6B6C36C6CABB6B6C3FF00
           FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
           00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
-        ExplicitLeft = 457
+        ExplicitLeft = 623
+        ExplicitHeight = 20
       end
     end
   end
@@ -253,8 +249,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     WantTabs = True
     OnChange = EDChange
     FontSmoothing = fsmNone
-    ExplicitLeft = 1
-    ExplicitTop = 47
   end
   object Prog: TProgressBar [5]
     Left = 491
