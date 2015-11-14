@@ -15,10 +15,15 @@ type
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
   private
-    { Private declarations }
+    function GetItem(Index: Integer): String;
+    function GetSelected(Index: Integer): Boolean;
+    procedure SetSelected(Index: Integer; const Value: Boolean);
   public
     procedure LoadDatabases(AConn: TServerConnection);
     function CheckedCount: Integer;
+    function TotalCount: Integer;
+    property Items[Index: Integer]: String read GetItem; default;
+    property Selected[Index: Integer]: Boolean read GetSelected write SetSelected;
   end;
 
 var
@@ -41,6 +46,11 @@ begin
   end;
 end;
 
+function TfrmDatabases.GetItem(Index: Integer): String;
+begin
+  Result:= Lst.Items[Index];
+end;
+
 procedure TfrmDatabases.LoadDatabases(AConn: TServerConnection);
 var
   X: Integer;
@@ -53,13 +63,25 @@ begin
     for X := 0 to AConn.DatabaseCount-1 do begin
       D:= AConn.Databases[X];
       Lst.Items.AddObject(D.Name, D);
-      if AConn.SelDatabases.IndexOf(D.Name) >= 0 then begin
-        Lst.Checked[Lst.Items.Count-1]:= True;
-      end;
     end;
   finally
     Lst.Items.EndUpdate;
   end;
+end;
+
+procedure TfrmDatabases.SetSelected(Index: Integer; const Value: Boolean);
+begin
+  Lst.Checked[Index]:= Value;
+end;
+
+function TfrmDatabases.GetSelected(Index: Integer): Boolean;
+begin
+  Result:= Lst.Checked[Index];
+end;
+
+function TfrmDatabases.TotalCount: Integer;
+begin
+  Result:= Lst.Items.Count;
 end;
 
 end.

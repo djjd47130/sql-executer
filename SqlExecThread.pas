@@ -50,14 +50,17 @@ type
     FSQL: TStringList;
     FConnStr: TConnectionString;
     FExecMode: TSQLExecMode;
+    FSplitWord: String;
     function GetSQL: TStrings;
     procedure SetSQL(const Value: TStrings);
     procedure SetConnStr(const Value: TConnectionString);
+    procedure SetSplitWord(const Value: String);
   public
     constructor Create(AOwner: TSQLExecThread);
     destructor Destroy; override;
     property SQL: TStrings read GetSQL write SetSQL;
     property ConnStr: TConnectionString read FConnStr write SetConnStr;
+    property SplitWord: String read FSplitWord write SetSplitWord;
     property ExecMode: TSQLExecMode read FExecMode write FExecMode;
   end;
 
@@ -147,6 +150,11 @@ end;
 procedure TSQLThreadJob.SetConnStr(const Value: TConnectionString);
 begin
   FConnStr := Value;
+end;
+
+procedure TSQLThreadJob.SetSplitWord(const Value: String);
+begin
+  FSplitWord := Value;
 end;
 
 procedure TSQLThreadJob.SetSQL(const Value: TStrings);
@@ -376,6 +384,7 @@ begin
     FSqlExec.Connection:= FConn;
     FSqlExec.SQL.Assign(FCurJob.SQL);
     FSqlExec.ExecMode:= FCurJob.ExecMode;
+    FSqlExec.SplitWord:= FCurJob.SplitWord;
     case FSqlExec.Execute of
       srSuccess: begin
         HandleSuccess;

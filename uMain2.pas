@@ -346,6 +346,8 @@ begin
 
   actHome.Execute;  //Show home content tab
 
+  OpenAutoConnections; //Automatically connect to preferred servers
+
   CheckForParams; //Check if parameters were included
 
   RefreshActions;
@@ -408,17 +410,16 @@ begin
     DoOpenFile(FN);
   end;
 
+  CS:= CurScript;
+
   if FindCmdLineSwitch('s', Str, False) then begin
     //Connection String
     OpenNewConnection(Str, False);
-  end else begin
-    OpenAutoConnections;
   end;
 
   if FindCmdLineSwitch('d', Str, False) then begin
     //Database Name(s)
     if Str <> '' then begin
-      CS:= CurScript;
       if Assigned(CS) then begin
         if CS.cboCurDatabase.Items.IndexOf(Str) >= 0 then begin
           CS.cboCurDatabase.ItemIndex:= CS.cboCurDatabase.Items.IndexOf(Str);
@@ -431,9 +432,7 @@ begin
 
   if FindCmdLineSwitch('m', Str, False) then begin
     //Output Mode
-    //TODO: Choose either Execute or Resultset
     if Str <> '' then begin
-      CS:= CurScript;
       if Assigned(CS) then begin
         if SameText(Str, 'data') then
           CS.cboCurExecMethod.ItemIndex:= 1
@@ -441,12 +440,20 @@ begin
           CS.cboCurExecMethod.ItemIndex:= 0;
       end;
     end;
-
   end;
 
   if FindCmdLineSwitch('e', Str, False) then begin
     //Perform Execution Automatically
     FAutoExec:= True;
+  end;
+
+  if FindCmdLineSwitch('w', Str, False) then begin
+    //Split Word
+    if Str <> '' then begin
+      if Assigned(CS) then begin
+        CS.txtSplitWord.Text:= Str;
+      end;
+    end;
   end;
 
   if FindCmdLineSwitch('q', Str, False) then begin
@@ -596,35 +603,21 @@ begin
 end;
 
 procedure TfrmSqlExec2.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  X: Integer;
+  C: TfrmContentBase;
+  S: TfrmContentScriptExec;
 begin
-  {$IFDEF USE_V2}
-  //TODO: Check each tab for saving changes
-
-  {$ELSE}
-  {
-  if FIsEdited then begin
-    case MessageDlg('Would you like to save your changes before exiting?',
-      mtWarning, [mbYes,mbNo,mbCancel], 0)
-    of
-      mrYes: begin
-        //User wishes to save
-        if not DoSave then begin
-          //User did not save - Cancel
-          Action:= TCloseAction.caNone;
-        end;
-      end;
-      mrNo: begin
-        //User does not wish to save
-        //Do nothing, let it exit
-      end;
-      else begin
-        //User cancelled
+  for X := 0 to Tabs.Tabs.Count-1 do begin
+    C:= TfrmContentBase(Tabs.Tabs[X].Data);
+    if C is TfrmContentScriptExec then begin
+      S:= TfrmContentScriptExec(C);
+      if not S.PromptClose then begin
         Action:= TCloseAction.caNone;
+        Break;
       end;
     end;
   end;
-  }
-  {$ENDIF}
 end;
 
 procedure TfrmSqlExec2.SaveState;
@@ -778,7 +771,7 @@ begin
   //Check content type
   C:= TfrmContentBase(ATab.Data);
   if Assigned(C) then begin
-    C.Hide;
+    //C.Hide;
     if C is TfrmContentHome then begin
       //Nothing...
       Close:= False;
@@ -1089,7 +1082,7 @@ begin
   A('Server Name', S.ConnectionString['Data Source']);
   A('Current User', S.ConnectionString['User ID']);
   A('Databases', IntToStr(S.DatabaseCount));
-  A('Selected', IntToStr(S.SelDatabases.Count));
+  //A('Selected', IntToStr(S.SelDatabases.Count));
 end;
 
 procedure TfrmSqlExec2.ShowDatabaseDetails(ANode: TTreeNode);

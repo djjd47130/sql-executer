@@ -97,7 +97,7 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <Debugger_RunParams>&quot;C:\Users\jerryd\Desktop\Test Script.sql&quot; -s &quot;Provider=SQLOLEDB.1;Persist Security Info=True;Data Source=INNO004, 11303;Initial Catalog=RugDemoAPI;User ID=sa;Password=RMPro9a2012&quot; -d RugDemoAPI</Debugger_RunParams>
+        <Debugger_RunParams>&quot;C:\Users\jerryd\Desktop\Test Script.sql&quot; -s &quot;Provider=SQLOLEDB.1;Persist Security Info=True;Data Source=INNO004, 11303;Initial Catalog=RugDemoAPI;User ID=sa;Password=RMPro9a2012&quot; -d RugDemoMain -m data -w DOIT</Debugger_RunParams>
         <VerInfo_Build>23</VerInfo_Build>
         <VerInfo_Keys>CompanyName=JD Software Inc;FileDescription=SQL Script Executer;FileVersion=1.0.0.23;InternalName=SqlScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SqlScriptExec.exe;ProductName=SqlExec;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>

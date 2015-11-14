@@ -34,8 +34,6 @@ object frmDatabases: TfrmDatabases
     Height = 42
     Align = alBottom
     TabOrder = 1
-    ExplicitTop = 302
-    ExplicitWidth = 304
     DesignSize = (
       294
       42)
@@ -50,7 +48,6 @@ object frmDatabases: TfrmDatabases
       NumGlyphs = 2
       Spacing = 12
       TabOrder = 0
-      ExplicitLeft = 204
     end
     object BitBtn2: TBitBtn
       Left = 107
@@ -63,7 +60,6 @@ object frmDatabases: TfrmDatabases
       NumGlyphs = 2
       Spacing = 6
       TabOrder = 1
-      ExplicitLeft = 117
     end
   end
 end

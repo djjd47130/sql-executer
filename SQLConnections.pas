@@ -65,7 +65,7 @@ type
     FConnection: TADOConnection;
     FDatabases: TObjectList<TServerDatabase>;
     FDatabasesLoaded: Boolean;
-    FSelDatabases: TStringList;
+    //FSelDatabases: TStringList;
     procedure SetConnectionString(const Value: TConnectionString);
     function GetDatabase(const Index: Integer): TServerDatabase;
   public
@@ -78,7 +78,7 @@ type
     function DatabaseCount: Integer;
     procedure ChangeDatabase(const DB: String);
     property Databases[const Index: Integer]: TServerDatabase read GetDatabase;
-    function SelDatabases: TStringList;
+    //function SelDatabases: TStringList;
   end;
 
   TServerDatabase = class(TTreeData)
@@ -236,12 +236,12 @@ begin
   FConnection.LoginPrompt:= False;
   FDatabases:= TObjectList<TServerDatabase>.Create(True);
   FDatabasesLoaded:= False;
-  FSelDatabases:= TStringList.Create;
+  //FSelDatabases:= TStringList.Create;
 end;
 
 destructor TServerConnection.Destroy;
 begin
-  FSelDatabases.Free;
+  //FSelDatabases.Free;
   FConnection.Connected:= False;
   FDatabases.Clear;
   FDatabases.Free;
@@ -295,10 +295,12 @@ begin
   end;
 end;
 
+{
 function TServerConnection.SelDatabases: TStringList;
 begin
   Result:= FSelDatabases;
 end;
+}
 
 procedure TServerConnection.SetConnectionString(const Value: TConnectionString);
 begin

@@ -13,7 +13,13 @@ uses
   SQLExecThread,
   SQLExecCommon,
   SQLConnections,
-  uDatabases, Vcl.ExtDlgs;
+  uDatabases, Vcl.ExtDlgs,
+  ChromeTabs,
+  ChromeTabsTypes,
+  ChromeTabsUtils,
+  ChromeTabsControls,
+  ChromeTabsThreadTimer,
+  ChromeTabsClasses;
 
 type
   TfrmContentScriptExec = class(TfrmContentBase)
@@ -45,7 +51,10 @@ type
     actFont: TAction;
     dlgFont: TFontDialog;
     Prog: TProgressBar;
-    tmrProg: TTimer;
+    tmrStatus: TTimer;
+    txtSplitWord: TEdit;
+    Label3: TLabel;
+    tmrChange: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure actExecSqlExecute(Sender: TObject);
@@ -62,7 +71,8 @@ type
     procedure actFontExecute(Sender: TObject);
     procedure StatDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
       const Rect: TRect);
-    procedure tmrProgTimer(Sender: TObject);
+    procedure tmrStatusTimer(Sender: TObject);
+    procedure tmrChangeTimer(Sender: TObject);
   private
     FOutput: TfrmOutputWindow;
     FDatabases: TfrmDatabases;
@@ -79,7 +89,7 @@ type
     procedure AddDatabase(ADatabase: String);
     procedure DeleteDatabase(ADatabase: String);
     procedure RefreshActions;
-    procedure StartNewThread;
+    function StartNewThread: Boolean;
     procedure ThreadStatus(Sender: TSQLExecThread; const Status: TSQLThreadStatus);
     procedure ThreadJobEnded(Sender: TSQLExecThread; const Job: TSQLThreadJob);
     procedure ThreadJobStarted(Sender: TSQLExecThread; const Job: TSQLThreadJob);
@@ -90,6 +100,7 @@ type
     procedure ThreadDataset(Sender: TSQLExecThread; const Job: TSQLThreadJob;
       const Dataset: TDataset);
     procedure RefreshCaption;
+    procedure UpdateProgressBar;
   public
     procedure WndMethod(var Msg: TMessage); override;
     function CurConnection: TServerConnection;
@@ -195,7 +206,7 @@ begin
   RefreshActions;
 end;
 
-procedure TfrmContentScriptExec.StartNewThread;
+function TfrmContentScriptExec.StartNewThread: Boolean;
 var
   T: TSQLExecThread;
   J: TSQLThreadJob;
@@ -204,30 +215,36 @@ var
   CS: TConnectionString;
 begin
   //Execute SQL
+  Result:= False;
   C:= CurConnection;
   if Assigned(C) then begin
     T:= TSQLExecThread.Create;
-    T.OnStatus:= ThreadStatus;
-    T.OnJobStart:= ThreadJobStarted;
-    T.OnJobEnd:= ThreadJobEnded;
-    T.OnBlockMsg:= ThreadBlockMsg;
-    T.OnWork:= ThreadWork;
-    T.OnDataset:= ThreadDataset;
     try
+      //Set event handlers
+      T.OnStatus:= ThreadStatus;
+      T.OnJobStart:= ThreadJobStarted;
+      T.OnJobEnd:= ThreadJobEnded;
+      T.OnBlockMsg:= ThreadBlockMsg;
+      T.OnWork:= ThreadWork;
+      T.OnDataset:= ThreadDataset;
       //Populate jobs
-      for X := 0 to C.SelDatabases.Count-1 do begin
-        CS:= String(C.ConnectionString);
-        CS['Initial Catalog']:= C.SelDatabases[X];
-        J:= T.AddToQueue;
-        J.ConnStr:= CS;
-        if ED.SelLength > 0 then
-          J.SQL.Text:= ED.SelText
-        else
-          J.SQL.Assign(ED.Lines);
-        J.ExecMode:= TSQLExecMode(cboCurExecMethod.ItemIndex);
+      for X := 0 to Self.FDatabases.TotalCount-1 do begin
+        if FDatabases.Selected[X] then begin
+          CS:= String(C.ConnectionString);
+          CS['Initial Catalog']:= FDatabases[X];
+          J:= T.AddToQueue;
+          J.ConnStr:= CS;
+          J.SplitWord:= txtSplitWord.Text;
+          if ED.SelLength > 0 then
+            J.SQL.Text:= ED.SelText
+          else
+            J.SQL.Assign(ED.Lines);
+          J.ExecMode:= TSQLExecMode(cboCurExecMethod.ItemIndex);
+        end;
       end;
     finally
       T.Start;
+      Result:= True;
     end;
   end else begin
     //No server selected
@@ -248,9 +265,24 @@ begin
   end;
 end;
 
-procedure TfrmContentScriptExec.tmrProgTimer(Sender: TObject);
+procedure TfrmContentScriptExec.tmrChangeTimer(Sender: TObject);
 begin
   inherited;
+  //Something changed in the edit control
+  tmrChange.Enabled:= False;
+  FIsChanged:= True;
+  RefreshActions;
+end;
+
+procedure TfrmContentScriptExec.tmrStatusTimer(Sender: TObject);
+begin
+  inherited;
+
+  UpdateProgressBar;
+end;
+
+procedure TfrmContentScriptExec.UpdateProgressBar;
+begin
   case FStatus of
     esReady: begin
       //Thread is ready for new jobs
@@ -259,10 +291,12 @@ begin
     esBusy: begin
       //Thread is currently busy processing jobs
       Prog.Visible:= True;
+      Prog.State:= TProgressBarState.pbsNormal;
     end;
     esError: begin
       //Thread is in an unrecoverable error state
-
+      Prog.Visible:= True;
+      Prog.State:= TProgressBarState.pbsError;
     end;
   end;
   if Prog.Visible then begin
@@ -281,14 +315,17 @@ begin
     esBusy: begin
       PostLog('');
       PostLog('Started execution...', [fsBold], clGreen);
+      Tab.SpinnerState:= TChromeTabSpinnerState.tssRenderedDownload;
     end;
     esReady: begin
       PostLog('');
       PostLog('Finished execution of '+IntToStr(FTotalJobs)+' Jobs', [fsBold], clGreen);
+      Tab.SpinnerState:= TChromeTabSpinnerState.tssNone;
     end;
     esError: begin
       PostLog('');
       PostLog('SQL EXEC ERROR', [fsBold], clRed);
+      Tab.SpinnerState:= TChromeTabSpinnerState.tssNone;
     end;
   end;
 end;
@@ -353,21 +390,22 @@ var
   S: String;
 begin
   inherited;
+  C:= Self.CurConnection;
   cboCurDatabase.Items.Clear;
   cboCurDatabase.Items.Add('[Select Database]');
-  C:= Self.CurConnection;
   if Assigned(C) then begin
+    FDatabases.LoadDatabases(C);
     for X := 0 to C.DatabaseCount-1 do begin
       D:= C.Databases[X];
       cboCurDatabase.Items.AddObject(D.Name, D);
     end;
     cboCurDatabase.Items.Add('[Multiple Selected]');
-    if C.SelDatabases.Count > 0 then begin
-      if C.SelDatabases.Count = 1 then begin
-        S:= C.SelDatabases[0];
+    if FDatabases.TotalCount = 0 then Exit;    
+    if FDatabases.CheckedCount > 0 then begin
+      if FDatabases.TotalCount = 1 then begin
+        S:= FDatabases.Items[0];
         cboCurDatabase.ItemIndex:= cboCurDatabase.Items.IndexOf(S);
       end else begin
-        //TODO: Multiple selected
         cboCurDatabase.ItemIndex:= cboCurDatabase.Items.Count-1;
       end;
     end else begin
@@ -451,25 +489,22 @@ begin
   //Pick batch databases
   C:= CurConnection;
   if Assigned(C) then begin
-    FDatabases.LoadDatabases(C);
     if FDatabases.ShowModal = mrOk then begin
-      C.SelDatabases.Clear;
-      if FDatabases.CheckedCount > 0 then begin
-        for X := 0 to FDatabases.Lst.Count-1 do begin
-          if FDatabases.Lst.Checked[X] then begin
-            C.SelDatabases.Add(FDatabases.Lst.Items[X]);
+      case FDatabases.CheckedCount of
+        0: begin
+          cboCurDatabase.ItemIndex:= 0;
+        end;
+        1: begin
+          for X := 0 to FDatabases.TotalCount-1 do begin
+            if FDatabases.Selected[X] then begin
+              cboCurDatabase.ItemIndex:= cboCurDatabase.Items.IndexOf(FDatabases.Items[X]);
+              Break;
+            end;
           end;
         end;
-        if C.SelDatabases.Count = 1 then begin
-          cboCurDatabase.ItemIndex:= cboCurDatabase.Items.IndexOf(C.SelDatabases[0]);
-        end else begin
+        else begin
           cboCurDatabase.ItemIndex:= cboCurDatabase.Items.Count-1;
         end;
-      end else begin
-        if cboCurDatabase.Items.Count > 2 then
-          cboCurDatabase.ItemIndex:= 1
-        else
-          cboCurDatabase.ItemIndex:= 0;
       end;
     end;
   end;
@@ -553,8 +588,8 @@ end;
 procedure TfrmContentScriptExec.EDChange(Sender: TObject);
 begin
   inherited;
-  FIsChanged:= True;
-  RefreshActions;
+  tmrChange.Enabled:= False;
+  tmrChange.Enabled:= True;
 end;
 
 procedure TfrmContentScriptExec.cboCurConnClick(Sender: TObject);
@@ -565,21 +600,25 @@ end;
 
 procedure TfrmContentScriptExec.cboCurDatabaseClick(Sender: TObject);
 var
-  C: TServerConnection;
+  X: Integer;
 begin
   inherited;
-  //Selected Item in Database Dropdown
-  C:= Self.CurConnection;
-  if Assigned(C) then begin
-    if cboCurDatabase.ItemIndex > 0 then begin
-      if cboCurDatabase.ItemIndex = cboCurDatabase.Items.Count-1 then begin
-        if cboCurDatabase.Focused then
-          actBatch.Execute;
-      end else begin
-        C.SelDatabases.Text:= cboCurDatabase.Text;
-      end;
+  if cboCurDatabase.ItemIndex > 0 then begin
+    //At least one database is selected
+    if cboCurDatabase.ItemIndex = cboCurDatabase.Items.Count-1 then begin
+      //Show option to choose batch
+      if cboCurDatabase.Focused then
+        actBatch.Execute;
     end else begin
-      C.SelDatabases.Clear;
+      //Single database is selected
+      for X := 0 to FDatabases.TotalCount-1 do begin
+        FDatabases.Selected[X]:= SameText(FDatabases.Items[X], cboCurDatabase.Text);
+      end;
+    end;
+  end else begin
+    //No databases are selected
+    for X := 0 to FDatabases.TotalCount-1 do begin
+      FDatabases.Selected[X]:= False;
     end;
   end;
   RefreshActions;

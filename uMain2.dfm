@@ -86,7 +86,6 @@ object frmSqlExec2: TfrmSqlExec2
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 265
         object Panel4: TPanel
           Left = 0
           Top = 0
@@ -103,9 +102,6 @@ object frmSqlExec2: TfrmSqlExec2
           Padding.Left = 2
           ParentFont = False
           TabOrder = 0
-          ExplicitLeft = 1
-          ExplicitTop = 1
-          ExplicitWidth = 263
           object lblSelectedObject: TLabel
             Left = 3
             Top = 1
@@ -120,7 +116,6 @@ object frmSqlExec2: TfrmSqlExec2
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
-            ExplicitLeft = 1
             ExplicitHeight = 16
           end
           object SpeedButton1: TSpeedButton
@@ -179,9 +174,6 @@ object frmSqlExec2: TfrmSqlExec2
           Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goThumbTracking]
           ScrollBars = ssVertical
           TabOrder = 1
-          ExplicitTop = 0
-          ExplicitWidth = 255
-          ExplicitHeight = 73
           ColWidths = (
             115
             133)
@@ -195,7 +187,6 @@ object frmSqlExec2: TfrmSqlExec2
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitWidth = 265
         object Panel1: TPanel
           Left = 0
           Top = 0
@@ -212,7 +203,6 @@ object frmSqlExec2: TfrmSqlExec2
           Padding.Left = 2
           ParentFont = False
           TabOrder = 0
-          ExplicitWidth = 265
           object Label4: TLabel
             Left = 3
             Top = 1
@@ -227,7 +217,6 @@ object frmSqlExec2: TfrmSqlExec2
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
-            ExplicitLeft = 1
             ExplicitHeight = 16
           end
           object SpeedButton2: TSpeedButton
@@ -282,7 +271,6 @@ object frmSqlExec2: TfrmSqlExec2
           ParentShowHint = False
           ShowHint = True
           TabOrder = 1
-          ExplicitWidth = 265
           object ToolButton16: TToolButton
             Left = 0
             Top = 0
@@ -310,7 +298,6 @@ object frmSqlExec2: TfrmSqlExec2
           OnClick = TVClick
           OnDblClick = TVDblClick
           OnExpanding = TVExpanding
-          ExplicitWidth = 265
         end
       end
     end
@@ -1083,6 +1070,7 @@ object frmSqlExec2: TfrmSqlExec2
     Top = 408
   end
   object tmrFileChange: TTimer
+    Enabled = False
     Left = 320
     Top = 408
   end

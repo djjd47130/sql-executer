@@ -1,18 +1,18 @@
 inherited frmContentScriptExec: TfrmContentScriptExec
   Caption = 'SQL Script'
-  ClientHeight = 336
-  ClientWidth = 649
+  ClientHeight = 300
+  ClientWidth = 703
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  ExplicitWidth = 655
-  ExplicitHeight = 365
+  ExplicitWidth = 709
+  ExplicitHeight = 329
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter3: TSplitter [0]
     Left = 0
-    Top = 229
-    Width = 649
+    Top = 211
+    Width = 703
     Height = 7
     Cursor = crVSplit
     Align = alBottom
@@ -24,17 +24,18 @@ inherited frmContentScriptExec: TfrmContentScriptExec
   end
   object pOutput: TPanel [1]
     Left = 0
-    Top = 236
-    Width = 649
-    Height = 100
+    Top = 218
+    Width = 703
+    Height = 82
     Align = alBottom
     ParentBackground = False
     TabOrder = 0
     StyleElements = [seFont, seBorder]
+    ExplicitTop = 280
     object pOutputTitle: TPanel
       Left = 1
       Top = 1
-      Width = 647
+      Width = 701
       Height = 21
       Align = alTop
       Alignment = taLeftJustify
@@ -47,6 +48,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       ParentColor = True
       ParentFont = False
       TabOrder = 0
+      ExplicitWidth = 647
       object lblOutputTitle: TLabel
         Left = 3
         Top = 1
@@ -61,11 +63,10 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
-        ExplicitLeft = 1
         ExplicitHeight = 16
       end
       object cmdOutputClose: TSpeedButton
-        Left = 625
+        Left = 679
         Top = 1
         Width = 21
         Height = 19
@@ -106,8 +107,8 @@ inherited frmContentScriptExec: TfrmContentScriptExec
   end
   object Stat: TStatusBar [2]
     Left = 0
-    Top = 210
-    Width = 649
+    Top = 192
+    Width = 703
     Height = 19
     Panels = <
       item
@@ -130,16 +131,19 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         Width = 120
       end>
     OnDrawPanel = StatDrawPanel
+    ExplicitTop = 210
+    ExplicitWidth = 649
   end
   object Panel2: TPanel [3]
     Left = 0
     Top = 0
-    Width = 649
+    Width = 703
     Height = 44
     Align = alTop
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 2
+    ExplicitWidth = 649
     object Label1: TLabel
       Left = 8
       Top = 3
@@ -160,6 +164,13 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Width = 82
       Height = 13
       Caption = 'Execute Method:'
+    end
+    object Label3: TLabel
+      Left = 618
+      Top = 3
+      Width = 49
+      Height = 13
+      Caption = 'Split Word'
     end
     object cboCurConn: TComboBox
       Left = 8
@@ -189,9 +200,9 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     end
     object BitBtn1: TBitBtn
       Left = 483
-      Top = 20
+      Top = 21
       Width = 129
-      Height = 21
+      Height = 19
       Cursor = crHandPoint
       Action = actExecSql
       Caption = 'Execute SQL'
@@ -199,9 +210,9 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     end
     object BitBtn2: TBitBtn
       Left = 307
-      Top = 20
+      Top = 21
       Width = 78
-      Height = 21
+      Height = 19
       Cursor = crHandPoint
       Action = actBatch
       Caption = 'Batch'
@@ -220,12 +231,20 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         'Execute'
         'Datasets')
     end
+    object txtSplitWord: TEdit
+      Left = 618
+      Top = 20
+      Width = 63
+      Height = 21
+      TabOrder = 5
+      Text = 'GO'
+    end
   end
   object ED: TSynEdit [4]
     Left = 0
     Top = 44
-    Width = 649
-    Height = 85
+    Width = 703
+    Height = 77
     Align = alTop
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -251,8 +270,8 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     FontSmoothing = fsmNone
   end
   object Prog: TProgressBar [5]
-    Left = 491
-    Top = 175
+    Left = 483
+    Top = 143
     Width = 94
     Height = 17
     TabOrder = 4
@@ -267,12 +286,12 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     StringAttri.Foreground = 198
     SQLDialect = sqlMSSQL2K
     Left = 80
-    Top = 138
+    Top = 130
   end
   inherited Acts: TActionList
     Images = dmDataModule.Imgs16
     Left = 24
-    Top = 136
+    Top = 128
     object actRefreshConnections: TAction [0]
       Caption = 'Refresh Connections'
       ImageIndex = 63
@@ -325,7 +344,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       's (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 152
-    Top = 140
+    Top = 132
   end
   object dlgFont: TFontDialog
     Font.Charset = DEFAULT_CHARSET
@@ -337,12 +356,19 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     MaxFontSize = 100
     Options = [fdEffects, fdNoFaceSel, fdNoStyleSel]
     Left = 216
-    Top = 140
+    Top = 132
   end
-  object tmrProg: TTimer
+  object tmrStatus: TTimer
     Interval = 200
-    OnTimer = tmrProgTimer
+    OnTimer = tmrStatusTimer
     Left = 280
-    Top = 144
+    Top = 136
+  end
+  object tmrChange: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = tmrChangeTimer
+    Left = 360
+    Top = 136
   end
 end
