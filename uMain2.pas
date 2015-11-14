@@ -97,13 +97,16 @@ uses
   ChromeTabsUtils,
   ChromeTabsControls,
   ChromeTabsThreadTimer,
-  ChromeTabsClasses;
+  ChromeTabsClasses,
+
+  adpMRU;
 
 const
   REG_KEY = 'Software\JD Software\SqlScriptExec\';
   REG_KEY_RECENT_CONN = 'Software\JD Software\SqlScriptExec\RecentConn\';
   REG_KEY_AUTO_CONN = 'Software\JD Software\SqlScriptExec\AutoConn\';
 
+  WM_REUSE_INSTANCE = WM_USER + 101;
 
 type
   TfrmSqlExec2 = class(TForm)
@@ -245,6 +248,7 @@ type
     FOutputFile: String;
     FMsgHwnd: HWND;
     FHome: TfrmContentHome;
+    FMRU: TadpMRU;
     function TestConnection(AConnStr: String): Boolean;
     procedure LoadTables(Conn: TServerConnection; Node: TTreeNode);
     procedure LoadStoredProcs(Conn: TServerConnection; Node: TTreeNode);
@@ -270,10 +274,16 @@ type
     procedure ShowDatabaseDetails(ANode: TTreeNode);
     procedure ShowServerDetails(ANode: TTreeNode);
     procedure ClearSelectedObject;
+    procedure AddTask(const Args, Path, Caption: string);
+    procedure OpenFromCmd(ACmd: String);
+  protected
+    procedure WndProc(var Message: TMessage); override;
   public
     function Wnd: HWND;
     property Connections: TServerConnections read FConnections;
     procedure RefreshActions;
+    class procedure CheckForInstance;
+
   end;
 
 var
@@ -334,11 +344,12 @@ begin
   pSelected.Height:= 240;
   TV.Align:= alClient;
 
+  FMRU:= TadpMRU.Create(Self);
   FConnections:= TServerConnections.Create(TV);
-
   FHome:= TfrmContentHome.Create(nil);
-
   FMsgHwnd:= AllocateHWnd(WndMethod);
+
+  CheckForInstance;
 
   LoadState;  //Window size / position, options, etc.
 
@@ -352,6 +363,56 @@ begin
 
   RefreshActions;
 
+  AddTask(' -n', ParamStr(0), 'New Script File');
+
+
+end;
+
+procedure TfrmSqlExec2.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FHome);
+
+  SaveState;
+  DeallocateHWnd(FMsgHwnd);
+  FConnections.Clear;
+  FConnections.Free;
+  FMRU.Free;
+end;
+
+procedure TfrmSqlExec2.FormShow(Sender: TObject);
+begin
+  {$IFDEF USE_SPLASH}
+  frmSplash.Hide;
+  frmSplash.Free;
+  {$ENDIF}
+end;
+
+procedure TfrmSqlExec2.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  X: Integer;
+  C: TfrmContentBase;
+  S: TfrmContentScriptExec;
+begin
+  for X := 0 to Tabs.Tabs.Count-1 do begin
+    C:= TfrmContentBase(Tabs.Tabs[X].Data);
+    if C is TfrmContentScriptExec then begin
+      S:= TfrmContentScriptExec(C);
+      if not S.PromptClose then begin
+        Action:= TCloseAction.caNone;
+        Break;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmSqlExec2.AddTask(const Args: String; const Path: String; const Caption: string);
+var
+  I: TJumpListItem;
+begin
+  I:= TJumpListItem(JumpList1.TaskList.Add);
+  I.Path:= Path;
+  I.Arguments:= Args;
+  I.FriendlyName:= Caption;
 end;
 
 procedure TfrmSqlExec2.WndMethod(var Msg: TMessage);
@@ -396,6 +457,70 @@ begin
   Caption:= S;
 end;
 
+procedure TfrmSqlExec2.WndProc(var Message: TMessage);
+var
+  S: PChar;
+begin
+  inherited;
+  case Message.Msg of
+    WM_REUSE_INSTANCE: begin
+      S:= PChar(Message.WParam);
+      OpenFromCmd(S);
+    end;
+  end;
+end;
+
+class procedure TfrmSqlExec2.CheckForInstance;
+var
+  W: HWND;
+begin
+  if CreateMutex(nil, True, '2F23F63E-FADE-4F67-8C50-CF72354C17BB') = 0 then
+    RaiseLastOSError;
+
+  if GetLastError = ERROR_ALREADY_EXISTS then begin
+    //TODO: Get other process ID and send message to perform command(s)
+    W:= FindWindow(PChar(Self.ClassName), nil);
+    if IsWindow(W) then begin
+      SendMessage(W, WM_REUSE_INSTANCE, NativeUInt(GetCommandLine), 0);
+    end;
+    Application.Terminate;
+  end;
+end;
+
+procedure TfrmSqlExec2.OpenFromCmd(ACmd: String);
+var
+  Str: String;
+  function Exists(const N: String): Boolean;
+  begin
+    Result:= (Pos(' -'+N, ACmd) > 0) or (Pos(' /'+N, ACmd) > 0);
+  end;
+  function Value(const N: String): String;
+  var
+    P: Integer;
+  begin
+    P:= Pos(' -'+N, ACmd);
+    if P < 1 then
+      P:= Pos(' /'+N, ACmd);
+    if P > 0 then begin
+
+    end;
+  end;
+begin
+  ShowMessage(ACmd);
+
+  //TODO: Check for filename to open
+
+  if Exists('n') then begin
+    actFileNew.Execute;
+  end;
+
+  if Exists('s') then begin
+    Str:= Value('s');
+    OpenNewConnection(Str, False);
+  end;
+
+end;
+
 procedure TfrmSqlExec2.CheckForParams;
 var
   FN: String;
@@ -407,15 +532,25 @@ begin
   if ParamCount > 0 then begin
     FN:= ParamStr(1);
     FN:= StringReplace(FN, '"', '', [rfReplaceAll]);
-    DoOpenFile(FN);
+    if FileExists(FN) then
+      DoOpenFile(FN);
   end;
 
   CS:= CurScript;
+
+  OpenFromCmd(GetCommandLine);
+
+  {
+  if FindCmdLineSwitch('n', Str, False) then begin
+    //New Script
+    actFileNew.Execute;
+  end;
 
   if FindCmdLineSwitch('s', Str, False) then begin
     //Connection String
     OpenNewConnection(Str, False);
   end;
+  }
 
   if FindCmdLineSwitch('d', Str, False) then begin
     //Database Name(s)
@@ -543,16 +678,6 @@ begin
   end;
 end;
 
-procedure TfrmSqlExec2.FormDestroy(Sender: TObject);
-begin
-  FreeAndNil(FHome);
-
-  SaveState;
-  DeallocateHWnd(FMsgHwnd);
-  FConnections.Clear;
-  FConnections.Free;
-end;
-
 function TfrmSqlExec2.ActiveScript: TfrmContentScriptExec;
 var
   T: TChromeTab;
@@ -592,32 +717,6 @@ begin
     ToolBar1.Images:= dmDataModule.Imgs16;
   end;
 
-end;
-
-procedure TfrmSqlExec2.FormShow(Sender: TObject);
-begin
-  {$IFDEF USE_SPLASH}
-  frmSplash.Hide;
-  frmSplash.Free;
-  {$ENDIF}
-end;
-
-procedure TfrmSqlExec2.FormClose(Sender: TObject; var Action: TCloseAction);
-var
-  X: Integer;
-  C: TfrmContentBase;
-  S: TfrmContentScriptExec;
-begin
-  for X := 0 to Tabs.Tabs.Count-1 do begin
-    C:= TfrmContentBase(Tabs.Tabs[X].Data);
-    if C is TfrmContentScriptExec then begin
-      S:= TfrmContentScriptExec(C);
-      if not S.PromptClose then begin
-        Action:= TCloseAction.caNone;
-        Break;
-      end;
-    end;
-  end;
 end;
 
 procedure TfrmSqlExec2.SaveState;
@@ -1236,19 +1335,29 @@ procedure TfrmSqlExec2.mRecentClick(Sender: TObject);
 var
   X: Integer;
   L: TArray<String>;
-  procedure A(const FN: String);
-  var
-    I: TMenuItem;
-  begin
-    I:= TMenuItem.Create(mRecent);
-    I.Caption:= ExtractFileName(FN);
-    mRecent.Add(I);
-  end;
+  I: TMenuItem;
+  N: Integer;
 begin
-  mRecent.Clear;
-  JumpList1.GetRecentList('SQLScriptExec', L);
-  for X := 0 to Length(L)-1 do begin
-    A(L[X]);
+  //WHY DOES CLEARING MENU ITEMS CAUSE HORRIBLE FLICKER?
+
+  //mRecent.Clear;
+
+  //while mRecent.Count > 0 do
+    //mRecent.Delete(0);
+
+  JumpList1.UpdateList;
+  JumpList1.GetRecentList('', L, N);
+  if N > 0 then begin
+    for X := 0 to N-1 do begin
+      I:= TMenuItem.Create(mRecent);
+      I.Caption:= ExtractFileName(L[X]);
+      mRecent.Add(I);
+    end;
+  end else begin
+    I:= TMenuItem.Create(mRecent);
+    I.Caption:= '(No Recents)';
+    I.Enabled:= False;
+    mRecent.Add(I);
   end;
 end;
 
@@ -1326,6 +1435,7 @@ begin
   DisplayContent(C);
   C.Tab:= T;
   C.LoadFromFile(Filename);
+  JumpList1.AddToRecent(Filename);
 end;
 
 procedure TfrmSqlExec2.SetCaption(const S: String);

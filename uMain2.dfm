@@ -811,7 +811,6 @@ object frmSqlExec2: TfrmSqlExec2
       end
       object mRecent: TMenuItem
         Caption = 'Recent'
-        Visible = False
         OnClick = mRecentClick
         object TMenuItem
         end
@@ -1062,7 +1061,6 @@ object frmSqlExec2: TfrmSqlExec2
   object JumpList1: TJumpList
     AutoRefresh = True
     Enabled = True
-    ApplicationID = 'SQLScriptExec'
     CustomCategories = <>
     ShowRecent = True
     TaskList = <>

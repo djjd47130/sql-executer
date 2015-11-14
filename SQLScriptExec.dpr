@@ -19,7 +19,8 @@ uses
   SQLExecThread in 'SQLExecThread.pas',
   SQLObjects in 'SQLObjects.pas',
   SQLConnections in 'SQLConnections.pas',
-  SQLExecCommon in 'SQLExecCommon.pas';
+  SQLExecCommon in 'SQLExecCommon.pas',
+  adpMRU in 'adpMRU.pas';
 
 {$R *.res}
 
