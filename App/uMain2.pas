@@ -461,27 +461,57 @@ procedure TfrmSqlExec2.WndProc(var Message: TMessage);
 var
   S: PChar;
 begin
-  inherited;
   case Message.Msg of
     WM_REUSE_INSTANCE: begin
       S:= PChar(Message.WParam);
       OpenFromCmd(S);
     end;
   end;
+  inherited;
+end;
+
+type
+  TFNWndEnumProc = function(hwnd: HWND; lParam: LPARAM): BOOL; stdcall;
+
+function EnumWindows(lpEnumFunc: TFNWndEnumProc; lParam: LPARAM): BOOL;
+  stdcall; external  user32;
+
+function getWindows(Handle: HWND; Info: LPARAM): BOOL; stdcall;
+var
+  L: TList;
+begin
+  Result:= True;
+  L:= TList(Info);
+  L.Add(Pointer(Handle));
 end;
 
 class procedure TfrmSqlExec2.CheckForInstance;
 var
-  W: HWND;
+  L: TList;
+  H: HWND;
+  Dest: array[0..80] of char;
+  I: Integer;
+  S: String;
 begin
   if CreateMutex(nil, True, '2F23F63E-FADE-4F67-8C50-CF72354C17BB') = 0 then
     RaiseLastOSError;
 
   if GetLastError = ERROR_ALREADY_EXISTS then begin
-    //TODO: Get other process ID and send message to perform command(s)
-    W:= FindWindow(PChar(Self.ClassName), nil);
-    if IsWindow(W) then begin
-      SendMessage(W, WM_REUSE_INSTANCE, NativeUInt(GetCommandLine), 0);
+    L:= TList.Create;
+    try
+      EnumWindows(GetWindows, LPARAM(L));
+      for I := 0 to L.Count-1 do begin
+        GetWindowText(HWND(L[I]), Dest, sizeof(Dest) - 1);
+        S:= Dest;
+        if ContainsText(S, 'SQL Script Executer') then begin
+          H:= HWND(L[I]);
+          if IsWindow(H) then begin
+            SendMessage(H, WM_REUSE_INSTANCE, NativeUInt(@GetCommandLine), 0);
+          end;
+        end;
+      end
+    finally
+      L.Free;
     end;
     Application.Terminate;
   end;
@@ -490,34 +520,183 @@ end;
 procedure TfrmSqlExec2.OpenFromCmd(ACmd: String);
 var
   Str: String;
+  Tmp: String;
+  ExeName: String;
+  FileName: String;
+  Cmd: String;
+  Val: String;
+  Par: TStringList;
+  P, P2: Integer;
+  CS: TfrmContentScriptExec;
   function Exists(const N: String): Boolean;
-  begin
-    Result:= (Pos(' -'+N, ACmd) > 0) or (Pos(' /'+N, ACmd) > 0);
-  end;
-  function Value(const N: String): String;
   var
-    P: Integer;
+    X: Integer;
   begin
-    P:= Pos(' -'+N, ACmd);
-    if P < 1 then
-      P:= Pos(' /'+N, ACmd);
-    if P > 0 then begin
-
+    Result:= False;
+    for X := 0 to Par.Count-1 do begin
+      if SameText(Par.Names[X], N) then begin
+        Result:= True;
+        Break;
+      end;
     end;
   end;
 begin
-  ShowMessage(ACmd);
+  //ShowMessage(ACmd);
+
+  Par:= TStringList.Create;
+  try
+    Str:= ACmd + ' ';
+
+    Str:= Trim(Str);
+
+    P:= Pos('"', Str);
+    if P = 1 then begin
+      Delete(Str, 1, 1);
+      P:= Pos('"', Str);
+      Tmp:= Copy(Str, 1, P-1);
+      Delete(Str, 1, P);
+      ExeName:= Tmp;
+    end else begin
+      P:= Pos(' ', Str);
+      Tmp:= Copy(Str, 1, P-1);
+      Delete(Str, 1, P);
+      ExeName:= Tmp;
+    end;
+
+    //ShowMessage(ExeName);
+
+    Str:= Trim(Str);
+
+    P:= Pos('"', Str);
+    if P = 1 then begin
+      Delete(Str, 1, 1);
+      P:= Pos('"', Str);
+      Tmp:= Copy(Str, 1, P-1);
+      Delete(Str, 1, P);
+      FileName:= Tmp;
+    end else begin
+      {
+      P:= Pos(' ', Str);
+      Tmp:= Copy(Str, 1, P-1);
+      Delete(Str, 1, P);
+      FileName:= Tmp;
+      }
+    end;
+
+    //ShowMessage(FileName);
+
+    Str:= Trim(Str);
+
+    while Length(Trim(Str)) > 0 do begin
+      P:= Pos('-', Str);
+      if P < 1 then
+        P:= Pos('/', 'Str');
+      if P > 0 then begin
+        Delete(Str, 1, 1);
+        P:= Pos(' ', Str);
+        Tmp:= Trim(Copy(Str, 1, P-1));
+        Delete(Str, 1, P);
+        if Pos('"', Tmp) = 1 then begin
+          Delete(Tmp, 1, 1);
+          P:= Pos('"', Tmp);
+          if P > 0 then
+            Delete(Tmp, 1, 1);
+        end;
+        Cmd:= Tmp;
+        Str:= Trim(Str) + ' ';
+        if (Pos('-', Str) <> 1) and  (Pos('/', Str) <> 1) then begin
+          P:= Pos('"', Str);
+          if P = 1 then begin
+            Delete(Str, 1, 1);
+            P:= Pos('"', Str);
+            Tmp:= Copy(Str, 1, P-1);
+            Delete(Str, 1, P);
+          end else begin
+            P:= Pos(' ', Str);
+            Tmp:= Copy(Str, 1, P-1);
+            Delete(Str, 1, P);
+          end;
+          Val:= Tmp;
+        end else begin
+          Val:= '';
+        end;
+        Par.Values[Cmd]:= Val;
+      end else begin
+        MessageDlg('Command line parameters malformed ('+Str+')', mtError, [mbOK], 0);
+        Str:= '';
+      end;
+      Str:= Trim(Str) + ' ';
+    end;
+
+    //Actual check for further parameters
+
+    CS:= CurScript;
+
+    if Exists('n') then begin
+      actFileNew.Execute;
+    end;
+
+    if Exists('s') then begin
+      Str:= Par.Values['s'];
+      OpenNewConnection(Str, False);
+    end;
+
+    if Exists('d') then begin
+      Str:= Par.Values['d'];
+      if Str <> '' then begin
+        if Assigned(CS) then begin
+          if CS.cboCurDatabase.Items.IndexOf(Str) >= 0 then begin
+            CS.cboCurDatabase.ItemIndex:= CS.cboCurDatabase.Items.IndexOf(Str);
+            CS.cboCurDatabaseClick(nil);
+            //TODO: Support multiple databases
+          end;
+        end;
+      end;
+    end;
+
+    if Exists('m') then begin
+      Str:= Par.Values['m'];
+      if Str <> '' then begin
+        if Assigned(CS) then begin
+          if SameText(Str, 'data') then
+            CS.cboCurExecMethod.ItemIndex:= 1
+          else
+            CS.cboCurExecMethod.ItemIndex:= 0;
+        end;
+      end;
+    end;
+
+    if Exists('e') then begin
+      FAutoExec:= True;
+    end;
+
+    if Exists('w') then begin
+      Str:= Par.Values['w'];
+      if Str <> '' then begin
+        if Assigned(CS) then begin
+          CS.txtSplitWord.Text:= Str;
+        end;
+      end;
+    end;
+
+    if Exists('q') then begin
+      Str:= Par.Values['q'];
+      FQuietMode:= True;
+    end;
+
+    if Exists('o') then begin
+      Str:= Par.Values['o'];
+      FOutputFile:= Str;
+    end else begin
+      FOutputFile:= '';
+    end;
+
+
+  finally
+    Par.Free;
+  end;
 
   //TODO: Check for filename to open
-
-  if Exists('n') then begin
-    actFileNew.Execute;
-  end;
-
-  if Exists('s') then begin
-    Str:= Value('s');
-    OpenNewConnection(Str, False);
-  end;
 
 end;
 
@@ -550,7 +729,6 @@ begin
     //Connection String
     OpenNewConnection(Str, False);
   end;
-  }
 
   if FindCmdLineSwitch('d', Str, False) then begin
     //Database Name(s)
@@ -604,6 +782,7 @@ begin
   end else begin
     FOutputFile:= '';
   end;
+  }
 
   if FAutoExec then begin
     if FQuietMode then begin

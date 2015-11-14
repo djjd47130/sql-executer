@@ -15,12 +15,12 @@ uses
   uContentHome in 'uContentHome.pas' {frmContentHome},
   uContentObject in 'uContentObject.pas' {frmContentObject},
   AppInit in 'AppInit.pas',
-  SQLExec in 'SQLExec.pas',
   SQLExecThread in 'SQLExecThread.pas',
   SQLObjects in 'SQLObjects.pas',
   SQLConnections in 'SQLConnections.pas',
   SQLExecCommon in 'SQLExecCommon.pas',
-  adpMRU in 'adpMRU.pas';
+  adpMRU in 'adpMRU.pas',
+  SQLExec in '..\SQLExec.pas';
 
 {$R *.res}
 

@@ -168,12 +168,12 @@
             <Form>frmContentObject</Form>
         </DCCReference>
         <DCCReference Include="AppInit.pas"/>
-        <DCCReference Include="SQLExec.pas"/>
         <DCCReference Include="SQLExecThread.pas"/>
         <DCCReference Include="SQLObjects.pas"/>
         <DCCReference Include="SQLConnections.pas"/>
         <DCCReference Include="SQLExecCommon.pas"/>
         <DCCReference Include="adpMRU.pas"/>
+        <DCCReference Include="..\SQLExec.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
