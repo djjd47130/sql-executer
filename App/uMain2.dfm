@@ -50,7 +50,7 @@ object frmSqlExec2: TfrmSqlExec2
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 33
+    ExplicitLeft = 8
     object Splitter1: TSplitter
       Left = 272
       Top = 0
@@ -303,9 +303,9 @@ object frmSqlExec2: TfrmSqlExec2
       end
     end
     object pContent: TPanel
-      Left = 376
+      Left = 408
       Top = 0
-      Width = 380
+      Width = 348
       Height = 336
       Align = alRight
       Anchors = [akLeft, akTop, akRight, akBottom]
@@ -329,7 +329,6 @@ object frmSqlExec2: TfrmSqlExec2
     ShowHint = True
     TabOrder = 2
     Transparent = False
-    ExplicitTop = 0
     object cmdNewFile: TToolButton
       Left = 0
       Top = 0
@@ -780,8 +779,6 @@ object frmSqlExec2: TfrmSqlExec2
     Align = alTop
     ShowHint = True
     TabOrder = 3
-    ExplicitLeft = 3
-    ExplicitTop = -6
   end
   object MM: TMainMenu
     Images = dmDataModule.Imgs16

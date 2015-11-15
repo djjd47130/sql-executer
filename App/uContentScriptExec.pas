@@ -580,6 +580,9 @@ begin
 
   frmSqlExec2.RefreshActions; //TODO: Decouple
 
+  if cboCurConn.ItemIndex < 1 then
+    Stat.Panels[0].Text:= 'Disconnected';
+
   RefreshCaption;
 end;
 
@@ -645,6 +648,7 @@ end;
 procedure TfrmContentScriptExec.cboCurConnClick(Sender: TObject);
 begin
   inherited;
+  RefreshActions;
   actRefreshDatabases.Execute;
 end;
 
