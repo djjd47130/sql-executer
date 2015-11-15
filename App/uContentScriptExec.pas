@@ -445,13 +445,36 @@ begin
 end;
 
 procedure TfrmContentScriptExec.actSaveAsExecute(Sender: TObject);
+var
+  FN: String;
+  T: String;
 begin
   inherited;
   dlgSave.FileName:= FFilename;
   if dlgSave.Execute then begin
+    FN:= dlgSave.FileName;
+    case dlgSave.FilterIndex of
+      1: begin
+        //SQL Script File
+        T:= Copy(FN, Length(FN)-3, 4);
+        if not SameText(T, '.sql') then
+          FN:= FN + '.sql';
+      end;
+      2: begin
+        //TXT Plain Text File
+        T:= Copy(FN, Length(FN)-3, 4);
+        if not SameText(T, '.txt') then
+          FN:= FN + '.txt';
+      end;
+      else begin
+        //All Files (Any Extension)
+
+      end;
+    end;
+    ED.Lines.SaveToFile(FN);
     FIsNew:= False;
     FIsChanged:= False;
-    FFilename:= dlgSave.FileName;
+    FFilename:= FN;
     Stat.Panels[2].Text:= '';
   end;
   RefreshActions;
