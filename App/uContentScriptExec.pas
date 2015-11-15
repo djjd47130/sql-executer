@@ -73,9 +73,11 @@ type
       const Rect: TRect);
     procedure tmrStatusTimer(Sender: TObject);
     procedure tmrChangeTimer(Sender: TObject);
+    procedure txtSplitWordChange(Sender: TObject);
   private
     FOutput: TfrmOutputWindow;
     FDatabases: TfrmDatabases;
+    FExec: TSqlExec;
     FStatus: TSQLThreadStatus;
     FFilename: String;
     FIsNew: Boolean;
@@ -137,6 +139,7 @@ begin
   SetWindowLong(Prog.Handle, GWL_EXSTYLE, ProgressBarStyle);
   Prog.Visible:= False;
 
+  FExec:= TSqlExec.Create(nil);
   FDatabases:= TfrmDatabases.Create(nil);
   FOutput:= TfrmOutputWindow.Create(nil);
   FOutput.BorderStyle:= TFormBorderStyle.bsNone;
@@ -147,6 +150,9 @@ begin
   FFilename:= '';
   FIsNew:= True;
   FIsChanged:= False;
+  Stat.Panels[2].Text:= '';
+  tmrChange.Enabled:= False;
+  tmrChange.Enabled:= True;
 end;
 
 procedure TfrmContentScriptExec.FormDestroy(Sender: TObject);
@@ -154,6 +160,7 @@ begin
   inherited;
   FOutput.Free;
   FDatabases.Free;
+  FExec.Free;
 end;
 
 procedure TfrmContentScriptExec.FormShow(Sender: TObject);
@@ -179,6 +186,8 @@ begin
   FIsNew:= False;
   FIsChanged:= False;
   RefreshCaption;
+  tmrChange.Enabled:= False;
+  tmrChange.Enabled:= True;
 end;
 
 procedure TfrmContentScriptExec.actFontExecute(Sender: TObject);
@@ -270,7 +279,10 @@ begin
   inherited;
   //Something changed in the edit control
   tmrChange.Enabled:= False;
-  FIsChanged:= True;
+  FExec.SQL.Assign(ED.Lines);
+  FExec.SplitWord:= Self.txtSplitWord.Text;
+  FExec.ParseSQL;
+  Stat.Panels[3].Text:= IntToStr(FExec.BlockCount)+' Block(s)';
   RefreshActions;
 end;
 
@@ -278,7 +290,16 @@ procedure TfrmContentScriptExec.tmrStatusTimer(Sender: TObject);
 begin
   inherited;
 
+  Stat.Panels[1].Text:= 'Ln '+IntToStr(ED.CaretY)+' Col '+IntToStr(ED.CaretX);
   UpdateProgressBar;
+end;
+
+procedure TfrmContentScriptExec.txtSplitWordChange(Sender: TObject);
+begin
+  inherited;
+  FExec.SplitWord:= Self.txtSplitWord.Text;
+  FExec.SQL.Assign(ED.Lines);
+  Stat.Panels[3].Text:= IntToStr(FExec.BlockCount)+' Blocks';
 end;
 
 procedure TfrmContentScriptExec.UpdateProgressBar;
@@ -394,6 +415,7 @@ begin
   cboCurDatabase.Items.Clear;
   cboCurDatabase.Items.Add('[Select Database]');
   if Assigned(C) then begin
+    Stat.Panels[0].Text:= 'Connected';
     FDatabases.LoadDatabases(C);
     for X := 0 to C.DatabaseCount-1 do begin
       D:= C.Databases[X];
@@ -415,10 +437,11 @@ begin
         cboCurDatabase.ItemIndex:= 0;
     end;
   end else begin
+    Stat.Panels[0].Text:= 'Disconnected';
     cboCurDatabase.ItemIndex:= 0;
   end;
-  cboCurDatabaseClick(nil);
   RefreshActions;
+  cboCurDatabaseClick(nil);
 end;
 
 procedure TfrmContentScriptExec.actSaveAsExecute(Sender: TObject);
@@ -429,6 +452,7 @@ begin
     FIsNew:= False;
     FIsChanged:= False;
     FFilename:= dlgSave.FileName;
+    Stat.Panels[2].Text:= '';
   end;
   RefreshActions;
 end;
@@ -442,6 +466,7 @@ begin
     if DirectoryExists(ExtractFilePath(FFilename)) then begin
       ED.Lines.SaveToFile(FFilename);
       FIsChanged:= False;
+      Stat.Panels[2].Text:= '';
     end else begin
       raise Exception.Create('Directory does not exist');
     end;
@@ -539,12 +564,12 @@ procedure TfrmContentScriptExec.AddConnection(AConn: TServerConnection);
 begin
   if Assigned(AConn) then begin
     cboCurConn.Items.AddObject(AConn.ConnectionString['Data Source'], AConn);
-    if cboCurConn.ItemIndex <= 0 then begin
+    if cboCurConn.ItemIndex < 1 then begin
       cboCurConn.ItemIndex:= 1;
     end;
   end;
-  cboCurConnClick(nil);
   RefreshActions;
+  actRefreshDatabases.Execute;
 end;
 
 procedure TfrmContentScriptExec.DeleteConnection(AConn: TServerConnection);
@@ -588,6 +613,8 @@ end;
 procedure TfrmContentScriptExec.EDChange(Sender: TObject);
 begin
   inherited;
+  FIsChanged:= True;
+  Stat.Panels[2].Text:= 'Modified';
   tmrChange.Enabled:= False;
   tmrChange.Enabled:= True;
 end;

@@ -31,7 +31,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     ParentBackground = False
     TabOrder = 0
     StyleElements = [seFont, seBorder]
-    ExplicitTop = 280
     object pOutputTitle: TPanel
       Left = 1
       Top = 1
@@ -48,7 +47,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       ParentColor = True
       ParentFont = False
       TabOrder = 0
-      ExplicitWidth = 647
       object lblOutputTitle: TLabel
         Left = 3
         Top = 1
@@ -131,8 +129,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         Width = 120
       end>
     OnDrawPanel = StatDrawPanel
-    ExplicitTop = 210
-    ExplicitWidth = 649
   end
   object Panel2: TPanel [3]
     Left = 0
@@ -143,7 +139,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 2
-    ExplicitWidth = 649
     object Label1: TLabel
       Left = 8
       Top = 3
@@ -238,6 +233,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Height = 21
       TabOrder = 5
       Text = 'GO'
+      OnChange = txtSplitWordChange
     end
   end
   object ED: TSynEdit [4]
@@ -268,6 +264,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     WantTabs = True
     OnChange = EDChange
     FontSmoothing = fsmNone
+    ExplicitTop = 46
   end
   object Prog: TProgressBar [5]
     Left = 483
@@ -359,7 +356,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     Top = 132
   end
   object tmrStatus: TTimer
-    Interval = 200
+    Interval = 120
     OnTimer = tmrStatusTimer
     Left = 280
     Top = 136
