@@ -20,7 +20,8 @@ uses
   SQLConnections in 'SQLConnections.pas',
   SQLExecCommon in 'SQLExecCommon.pas',
   adpMRU in 'adpMRU.pas',
-  SQLExec in '..\SQLExec.pas';
+  SQLExec in '..\SQLExec.pas',
+  uAbout in 'uAbout.pas' {frmAbout};
 
 {$R *.res}
 

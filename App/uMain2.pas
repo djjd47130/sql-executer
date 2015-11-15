@@ -183,9 +183,6 @@ type
     cmdFindReplace: TToolButton;
     FindPrevious1: TMenuItem;
     ShowLinesAffected1: TMenuItem;
-    Tabs: TChromeTabs;
-    OutputWindow1: TMenuItem;
-    ScriptWindow1: TMenuItem;
     mRecent: TMenuItem;
     N2: TMenuItem;
     tmrFileChange: TTimer;
@@ -195,7 +192,6 @@ type
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     actHome: TAction;
-    ToolButton6: TToolButton;
     actFileOpen: TAction;
     actFileSave: TAction;
     actFileSaveAs: TAction;
@@ -205,6 +201,8 @@ type
     actScriptFont: TAction;
     actScriptExec: TAction;
     SelView: TStringGrid;
+    About1: TMenuItem;
+    Tabs: TChromeTabs;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -238,6 +236,7 @@ type
     procedure actScriptExecExecute(Sender: TObject);
     procedure TVDblClick(Sender: TObject);
     procedure TVClick(Sender: TObject);
+    procedure About1Click(Sender: TObject);
   private
     FConnections: TServerConnections;
     FBusy: Boolean;
@@ -296,7 +295,7 @@ implementation
 uses
   StrUtils,
   uDataModule,
-  uConnection, uDatabases
+  uConnection, uDatabases, uAbout
   {$IFDEF USE_SPLASH}
   , uSplash
   {$ENDIF}
@@ -476,7 +475,7 @@ type
 function EnumWindows(lpEnumFunc: TFNWndEnumProc; lParam: LPARAM): BOOL;
   stdcall; external  user32;
 
-function getWindows(Handle: HWND; Info: LPARAM): BOOL; stdcall;
+function GetWindows(Handle: HWND; Info: LPARAM): BOOL; stdcall;
 var
   L: TList;
 begin
@@ -630,8 +629,6 @@ begin
 
     //Actual check for further parameters
 
-    CS:= CurScript;
-
     if Exists('n') then begin
       actFileNew.Execute;
     end;
@@ -640,6 +637,8 @@ begin
       Str:= Par.Values['s'];
       OpenNewConnection(Str, False);
     end;
+
+    CS:= CurScript;
 
     if Exists('d') then begin
       Str:= Par.Values['d'];
@@ -1252,6 +1251,18 @@ begin
   end;
   }
   RefreshActions;
+end;
+
+procedure TfrmSqlExec2.About1Click(Sender: TObject);
+var
+  F: TfrmAbout;
+begin
+  F:= TfrmAbout.Create(nil);
+  try
+    F.ShowModal;
+  finally
+    F.Free;
+  end;
 end;
 
 procedure TfrmSqlExec2.actCloseScriptExecute(Sender: TObject);
