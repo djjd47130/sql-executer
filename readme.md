@@ -47,6 +47,8 @@ begin
 end;
 ```
 
+[Component Documentation](https://github.com/djjd47130/sql-executer/wiki/TSQLExec%20Component)
+
 #Sample Application
 ###SQL Script Executer
 Package also includes fully featured application to demonstrate the usage of this component.
