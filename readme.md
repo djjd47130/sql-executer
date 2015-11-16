@@ -70,6 +70,7 @@ Package also includes fully featured application to demonstrate the usage of thi
   - https://github.com/SynEdit/SynEdit
 2. Built and tested on Delphi XE7, none others
 3. VCL Style: "Iceberg Classico" (pre-shipped with Delphi XE7)
+4. Artwork from personal collection: https://github.com/djjd47130/jd-artwork/tree/master/Office%20Applications%20v1
 
 #Background
 
