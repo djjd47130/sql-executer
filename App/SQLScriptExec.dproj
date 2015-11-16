@@ -40,6 +40,12 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='V3 Debug' or '$(Cfg_3)'!=''">
+        <Cfg_3>true</Cfg_3>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -97,7 +103,7 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <Debugger_RunParams>&quot;C:\Users\jerryd\Desktop\Test Script.sql&quot; -s &quot;Provider=SQLOLEDB.1;Persist Security Info=True;Data Source=INNO004, 11303;Initial Catalog=RugDemoAPI;User ID=sa;Password=RMPro9a2012&quot; -d RugDemoMain -m data -w DOIT</Debugger_RunParams>
+        <Debugger_RunParams> -n</Debugger_RunParams>
         <VerInfo_Build>23</VerInfo_Build>
         <VerInfo_Keys>CompanyName=JD Software Inc;FileDescription=SQL Script Executer;FileVersion=1.0.0.23;InternalName=SqlScriptExec;LegalCopyright=;LegalTrademarks=;OriginalFilename=SqlScriptExec.exe;ProductName=SqlExec;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
@@ -107,6 +113,9 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Build>2</VerInfo_Build>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_3)'!=''">
+        <DCC_Define>USE_V3;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Icon_MainIcon>SQLScriptExec_Icon1.ico</Icon_MainIcon>
@@ -178,9 +187,14 @@
             <Form>frmAbout</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="CmdLine.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="V3 Debug">
+            <Key>Cfg_3</Key>
+            <CfgParent>Cfg_1</CfgParent>
         </BuildConfiguration>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

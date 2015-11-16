@@ -21,7 +21,8 @@ uses
   SQLExecCommon in 'SQLExecCommon.pas',
   adpMRU in 'adpMRU.pas',
   SQLExec in '..\SQLExec.pas',
-  uAbout in 'uAbout.pas' {frmAbout};
+  uAbout in 'uAbout.pas' {frmAbout},
+  CmdLine in 'CmdLine.pas';
 
 {$R *.res}
 

@@ -348,7 +348,7 @@ begin
   FHome:= TfrmContentHome.Create(nil);
   FMsgHwnd:= AllocateHWnd(WndMethod);
 
-  CheckForInstance;
+  CheckForInstance; //Check to see if another instance os running first
 
   LoadState;  //Window size / position, options, etc.
 
@@ -485,13 +485,17 @@ begin
 end;
 
 class procedure TfrmSqlExec2.CheckForInstance;
+{$IFDEF USE_V3}
 var
   L: TList;
   H: HWND;
   Dest: array[0..80] of char;
   I: Integer;
   S: String;
+{$ENDIF}
 begin
+
+  {$IFDEF USE_V3}
   if CreateMutex(nil, True, '2F23F63E-FADE-4F67-8C50-CF72354C17BB') = 0 then
     RaiseLastOSError;
 
@@ -514,6 +518,8 @@ begin
     end;
     Application.Terminate;
   end;
+  {$ENDIF}
+
 end;
 
 procedure TfrmSqlExec2.OpenFromCmd(ACmd: String);
@@ -540,7 +546,8 @@ var
     end;
   end;
 begin
-  //ShowMessage(ACmd);
+  //Feed in a command line to open either new or existing file(s)
+  // and detect parameters for control
 
   Par:= TStringList.Create;
   try
@@ -562,8 +569,6 @@ begin
       ExeName:= Tmp;
     end;
 
-    //ShowMessage(ExeName);
-
     Str:= Trim(Str);
 
     P:= Pos('"', Str);
@@ -582,9 +587,7 @@ begin
       }
     end;
 
-    //ShowMessage(FileName);
-
-    Str:= Trim(Str);
+    Str:= Trim(Str)+' ';
 
     while Length(Trim(Str)) > 0 do begin
       P:= Pos('-', Str);
@@ -619,6 +622,8 @@ begin
         end else begin
           Val:= '';
         end;
+        if Val = '' then
+          Val:= ' ';
         Par.Values[Cmd]:= Val;
       end else begin
         MessageDlg('Command line parameters malformed ('+Str+')', mtError, [mbOK], 0);
