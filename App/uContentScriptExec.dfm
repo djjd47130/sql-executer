@@ -51,7 +51,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         Left = 3
         Top = 1
         Width = 87
-        Height = 19
+        Height = 16
         Align = alLeft
         Caption = 'Script Output'
         Font.Charset = DEFAULT_CHARSET
@@ -61,7 +61,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
-        ExplicitHeight = 16
       end
       object cmdOutputClose: TSpeedButton
         Left = 679
@@ -161,7 +160,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Caption = 'Execute Method:'
     end
     object Label3: TLabel
-      Left = 618
+      Left = 483
       Top = 3
       Width = 49
       Height = 13
@@ -194,14 +193,14 @@ inherited frmContentScriptExec: TfrmContentScriptExec
         '[Select Database]')
     end
     object BitBtn1: TBitBtn
-      Left = 483
+      Left = 552
       Top = 21
       Width = 129
       Height = 19
       Cursor = crHandPoint
       Action = actExecSql
       Caption = 'Execute SQL'
-      TabOrder = 2
+      TabOrder = 5
     end
     object BitBtn2: TBitBtn
       Left = 307
@@ -211,7 +210,7 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Cursor = crHandPoint
       Action = actBatch
       Caption = 'Batch'
-      TabOrder = 3
+      TabOrder = 2
     end
     object cboCurExecMethod: TComboBox
       Left = 388
@@ -220,18 +219,18 @@ inherited frmContentScriptExec: TfrmContentScriptExec
       Height = 21
       Style = csDropDownList
       ItemIndex = 0
-      TabOrder = 4
+      TabOrder = 3
       Text = 'Execute'
       Items.Strings = (
         'Execute'
         'Datasets')
     end
     object txtSplitWord: TEdit
-      Left = 618
+      Left = 483
       Top = 20
       Width = 63
       Height = 21
-      TabOrder = 5
+      TabOrder = 4
       Text = 'GO'
       OnChange = txtSplitWordChange
     end
@@ -264,7 +263,6 @@ inherited frmContentScriptExec: TfrmContentScriptExec
     WantTabs = True
     OnChange = EDChange
     FontSmoothing = fsmNone
-    ExplicitTop = 46
   end
   object Prog: TProgressBar [5]
     Left = 483

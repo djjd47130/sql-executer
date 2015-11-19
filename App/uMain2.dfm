@@ -50,7 +50,6 @@ object frmSqlExec2: TfrmSqlExec2
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 8
     object Splitter1: TSplitter
       Left = 272
       Top = 0
@@ -457,6 +456,7 @@ object frmSqlExec2: TfrmSqlExec2
     OnActiveTabChanged = TabsActiveTabChanged
     OnButtonAddClick = TabsButtonAddClick
     OnButtonCloseTabClick = TabsButtonCloseTabClick
+    OnTabPopupMenu = TabsTabPopupMenu
     ActiveTabIndex = -1
     Images = dmDataModule.Imgs16
     Options.Display.CloseButton.Offsets.Vertical = 6
@@ -497,8 +497,8 @@ object frmSqlExec2: TfrmSqlExec2
     Options.Display.Tabs.OffsetTop = 4
     Options.Display.Tabs.OffsetRight = 0
     Options.Display.Tabs.OffsetBottom = 0
-    Options.Display.Tabs.MinWidth = 25
-    Options.Display.Tabs.MaxWidth = 200
+    Options.Display.Tabs.MinWidth = 120
+    Options.Display.Tabs.MaxWidth = 220
     Options.Display.Tabs.TabWidthFromContent = False
     Options.Display.Tabs.PinnedWidth = 42
     Options.Display.Tabs.ImageOffsetLeft = 13
@@ -806,9 +806,6 @@ object frmSqlExec2: TfrmSqlExec2
       end
       object mRecent: TMenuItem
         Caption = 'Recent'
-        OnClick = mRecentClick
-        object TMenuItem
-        end
       end
       object N1: TMenuItem
         Caption = '-'

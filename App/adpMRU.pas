@@ -37,39 +37,39 @@ type
   TadpMRU = class(TComponent)
   private
     FItems : TStringList;
-
-    FMaxItems: cardinal;
+    FMaxItems: Cardinal;
     FShowFullPath: boolean;
     FRegistryPath: string;
     FParentMenuItem: TMenuItem;
     FOnClick: TMRUClickEvent;
-    procedure SetMaxItems(const Value: cardinal);
+    FOnChange: TNotifyEvent;
+    procedure SetMaxItems(const Value: Cardinal);
     procedure SetShowFullPath(const Value: boolean);
     procedure SetRegistryPath(const Value: string);
     procedure SetParentMenuItem(const Value: TMenuItem);
-
     procedure LoadMRU;
     procedure SaveMRU;
     procedure ItemsChange(Sender: TObject);
     procedure ClearParentMenu;
+    function GetItem(Index: Integer): String;
   protected
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure DoClick(Sender: TObject);
-
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-
     procedure AddItem(const FileName: string);
     function RemoveItem(const FileName : string) : boolean;
+    function Count: Integer;
+    property Items[Index: Integer]: String read GetItem; default;
   published
-    property MaxItems: cardinal read FMaxItems write SetMaxItems default 4;
+    property MaxItems: Cardinal read FMaxItems write SetMaxItems default 4;
     property ShowFullPath: boolean read FShowFullPath write SetShowFullPath default True;
     property RegistryPath: string read FRegistryPath write SetRegistryPath;
     property ParentMenuItem: TMenuItem read FParentMenuItem write SetParentMenuItem;
-
     property OnClick: TMRUClickEvent read FOnClick write FOnClick;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
 procedure Register;
@@ -78,7 +78,6 @@ implementation
 
 type
   TMRUMenuItem = class(TMenuItem); //to be able to recognize MRU menu item when deleting
-
 
 procedure Register;
 begin
@@ -93,34 +92,31 @@ begin
   FParentMenuItem := nil;
   FItems := TStringList.Create;
   FItems.OnChange := ItemsChange;
-
-  FMaxItems := 4;
+  FMaxItems := 10;
   FShowFullPath := True;
-end; (*Create*)
+end;
+
+destructor TadpMRU.Destroy;
+begin
+  if not (csDesigning in ComponentState) then SaveMRU;
+  FItems.OnChange := nil;
+  FItems.Free;
+  inherited;
+end;
 
 procedure TadpMRU.Loaded;
 begin
   inherited;
   if not (csDesigning in ComponentState) then
     if FRegistryPath <> '' then LoadMRU;
-end; (*Loaded*)
-
-destructor TadpMRU.Destroy;
-begin
-  if not (csDesigning in ComponentState) then SaveMRU;
-
-  FItems.OnChange := nil;
-  FItems.Free;
-
-  inherited;
-end; (*Destroy*)
+end;
 
 procedure TadpMRU.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FParentMenuItem) then
     FParentMenuItem := nil;
-end; (*Notification*)
+end;
 
 procedure TadpMRU.AddItem(const FileName: string);
 begin
@@ -138,19 +134,20 @@ begin
       FItems.EndUpdate;
     end;
   end;
-end; (*AddItem*)
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
 
 function TadpMRU.RemoveItem(const FileName: string): boolean;
 begin
-  if FItems.IndexOf(FileName) > -1 then
-  begin
+  if FItems.IndexOf(FileName) > -1 then begin
     FItems.Delete(FItems.IndexOf(FileName));
     Result := True;
-  end
-  else
+  end else
     Result := False;
-end; (*RemoveItem*)
-
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
 
 procedure TadpMRU.SetMaxItems(const Value: Cardinal);
 begin
@@ -160,8 +157,7 @@ begin
     else
       if Value > MaxInt then
         FMaxItems := MaxInt - 1
-      else
-      begin
+      else begin
         FMaxItems := Value;
         FItems.BeginUpdate;
         try
@@ -172,7 +168,7 @@ begin
         end;
       end;
   end;
-end; (*SetMaxItems*)
+end;
 
 procedure TadpMRU.SetRegistryPath(const Value: string);
 begin
@@ -181,7 +177,7 @@ begin
     FRegistryPath := Value;
     LoadMRU;
   end;
-end; (*SetRegistryPath*)
+end;
 
 procedure TadpMRU.SetShowFullPath(const Value: boolean);
 begin
@@ -190,17 +186,16 @@ begin
     FShowFullPath := Value;
     ItemsChange(Self);
   end;
-end; (*SetShowFullPath*)
+end;
 
 procedure TadpMRU.LoadMRU;
 var
   i: cardinal;
 begin
-  with TRegistry.Create do
+  with TRegistry.Create(KEY_READ) do
   try
     RootKey := HKEY_CURRENT_USER;
-    if OpenKey(FRegistryPath, False) then
-    begin
+    if OpenKey(FRegistryPath, False) then begin
       FItems.BeginUpdate;
       FItems.Clear;
       try
@@ -215,21 +210,21 @@ begin
   finally
     Free;
   end;
-end; (*LoadMRU*)
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
 
 procedure TadpMRU.SaveMRU;
 var
   i: integer;
 begin
-  with TRegistry.Create do
+  with TRegistry.Create(KEY_READ or KEY_WRITE) do
   try
     RootKey := HKEY_CURRENT_USER;
-    if OpenKey(FRegistryPath, True) then
-    begin
+    if OpenKey(FRegistryPath, True) then begin
       //delete old mru
       i:=1;
-      while ValueExists('MRU'+IntToStr(i)) do
-      begin
+      while ValueExists('MRU'+IntToStr(i)) do begin
         DeleteValue('MRU'+IntToStr(i));
         Inc(i);
       end;
@@ -242,8 +237,9 @@ begin
   finally
     Free;
   end;
-end; (*SaveMRU*)
-
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
 
 procedure TadpMRU.ItemsChange(Sender: TObject);
 var
@@ -254,8 +250,7 @@ begin
   if ParentMenuItem <> nil then
   begin
     ClearParentMenu;
-    for i := 0 to -1 + FItems.Count do
-    begin
+    for i := 0 to -1 + FItems.Count do begin
       if ShowFullPath then
         FileName := StringReplace(FItems[I], '&', '&&', [rfReplaceAll, rfIgnoreCase])
       else
@@ -268,7 +263,7 @@ begin
       ParentMenuItem.Add(NewMenuItem);
     end;
   end;
-end; (*ItemsChange*)
+end;
 
 procedure TadpMRU.ClearParentMenu;
 var
@@ -278,13 +273,23 @@ begin
     for i:= -1 + ParentMenuItem.Count downto 0 do
       if ParentMenuItem.Items[i] is TMRUMenuItem then
         ParentMenuItem.Delete(i);
-end; (*ClearParentMenu*)
+end;
+
+function TadpMRU.Count: Integer;
+begin
+  Result:= FItems.Count;
+end;
 
 procedure TadpMRU.DoClick(Sender: TObject);
 begin
   if Assigned(FOnClick) and (Sender is TMRUMenuItem) then
     FOnClick(Self, FItems[TMRUMenuItem(Sender).Tag]);
-end;(*DoClick*)
+end;
+
+function TadpMRU.GetItem(Index: Integer): String;
+begin
+  Result:= FItems[Index];
+end;
 
 procedure TadpMRU.SetParentMenuItem(const Value: TMenuItem);
 begin
@@ -294,6 +299,6 @@ begin
     FParentMenuItem := Value;
     ItemsChange(Self);
   end;
-end; (*SetParentMenuItem*)
+end;
 
-end.(*adpMRU.pas*)
+end.

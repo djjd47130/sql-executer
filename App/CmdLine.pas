@@ -146,12 +146,14 @@ begin
   //Extract module filename
   P:= Pos('"', Str);
   if P = 1 then begin
+    //Module filename is wrapped in ""
     Delete(Str, 1, 1);
     P:= Pos('"', Str);
     Tmp:= Copy(Str, 1, P-1);
     Delete(Str, 1, P);
     FModuleFilename:= Tmp;
   end else begin
+    //Module filename is not wrapped in ""
     P:= Pos(' ', Str);
     Tmp:= Copy(Str, 1, P-1);
     Delete(Str, 1, P);
@@ -163,16 +165,19 @@ begin
   //Extract open filename
   P:= Pos('"', Str);
   if P = 1 then begin
+    //Open filename is wrapped in ""
     Delete(Str, 1, 1);
     P:= Pos('"', Str);
     Tmp:= Copy(Str, 1, P-1);
     Delete(Str, 1, P);
     FOpenFilename:= Tmp;
   end else begin
+    //Open filename is not wrapped in ""
     P:= Pos('-', Str);
     if P < 1 then
       P:= Pos('/', 'Str');
     if P < 1 then begin
+      //Param does not have switch name
       P:= Pos(' ', Str);
       Tmp:= Copy(Str, 1, P-1);
       Delete(Str, 1, P);
@@ -188,26 +193,25 @@ begin
     if P < 1 then
       P:= Pos('/', 'Str');
     if P > 0 then begin
+      //Param switch prefix found
       Delete(Str, 1, 1);
       P:= Pos(' ', Str);
-      Tmp:= Trim(Copy(Str, 1, P-1));
+      Tmp:= Trim(Copy(Str, 1, P-1)); //Switch name
       Delete(Str, 1, P);
-      if Pos('"', Tmp) = 1 then begin
-        Delete(Tmp, 1, 1);
-        P:= Pos('"', Tmp);
-        if P > 0 then
-          Delete(Tmp, 1, 1);
-      end;
       Cmd:= Tmp;
       Str:= Trim(Str) + ' ';
+
       if (Pos('-', Str) <> 1) and  (Pos('/', Str) <> 1) then begin
+        //This parameter has a value associated with it
         P:= Pos('"', Str);
         if P = 1 then begin
+          //Value is wrapped in ""
           Delete(Str, 1, 1);
           P:= Pos('"', Str);
           Tmp:= Copy(Str, 1, P-1);
           Delete(Str, 1, P);
         end else begin
+          //Value is not wrapped in ""
           P:= Pos(' ', Str);
           Tmp:= Copy(Str, 1, P-1);
           Delete(Str, 1, P);
@@ -216,6 +220,7 @@ begin
       end else begin
         Val:= '';
       end;
+      //If blank, add space to ensure at least name gets added
       if Val = '' then
         Val:= ' ';
       FItems.Values[Cmd]:= Val;

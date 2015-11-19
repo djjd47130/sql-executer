@@ -92,7 +92,6 @@ type
     FOnWork: TSQLThreadWorkEvent;
     procedure SetStatus(const AStatus: TSQLThreadStatus);
     procedure SetCurJob(const ACurJob: TSQLThreadJob);
-    function CurJob: TSQLThreadJob;
     function NextInQueue: Boolean;
     procedure ClearQueue;
     procedure DoJob;
@@ -206,18 +205,6 @@ begin
       FQueue[X].Free;
     end;
     FQueue.Clear;
-  finally
-    FLock.Release;
-  end;
-end;
-
-function TSQLExecThread.CurJob: TSQLThreadJob;
-begin
-  FLock.Acquire;
-  try
-    Result:= FCurJob;
-    //NOTE: This isn't really thread-safe, it's not protecting object contents
-    //I don't expect this to be necessary at all though outside of thread
   finally
     FLock.Release;
   end;

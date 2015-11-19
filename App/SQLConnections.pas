@@ -85,9 +85,11 @@ type
   private
     FOwner: TServerConnection;
     FName: String;
+    {
     FTableNode: TTreeNode;
     FStoredProcNode: TTreeNode;
     FOptionsNode: TTreeNode;
+    }
     FTables: TObjectList<TServerDatabaseTable>;
     FStoredProcs: TObjectList<TServerDatabaseStoredProc>;
     FTablesLoaded: Boolean;

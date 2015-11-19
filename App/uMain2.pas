@@ -78,7 +78,7 @@ uses
 
   System.SysUtils, System.Variants, System.Types, System.UITypes,
   System.Classes, System.Generics.Collections, System.Actions,
-  System.Win.Registry, System.Win.ComObj,
+  System.Win.Registry, System.Win.ComObj, System.IOUtils,
 
   Data.DB, Data.Win.ADODB, Datasnap.DBClient, MidasLib,
 
@@ -107,8 +107,12 @@ const
   REG_KEY_AUTO_CONN = 'Software\JD Software\SqlScriptExec\AutoConn\';
 
   WM_REUSE_INSTANCE = WM_USER + 101;
+  WM_REFRESH_RECENTS = WM_USER + 102;
 
 type
+
+  TSearchRecArray = array of TSearchRec;
+
   TfrmSqlExec2 = class(TForm)
     Stat: TStatusBar;
     MM: TMainMenu;
@@ -211,8 +215,6 @@ type
     procedure actFileExitExecute(Sender: TObject);
     procedure TVExpanding(Sender: TObject; Node: TTreeNode;
       var AllowExpansion: Boolean);
-    procedure cboCurConnClick(Sender: TObject);
-    procedure cboCurDatabaseClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure View1Click(Sender: TObject);
@@ -220,7 +222,6 @@ type
     procedure ShowSelectedObject1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ShowLinesAffected1Click(Sender: TObject);
-    procedure mRecentClick(Sender: TObject);
     procedure TabsActiveTabChanged(Sender: TObject; ATab: TChromeTab);
     procedure actHomeExecute(Sender: TObject);
     procedure actFileNewExecute(Sender: TObject);
@@ -237,9 +238,10 @@ type
     procedure TVDblClick(Sender: TObject);
     procedure TVClick(Sender: TObject);
     procedure About1Click(Sender: TObject);
+    procedure TabsTabPopupMenu(Sender: TObject; const ATab: TChromeTab;
+      const PopupMenu: TPopupMenu);
   private
     FConnections: TServerConnections;
-    FBusy: Boolean;
     FShowLinesAffected: Bool;
     FLargeMode: Boolean;
     FAutoExec: Boolean;
@@ -252,18 +254,13 @@ type
     procedure LoadTables(Conn: TServerConnection; Node: TTreeNode);
     procedure LoadStoredProcs(Conn: TServerConnection; Node: TTreeNode);
     function SelectedServer: TServerConnection;
-    procedure EnableForm(const Enabled: Boolean);
     procedure LoadState;
     procedure SaveState;
-    procedure AddToRecents(AConnStr: TConnectionString);
+    procedure AddConnToRecents(AConnStr: TConnectionString);
     procedure ResetSizes;
     procedure DisplayContent(AContent: TfrmContentBase);
-    procedure SetCaption(const S: String);
-    procedure DoOpenFile(const Filename: String);
     procedure CheckForParams;
     procedure OpenNewConnection(const Str: TConnectionString; const Rec: Boolean);
-    function ActiveScript: TfrmContentScriptExec;
-    procedure WriteToOutput(const S: String);
     procedure RunSilent;
     procedure OpenAutoConnections;
     procedure RunVisible;
@@ -275,14 +272,19 @@ type
     procedure ClearSelectedObject;
     procedure AddTask(const Args, Path, Caption: string);
     procedure OpenFromCmd(ACmd: String);
+    procedure RecentClicked(Sender: TObject; const FileName: String);
+    procedure RecentChanged(Sender: TObject);
   protected
     procedure WndProc(var Message: TMessage); override;
   public
     function Wnd: HWND;
+    procedure WriteToOutput(const S: String);
+    procedure DoOpenFile(const Filename: String);
+    procedure AddFileToRecents(const Filename: String);
     property Connections: TServerConnections read FConnections;
     procedure RefreshActions;
     class procedure CheckForInstance;
-
+    property MRU: TadpMRU read FMRU;
   end;
 
 var
@@ -343,18 +345,27 @@ begin
   pSelected.Height:= 240;
   TV.Align:= alClient;
 
-  FMRU:= TadpMRU.Create(Self);
+  FMsgHwnd:= AllocateHWnd(WndMethod);
   FConnections:= TServerConnections.Create(TV);
   FHome:= TfrmContentHome.Create(nil);
-  FMsgHwnd:= AllocateHWnd(WndMethod);
+
+  actHome.Execute;  //Show home content tab
+
+  FMRU:= TadpMRU.Create(Self);
+  FMRU.MaxItems:= 10;
+  FMRU.ShowFullPath:= False;
+  FMRU.ParentMenuItem:= mRecent;
+  FMRU.OnClick:= RecentClicked;
+  FMRU.OnChange:= RecentChanged;
+  FMRU.RegistryPath:= 'Software\JD Software\SqlScriptExec\RecentFiles';
 
   CheckForInstance; //Check to see if another instance os running first
 
   LoadState;  //Window size / position, options, etc.
 
-  ResetSizes; //Large mode vs. Small mode
+  FHome.RefreshRecents;
 
-  actHome.Execute;  //Show home content tab
+  ResetSizes; //Large mode vs. Small mode
 
   OpenAutoConnections; //Automatically connect to preferred servers
 
@@ -363,7 +374,6 @@ begin
   RefreshActions;
 
   AddTask(' -n', ParamStr(0), 'New Script File');
-
 
 end;
 
@@ -402,6 +412,18 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmSqlExec2.RecentClicked(Sender: TObject; const FileName: String);
+begin
+  DoOpenFile(Filename);
+end;
+
+procedure TfrmSqlExec2.RecentChanged(Sender: TObject);
+begin
+  //Refresh recent list
+  if Assigned(FHome) then
+    FHome.RefreshRecents;
 end;
 
 procedure TfrmSqlExec2.AddTask(const Args: String; const Path: String; const Caption: string);
@@ -464,6 +486,9 @@ begin
     WM_REUSE_INSTANCE: begin
       S:= PChar(Message.WParam);
       OpenFromCmd(S);
+    end;
+    WM_REFRESH_RECENTS: begin
+
     end;
   end;
   inherited;
@@ -531,7 +556,7 @@ var
   Cmd: String;
   Val: String;
   Par: TStringList;
-  P, P2: Integer;
+  P: Integer;
   CS: TfrmContentScriptExec;
   function Exists(const N: String): Boolean;
   var
@@ -707,10 +732,6 @@ end;
 procedure TfrmSqlExec2.CheckForParams;
 var
   FN: String;
-  X: Integer;
-  Str: String;
-  Tmp: String;
-  CS: TfrmContentScriptExec;
 begin
   if ParamCount > 0 then begin
     FN:= ParamStr(1);
@@ -718,8 +739,6 @@ begin
     if FileExists(FN) then
       DoOpenFile(FN);
   end;
-
-  CS:= CurScript;
 
   OpenFromCmd(GetCommandLine);
 
@@ -858,23 +877,6 @@ begin
     end;
   finally
     R.Free;
-  end;
-end;
-
-function TfrmSqlExec2.ActiveScript: TfrmContentScriptExec;
-var
-  T: TChromeTab;
-  C: TfrmContentBase;
-begin
-  Result:= nil;
-  T:= Tabs.ActiveTab;
-  if Assigned(T) then begin
-    C:= TfrmContentBase(T.Data);
-    if Assigned(C) then begin
-      if C is TfrmContentScriptExec then begin
-        Result:= TfrmContentScriptExec(C);
-      end;
-    end;
   end;
 end;
 
@@ -1069,6 +1071,25 @@ begin
   end;
 end;
 
+procedure TfrmSqlExec2.TabsTabPopupMenu(Sender: TObject; const ATab: TChromeTab;
+  const PopupMenu: TPopupMenu);
+var
+  F: TfrmContentBase;
+  I: Integer;
+begin
+  if Assigned(ATab) then begin
+    F:= TfrmContentBase(ATab.Data);
+    if F is TfrmContentHome then begin
+      for I := 0 to PopupMenu.Items.Count-1 do begin
+        if PopupMenu.Items[I].Tag = 2 then begin
+          PopupMenu.Items[I].Visible:= False;
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
 function TfrmSqlExec2.TestConnection(AConnStr: String): Boolean;
 var
   DB: TADOConnection;
@@ -1094,7 +1115,6 @@ end;
 procedure TfrmSqlExec2.actServerConnectExecute(Sender: TObject);
 var
   Str: TConnectionString;
-  X: Integer;
   Rec: boolean;
 begin
   Str:= ''; // FConnectionString;
@@ -1111,14 +1131,14 @@ begin
   if TestConnection(Str) then begin
     C:= FConnections.AddConnection(Str);
     if Rec then
-      AddToRecents(Str);
+      AddConnToRecents(Str);
     TV.Select(C.Node);
     TVClick(nil);
     DoConnectionAdded(C);
   end;
 end;
 
-procedure TfrmSqlExec2.AddToRecents(AConnStr: TConnectionString);
+procedure TfrmSqlExec2.AddConnToRecents(AConnStr: TConnectionString);
 var
   R: TRegistry;
 begin
@@ -1211,53 +1231,6 @@ begin
   RefreshActions;
 end;
 
-procedure TfrmSqlExec2.cboCurConnClick(Sender: TObject);
-var
-  C: TServerConnection;
-  X: Integer;
-  D: TServerDatabase;
-begin
-  //Changed current connection
-  {
-  if cboCurConn.ItemIndex >= 0 then begin
-    C:= TServerConnection(cboCurConn.Items.Objects[cboCurConn.ItemIndex]);
-    cboCurDatabase.Items.BeginUpdate;
-    try
-      cboCurDatabase.Items.Clear;
-      for X := 0 to C.DatabaseCount-1 do begin
-        D:= C.Databases[X];
-        cboCurDatabase.Items.AddObject(D.Name, D);
-      end;
-    finally
-      cboCurDatabase.Items.EndUpdate;
-    end;
-    if cboCurDatabase.Items.Count > 0 then
-      cboCurDatabase.ItemIndex:= 0;
-    cboCurDatabaseClick(nil);
-  end else begin
-    cboCurDatabase.Items.Clear;
-  end;
-  }
-  RefreshActions;
-end;
-
-procedure TfrmSqlExec2.cboCurDatabaseClick(Sender: TObject);
-var
-  S: TServerConnection;
-begin
-  {
-  if cboCurDatabase.Text = '[Multiple Selected]' then begin
-    actScriptBatch.Execute;
-  end else begin
-    S:= CurrentServer;
-    if Assigned(S) then begin
-      S.SelDatabases.Text:= cboCurDatabase.Text;
-    end;
-  end;
-  }
-  RefreshActions;
-end;
-
 procedure TfrmSqlExec2.About1Click(Sender: TObject);
 var
   F: TfrmAbout;
@@ -1291,32 +1264,6 @@ end;
 procedure TfrmSqlExec2.actFileExitExecute(Sender: TObject);
 begin
   Close;
-end;
-
-procedure TfrmSqlExec2.EnableForm(const Enabled: Boolean);
-begin
-  FBusy:= not Enabled;
-
-  //ED.ReadOnly:= not Enabled;
-  //Self.actScriptExecute.Enabled:= Enabled;
-  //Self.actScriptBatch.Enabled:= Enabled;
-  Self.actServerConnect.Enabled:= Enabled;
-  Self.actServerDisconnect.Enabled:= Enabled;
-  Self.actFileNew.Enabled:= Enabled;
-  //Self.actFileOpen.Enabled:= Enabled;
-  Self.actFileExit.Enabled:= Enabled;
-  //Self.actEditUndo.Enabled:= (Enabled and ED.CanUndo);
-  //Self.actEditPaste.Enabled:= Enabled;
-  //Self.actEditCut.Enabled:= (Enabled and (ED.SelLength > 0));
-  //Self.actEditDelete.Enabled:= (Enabled and (ED.SelLength > 0));
-  //Self.actEditCopy.Enabled:= (Enabled and (ED.SelLength > 0));
-  //Self.actEditReplace.Enabled:= Enabled;
-
-  if Enabled then
-    Screen.Cursor:= crDefault
-  else
-    Screen.Cursor:= crHourglass;
-  Application.ProcessMessages;
 end;
 
 procedure TfrmSqlExec2.TVClick(Sender: TObject);
@@ -1491,9 +1438,9 @@ end;
 
 procedure TfrmSqlExec2.WriteToOutput(const S: String);
 begin
-  //TODO: Write to output file
   if FOutputFile <> '' then begin
     if DirectoryExists(ExtractFilePath(FOutputFile)) then begin
+      //TODO: Write to output file
 
     end else begin
       //Directory doesn't exist
@@ -1523,36 +1470,6 @@ begin
     Q.Close;
   finally
     Q.Free;
-  end;
-end;
-
-procedure TfrmSqlExec2.mRecentClick(Sender: TObject);
-var
-  X: Integer;
-  L: TArray<String>;
-  I: TMenuItem;
-  N: Integer;
-begin
-  //WHY DOES CLEARING MENU ITEMS CAUSE HORRIBLE FLICKER?
-
-  //mRecent.Clear;
-
-  //while mRecent.Count > 0 do
-    //mRecent.Delete(0);
-
-  JumpList1.UpdateList;
-  JumpList1.GetRecentList('', L, N);
-  if N > 0 then begin
-    for X := 0 to N-1 do begin
-      I:= TMenuItem.Create(mRecent);
-      I.Caption:= ExtractFileName(L[X]);
-      mRecent.Add(I);
-    end;
-  end else begin
-    I:= TMenuItem.Create(mRecent);
-    I.Caption:= '(No Recents)';
-    I.Enabled:= False;
-    mRecent.Add(I);
   end;
 end;
 
@@ -1630,12 +1547,13 @@ begin
   DisplayContent(C);
   C.Tab:= T;
   C.LoadFromFile(Filename);
-  JumpList1.AddToRecent(Filename);
+  AddFileToRecents(Filename);
 end;
 
-procedure TfrmSqlExec2.SetCaption(const S: String);
+procedure TfrmSqlExec2.AddFileToRecents(const Filename: String);
 begin
-  Self.Caption:= 'SQL Script Executer - ' + S;
+  JumpList1.AddToRecent(Filename);
+  FMRU.AddItem(Filename);
 end;
 
 procedure TfrmSqlExec2.actHomeExecute(Sender: TObject);

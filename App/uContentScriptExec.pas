@@ -4,6 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  System.UITypes,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uContentBase, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.Buttons, SynEdit, Vcl.ExtCtrls,
   uOutputWindow, SynEditHighlighter, SynHighlighterSQL, System.Actions,
@@ -475,6 +476,7 @@ begin
     FIsNew:= False;
     FIsChanged:= False;
     FFilename:= FN;
+    frmSqlExec2.AddFileToRecents(FFilename);
     Stat.Panels[2].Text:= '';
   end;
   RefreshActions;
@@ -531,7 +533,6 @@ procedure TfrmContentScriptExec.actBatchExecute(Sender: TObject);
 var
   C: TServerConnection;
   X: Integer;
-  S: String;
 begin
   inherited;
   //Pick batch databases
