@@ -260,7 +260,6 @@ type
     procedure ResetSizes;
     procedure DisplayContent(AContent: TfrmContentBase);
     procedure CheckForParams;
-    procedure OpenNewConnection(const Str: TConnectionString; const Rec: Boolean);
     procedure RunSilent;
     procedure OpenAutoConnections;
     procedure RunVisible;
@@ -278,6 +277,7 @@ type
     procedure WndProc(var Message: TMessage); override;
   public
     function Wnd: HWND;
+    procedure DoOpenConn(const Str: TConnectionString; const Rec: Boolean);
     procedure WriteToOutput(const S: String);
     procedure DoOpenFile(const Filename: String);
     procedure AddFileToRecents(const Filename: String);
@@ -665,7 +665,7 @@ begin
 
     if Exists('s') then begin
       Str:= Par.Values['s'];
-      OpenNewConnection(Str, False);
+      DoOpenConn(Str, False);
     end;
 
     CS:= CurScript;
@@ -1119,12 +1119,12 @@ var
 begin
   Str:= ''; // FConnectionString;
   if PromptConnection(Str, Str, Rec) then begin
-    OpenNewConnection(Str, Rec);
+    DoOpenConn(Str, Rec);
   end;
   RefreshActions;
 end;
 
-procedure TfrmSqlExec2.OpenNewConnection(const Str: TConnectionString; const Rec: Boolean);
+procedure TfrmSqlExec2.DoOpenConn(const Str: TConnectionString; const Rec: Boolean);
 var
   C: TServerConnection;
 begin
